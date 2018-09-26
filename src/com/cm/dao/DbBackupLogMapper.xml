@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.DbBackupLogDao">
+
+	<select id="getAll" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.DbBackupLog">
+		select * from t_dbbackup_log
+		<where>
+			<if test="starttime!=null">
+				backtime>#{starttime}
+			</if>
+			<if test="endtime!=null">
+				AND backtime&lt;#{endtime}
+			</if>
+		</where>
+		order by backtime desc
+		LIMIT #{cur_page},#{page_rows};
+	</select>
+	
+	<select id="getAllPage" resultType="int" parameterType="com.cm.entity.vo.NameTime">
+		    select COUNT(*) from t_dbbackup_log
+		    <where>
+			  <if test="starttime!=null">
+                 backtime>#{starttime}
+              </if>
+              <if test="endtime!=null">
+                 AND backtime&lt;#{endtime}
+              </if>
+			</where>
+		</select>
+	
+	<insert id="add" parameterType="com.cm.entity.DbBackupLog">
+	   insert into t_dbbackup_log
+	   <set>
+	      <if test="type!=null">
+	          type=#{type},
+	      </if>
+	      <if test="status!=null">
+	          status=#{status},
+	      </if>
+	      <if test="path!=null">
+	          path=#{path},
+	      </if>
+	      <if test="ip!=null">
+	          ip=#{ip},
+	      </if>
+	      <if test="remark!=null">
+	          remark=#{remark}
+	      </if>
+	   </set>
+	</insert>
+</mapper>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.ICoalmineDao">
+	
+	<select id="getDataByTime" resultType="com.cm.entity.vo.CoalmineVo">
+	
+		SELECT ip,dev_id,devid,type,`value`,`status`,DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') responsetime,sta.id stcId,sta.pid stcPid,debug FROM ${tableName} cm
+		LEFT JOIN t_static sta ON type = sta.id
+		WHERE responsetime BETWEEN #{startTime} AND #{endTime} and type != 71
+		
+	</select>
+	
+	<insert id="insert" parameterType="com.cm.entity.Coalmine" > 
+	 INSERT INTO `t_A` (ip,dev_id,devid ,type ,value ,status ,level ,response,responsetime ,debug ,can1 ,
+		can2 ,desp,percent,battary,cut1,cut2,is_cut,feedback,feedstatus,rescale,duration) VALUES 
+		(#{ip},#{dev_id},#{devid} ,#{type} ,#{value} ,#{status} ,#{level} ,#{response},#{responsetime} ,#{debug} ,'0' ,
+		'0',#{desp},'0','0','0','0',null, '0', null, '0', 'null');
+	</insert>
+	 
+ 	 <insert id="insertList" parameterType="java.util.List"> 
+	 INSERT INTO `t_A` (ip,dev_id,devid ,type ,value ,status ,level ,response,responsetime ,debug ,can1 ,
+		can2 ,desp,percent,battary,cut1,cut2,is_cut,feedback,feedstatus,rescale,duration) VALUES
+		<foreach collection="list" item="it" index="index" separator=","> 
+			(#{it.ip},#{it.dev_id},#{it.devid} ,#{it.type} ,#{it.value} ,#{it.status} ,#{it.level} ,#{it.response},#{it.responsetime} ,#{it.debug} ,'0' ,
+		'0',#{it.desp},'0','0','0','0',null, '0', null, '0', 'null')
+	    </foreach> 
+	 </insert>
+	
+</mapper>

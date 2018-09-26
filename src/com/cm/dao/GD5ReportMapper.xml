@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.GD5ReportDao">
+
+	<select id="getAll" resultType="com.cm.entity.GD5Report">
+		select * from t_gd5_statistics where responsetime between #{startime} and #{endtime}
+	</select>
+	
+	<select id="getAllByTime" resultType="com.cm.entity.GD5Report">
+		select id,ip,devid,type sensor_type,responsetime,temperature,pressure,wasi,co,flow_work,flow_standard,flow_pure
+		from ${tableName} where responsetime between #{startime} and #{endtime}
+	</select>
+	
+	<select id="getSensorPosition" resultType="string">
+		select v from t_static where id=(select sensor_position from t_sensor where station=#{station} and sensorId=#{sensorId})
+	</select>
+	
+	<select id="getAllSensorPosition" resultType="com.cm.entity.Sensor">
+		SELECT t1.station,t1.sensorId,t2.v position
+		FROM t_sensor t1
+		LEFT JOIN t_static t2 ON t1.sensor_position=t2.id
+		WHERE t1.control!=3
+	</select>
+
+    <insert id="addGD5Statistics">
+        insert into t_gd5_statistics (ip, devid, type, responsetime, temperature, perssure, wasi, co, flow_work, flow_work_sum, flow_standard,
+        flow_standard_sum, flow_pure, flow_pure_sum, position) values
+        <foreach collection="list" item="r" separator="," index="index">
+            (#{r.ip},#{r.devid},#{r.sensor_type},#{r.responsetime},#{r.temperature},#{r.pressure},#{r.wasi},#{r.co},#{r.flow_work},#{r.flow_work_sum},#{r.flow_standard},
+            #{r.flow_standard_sum},#{r.flow_pure},#{r.flow_pure_sum},#{r.position})
+        </foreach>
+    </insert>
+
+</mapper>

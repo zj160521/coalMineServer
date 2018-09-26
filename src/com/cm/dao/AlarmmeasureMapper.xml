@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.AlarmmeasureDao">
+
+	<insert id="add" useGeneratedKeys="true" keyProperty="id" parameterType="com.cm.entity.Alarmmeasure">
+		insert into t_alarm_measure (measure) values (#{measure})
+	</insert>
+	
+	<select id="getBymeasure" resultType="com.cm.entity.Alarmmeasure">
+		select * from t_alarm_measure where measure=#{measure}
+	</select>
+	
+	<select id="getAnaloginfoId" resultType="int">
+		select id from t_analoginfo where sensorId=#{sensorId} and ip=#{ip} and starttime=#{starttime} limit 1
+	</select>
+	
+	<update id="updateAnaloginfoQueryMeasureId">
+		update t_analoginfo_query
+		<set>
+			measure=#{measureId},
+            measuretime=#{measuretime}
+		</set>
+		<where>
+			id=#{id}
+		</where>
+	</update>
+	
+	<update id="updateMeasureId">
+		update t_analoginfo_query
+		<set>
+			measureId=#{measureId},
+		</set>
+		<where>
+			id=#{id}
+		</where>
+	</update>
+	
+	<select id="getAll" resultType="com.cm.entity.Alarmmeasure">
+		select * from t_alarm_measure 
+	</select>
+	
+	<select id="getAnaloginfoQuery" resultType="com.cm.entity.vo.AnaloginfoQuery">
+		SELECT t1.*,t2.v sensor_type,t3.measure,t3.responsetime
+		FROM t_analoginfo t1
+		LEFT JOIN t_static t2 ON t1.type=t2.id
+		LEFT JOIN t_alarm_measure t3 ON t1.measureId=t3.id
+		WHERE t1.id=#{id}
+	</select>
+
+    <select id="getAnaloginfoQueryId" resultType="java.lang.Integer">
+        SELECT IFNULL(id,0) FROM
+        (SELECT *
+        FROM t_analoginfo_query
+        WHERE #{starttime} BETWEEN startTime AND endTime
+        union all
+        SELECT *
+        FROM t_analoginfo_query
+        WHERE #{starttime} >= startTime AND endTime is null) t
+        WHERE t.ip=#{ip} AND t.sensor_id=#{sensor_id} AND `status`=#{status}
+        limit 1
+    </select>
+
+    <update id="updateAnaloginfoQueryMeasure">
+        update t_analoginfo_query
+        <set>
+            measure=#{measure},
+            measuretime=#{measuretime}
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+
+</mapper>

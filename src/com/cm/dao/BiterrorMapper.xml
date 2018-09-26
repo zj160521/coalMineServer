@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.IBiterrorDao">
+
+	<select id="getBydev" resultType="com.cm.entity.Biterror">
+		SELECT t1.id,t1.rdata,t1.sdata,t1.filltime,t1.result,t1.node
+		FROM t_biterror t1
+		where resultId=#{resultId}
+		ORDER BY t1.id DESC LIMIT 20
+	</select>
+	
+	<insert id="add">
+		insert into t_biterror (sdata,rdata,result,resultId,node) values(#{sdata},#{rdata},#{result},#{resultId},#{node})
+	</insert>
+	
+	<select id="count" resultType="int">
+		select ifnull(count(*),0) from t_biterror where resultId=#{resultId}
+	</select>
+	
+	<select id="minimumId" resultType="int">
+		select min(id) from t_biterror where resultId=#{resultId}
+	</select>
+	
+	<delete id="delete">
+		delete from t_biterror where id=#{id}
+	</delete>
+	
+	<delete id="deleteBydevice">
+		delete from t_biterror where resultId=#{resultId}
+	</delete>
+	
+	<select id="getdevice" resultType="com.cm.entity.BiterrorResult">
+		SELECT t1.id,t1.station,t2.ipaddr ip,t1.devid,t1.typeid,t3.v type,t1.correct,t1.amount,t1.percent,t1.node
+		FROM t_biterror_result t1
+		LEFT JOIN t_substation t2 ON t1.station=t2.id
+		LEFT JOIN t_static t3 ON t1.typeid=t3.id
+		WHERE t1.station=#{station} AND devid=#{devid} AND typeid=#{typeid}
+	</select>
+	
+	<insert id="addBiterrorResult">
+		insert into t_biterror_result (station,devid,typeid,correct,amount,percent,node) values(#{station},#{devid},
+		#{typeid},#{correct},#{amount},#{percent},#{node})
+	</insert>
+	
+	<update id="updateBiterrorResult">
+		update t_biterror_result
+		<set>
+			<if test="correct>0">
+				correct=#{correct},
+			</if>
+			<if test="amount>0">
+				amount=#{amount},
+			</if>
+			<if test="percent>0">
+				percent=#{percent},
+			</if>
+			<if test="node>0">
+				node=#{node}
+			</if>
+		</set>
+		<where>
+			station=#{station} and devid=#{devid} and typeid=#{typeid}
+		</where>
+	</update>
+	
+	<insert id="batchadd">
+		insert into t_biterror (sdata,rdata,result,resultId,node) values
+		<foreach collection="list" separator="," item="bit">
+			(#{bit.sdata},#{bit.rdata},#{bit.result},#{bit.resultId},#{bit.node})
+		</foreach>
+	</insert>
+
+</mapper>

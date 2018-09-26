@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.IVideoDao">
+	
+	<!-- 查询所有nvr和摄像头 -->
+	<select id="getAll" resultType="com.cm.entity.NVR" >
+		SELECT a.id,a.port,a.ip,a.username,a.password,a.positionId,b.v position,a.videoname,a.accnum,a.isnvr,a.e_point,a.n_point,a.logintype 
+		FROM t_video a
+		LEFT JOIN t_static b ON a.positionId=b.id    
+	</select>
+	
+	<!-- 添加NVR -->
+	<insert id="addNVR" parameterType="com.cm.entity.NVR">
+		insert into t_video (ip,port,username,password,positionId,videoname,accnum,isnvr,logintype,e_point,n_point)
+		values(#{ip},#{port},#{username},#{password},#{positionId},#{videoname},#{accnum},#{isnvr},#{logintype},#{e_point},#{n_point})
+	</insert>
+	
+	<!-- 修改NVR -->
+	<update id="updateNVR" parameterType="com.cm.entity.NVR">
+		update t_video
+		<set>
+			<if test="null != ip and ip != ''">
+				ip=#{ip},
+			</if>
+			<if test="port > 0">
+				port=#{port},
+			</if>
+			<if test="null != username and username != ''">
+				username=#{username},
+			</if>
+			<if test="null != password and password != ''">
+				password=#{password},
+			</if>
+			<if test="positionId>0">
+				positionId=#{positionId},
+			</if>
+			<if test="null != videoname and videoname != ''">
+				videoname=#{videoname},
+			</if>
+			<if test="accnum>0">
+				accnum=#{accnum},
+			</if>
+			<if test="isnvr>0">
+				isnvr=#{isnvr},
+			</if>
+			<if test="e_point!=0">
+				e_point=#{e_point},
+			</if>
+			<if test="n_point!=0">
+				n_point=#{n_point},
+			</if>
+			<if test="logintype>0">
+				logintype=#{logintype}
+			</if>
+		</set>
+		<where>
+			id=#{id}
+		</where>
+	</update>
+	
+	<!-- 删除NVR -->
+	<delete id="deleteNVR">
+		delete from t_video where id=#{id}
+	</delete>
+	
+	<!-- 判断ip地址是否已经使用 -->
+	<select id="dipIsuse" resultType="string">
+		SELECT dip FROM t_video WHERE pid IS NULL
+	</select>
+	
+	<!-- 根据id查询nvr -->
+	<select id="getById" resultType="com.cm.entity.NVR">
+		select * from t_video where id=#{id}
+	</select>
+	
+	<!-- 批量添加摄像头 -->
+	<insert id="batchaddVideo">
+		insert into t_video(pid,recorderid,dip,name) values
+		<foreach collection="videoes" item="video" index="index" separator=",">
+			(#{video.pid},#{video.recorderid},#{video.dip},#{video.name})
+		</foreach>
+	</insert>
+	
+	<!-- 修改摄像头配置信息 -->
+	<update id="updateVideo">
+		update t_video
+		<set>
+			<if test="null!=position and position != ''">
+				position=#{position},
+			</if>
+			<if test="null != name and name != ''">
+				name=#{name},
+			</if>
+			<if test="null != n_point and n_point > 0">
+				n_point=#{n_point},
+			</if>
+			<if test="null != e_point and e_point > 0">
+				e_point=#{e_point}
+			</if>
+		</set>
+		<where>
+			id=#{id}
+		</where>
+	</update>
+
+    <!-- 查询摄像头 -->
+	<select id="getAllVideo" resultType="com.cm.entity.Video">
+		select * from t_video
+	</select>
+</mapper>

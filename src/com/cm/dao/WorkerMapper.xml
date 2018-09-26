@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.WorkerDao">
+	
+	<!-- 添加 -->
+	<insert id="addWorker" parameterType="com.cm.entity.Worker">
+		insert into t_worker(num,name,rfcard_id,gender,proplesid,posta,depart_id,
+		worktype_id,job_id,shifts,work_time,work_hour_cal,birthday,
+		idnumber,grad_sch,phone,address,duty_id,shift,num_month,
+		entry_time,contract_way,height,weight,edu_back,majors,lamp_brand,grade,workplace_id,entranceGuardNum,classes_id)
+		values 
+		(#{num},#{name},#{rfcard_id},#{gender},#{proplesid},#{posta},
+		#{depart_id},#{worktype_id},#{job_id},#{shifts},#{work_time},
+		#{work_hour_cal},#{birthday},#{idnumber},#{grad_sch},#{phone},
+		#{address},#{duty_id},#{shift},#{num_month},#{entry_time},
+		#{contract_way},#{height},#{weight},#{edu_back},
+		#{majors},#{lamp_brand},#{grade},#{workplace_id},#{entranceGuardNum},#{classes_id})
+	</insert>
+	
+	<!-- 查询 -->
+	<select id="getAllWorker" parameterType="com.cm.entity.Worker" resultType="com.cm.entity.Worker">
+		select id,num,name,rfcard_id,gender,proplesid,classes_id,
+		IFNULL((select week from t_classes where id=tw.classes_id),' ') 'week',
+		IFNULL((select dayrange from t_classes where id=tw.classes_id), ' ') 'dayrange',
+		IFNULL((select name from t_work_basic where id=tw.proplesid),' ') 'propname',
+		posta,depart_id,IFNULL((select name from t_department where id=tw.depart_id),' ') 'departname',
+		worktype_id,IFNULL((select name from t_worktype where id=tw.worktype_id),' ') 'worktypename',
+		job_id,IFNULL((select name from t_work_basic where id=tw.job_id),' ') 'jobname',
+		shifts,work_time,work_hour_cal,birthday,idnumber,grad_sch,phone,address,
+		duty_id,IFNULL((select v from t_static where id=tw.duty_id),' ') 'duty',
+		shift,num_month,entry_time,contract_way,IFNULL((select name from t_work_basic where id=tw.contract_way),' ') 'contname',
+		height,weight,edu_back,IFNULL((select name from t_work_basic where id=tw.edu_back),' ') 'eduname',
+		majors,lamp_brand,isuse,grade,IFNULL((select name from t_work_basic where id=tw.grade),' ') 'gradename',workplace_id,
+		IFNULL((select areaname from t_area where id=tw.workplace_id),' ') 'workplace',entranceGuardNum
+		from t_worker tw
+		<where>
+				isuse&lt;3
+			<if test="isuse!=0">
+				and isuse=#{isuse}
+			</if>
+			<if test="id>0">
+				and id=#{id}
+			</if>
+			<if test="depart_id>0">
+				and depart_id in 
+				<foreach collection="departs" item="depart" index="index" open="(" close=")" separator=",">
+					#{depart}
+				</foreach>
+			</if>
+			<if test="num!=null and num!=''">
+				and num=#{num}
+			</if>
+			<if test="name!=null and name!=''">
+				and name like concat('%',#{name},'%')
+			</if>
+			<if test="worktype_id>0">
+				and worktype_id=#{worktype_id}
+			</if>
+			<if test="rfcard_id!=null and rfcard_id!=''">
+				and rfcard_id like concat('%',#{rfcard_id},'%')
+			</if>
+		</where>
+		order by rfcard_id	
+	</select>
+	
+	<select id="getWorker" parameterType="com.cm.entity.Worker" resultType="int">
+		select count(id) from t_worker 
+		where isuse &lt;3 and rfcard_id=#{rfcard_id} and id!=#{id}
+	</select>
+	
+	<select id="getAll" resultType="com.cm.entity.Worker">
+		select * from t_worker
+	</select>
+	
+	<select id="getWorkerBycardId" resultType="com.cm.entity.Worker">
+		select * from t_worker WHERE rfcard_id = #{0} AND isuse &lt; 3
+	</select>
+	
+
+	<select id="getWorkers" resultType="com.cm.entity.vo.WorkerVo">
+		select w.id,w.rfcard_id,w.`name`,w.depart_id,d.`name` departname,w.worktype_id,wt.`name` worktypename,w.duty_id, s.v dutyname,w.workplace_id,s2.areaname workplace,wt.special
+		from t_worker w
+		LEFT JOIN t_department d
+		ON w.depart_id = d.id
+		LEFT JOIN t_worktype wt
+		ON w.worktype_id = wt.id
+		LEFT JOIN t_static s
+		ON w.duty_id = s.id
+		LEFT JOIN t_area s2
+		ON w.workplace_id = s2.id
+	</select>
+	
+	<select id="getWorkersBySearchform" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.WorkerVo">
+		select w.id,w.rfcard_id,w.`name`,w.depart_id,d.`name` departname,w.worktype_id,wt.`name` worktypename,wt.special special,w.duty_id, s.v duty,w.workplace_id,s2.areaname workplace
+		from t_worker w
+		LEFT JOIN t_department d
+		ON w.depart_id = d.id
+		LEFT JOIN t_worktype wt
+		ON w.worktype_id = wt.id
+		LEFT JOIN t_static s
+		ON w.duty_id = s.id
+		LEFT JOIN t_area s2
+		ON w.workplace_id = s2.id
+		<where>
+			<if test="depart_id > 0">
+				w.depart_id=#{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				and w.worktype_id=#{worktype_id}
+			</if>
+			<if test="workerPlaceId > 0">
+				and w.workplace_id=#{workerPlaceId}
+			</if>
+			<if test="dutyId > 0">
+				and w.duty_id=#{dutyId}
+			</if>
+			<if test="special > 0">
+				and wt.special=#{special}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getAllBySearchform" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.Worker">
+		select w.*,d.`name` as departname,wt.`name` as worktypename
+ 		from t_worker w
+		LEFT JOIN t_department d
+		ON d.id = w.depart_id
+		LEFT JOIN t_worktype wt
+		ON wt.id = w.worktype_id
+		<where>
+			<if test="depart_id > 0">
+				depart_id=#{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				and worktype_id=#{worktype_id}
+			</if>
+			<if test="rfcard_id > 0">
+				and rfcard_id=#{rfcard_id}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 修改 -->
+	<update id="updateWorker" parameterType="com.cm.entity.Worker">
+		update t_worker set 
+		rfcard_id=#{rfcard_id},gender=#{gender},proplesid=#{proplesid},posta=#{posta},depart_id=#{depart_id},
+		worktype_id=#{worktype_id},job_id=#{job_id},shifts=#{shifts},work_time=#{work_time},work_hour_cal=#{work_hour_cal},
+		birthday=#{birthday},grad_sch=#{grad_sch},phone=#{phone},address=#{address},duty_id=#{duty_id},
+		shift=#{shift},num_month=#{num_month},entry_time=#{entry_time},contract_way=#{contract_way},height=#{height},weight=#{weight},
+		edu_back=#{edu_back},majors=#{majors},lamp_brand=#{lamp_brand},isuse=#{isuse},grade=#{grade},workplace_id=#{workplace_id},entranceGuardNum=#{entranceGuardNum},
+		classes_id=#{classes_id}
+		where id=#{id}
+	</update>
+	
+	<update id="updateWorkers" parameterType="com.cm.entity.Worker">
+		update t_worker 
+		<set>
+			
+			<if test="isuse>1">
+				isuse=#{isuse},
+				rfcard_id=0,
+			</if>
+			<if test="depart_id>0">
+				depart_id=#{depart_id},
+			</if>
+			<if test="worktype_id>0">
+				worktype_id=#{worktype_id},
+			</if>
+			<if test="num_month>0">
+				num_month=#{num_month}, 
+			</if>
+			<if test="classes_id>0">
+				classes_id=#{classes_id}
+			</if>
+		</set> 
+		where id in 
+		<foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</update>
+	<update id="deleteLeaveWorker">
+		update t_worker set rfcard_id=0,isuse=3 where id in
+		<foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</update>
+</mapper>

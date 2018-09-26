@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.VentilateDao">
+
+	<select id="getAllVentilateSensor" resultType="com.cm.entity.Sensor">
+		SELECT tr.id,tr.station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tr.sensorId,tct.id sensor_type,tct.pid,tct.k sensorUnit,tct.v type,tct.path,
+		tcp.id sensor_position,tcp.v position,tct.path2,
+		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
+		tr.n_point,tr.e_point,tr.alais,tr.period,
+		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,tr.area_id,tas.areaname,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,tr.devlinkId,tr.floorDevlinkId,
+		tdl.action_devid linkageDeviceId,tdl.param action,tdl1.action_devid floorLinkId,tdl1.param flooraction,tr.uid,tr.x_point,tr.y_point,tr.upgrade1,
+		tr.upgrade2,tr.upgrade3,tr.calibration,tr.x2_point,tr.y2_point,tr.x3_point,tr.y3_point,
+        tr.n2_point,tr.e2_point,tr.n3_point,tr.e3_point
+		FROM t_sensor tr 
+		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
+		LEFT JOIN t_substation sub ON tr.station=sub.id
+		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
+		LEFT JOIN t_area tas ON tr.area_id=tas.id
+		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
+		LEFT JOIN t_dev_link tdl ON tr.devlinkId=tdl.id
+		LEFT JOIN t_dev_link tdl1 ON tr.floorDevlinkId=tdl1.id
+		where tr.control!=3 and tr.x2_point > 0 and tr.y2_point > 0
+	</select>
+	
+	<select id="getAllVentilateSwitchSensor" resultType="com.cm.entity.SwitchSensor">
+		SELECT tss.id,tss.station station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tss.sensorId,tss.control,tss.input_type,tst.id sensor_type,tst.pid,tst.k type0x,tst.path,tst.path2,
+		tss.n_point,tss.e_point,tst.v type,tss.alarm_status,tss.sensor_position,tsp.v position,
+		tss.power_status,tss.break_display,tsb.v break_d,tss.connect_display,tsc.v connect_d,tss.alais,
+		tss.devlinkId,tss.feedId,td.action_devid linkageDeviceId,td.param action,tss.isDrainage,tss.uid,tss.x_point,tss.y_point,
+		tss.x2_point,tss.y2_point,tss.x3_point,tss.y3_point,
+        tss.n2_point,tss.e2_point,tss.n3_point,tss.e3_point
+		FROM t_switch_sensor tss
+		LEFT JOIN t_substation sub ON tss.station=sub.id
+		LEFT JOIN t_static tsp ON tsp.id=tss.sensor_position
+		LEFT JOIN t_static tst ON tss.sensor_type=tst.id
+		LEFT JOIN t_static tsb ON tss.break_display=tsb.id
+		LEFT JOIN t_static tsc ON tss.connect_display=tsc.id
+		LEFT JOIN t_dev_link td ON tss.devlinkId=td.id
+		where tss.control!=3 and tss.x2_point > 0 and tss.y2_point > 0
+	</select>
+	
+</mapper>

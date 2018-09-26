@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.IExceptionDao">
+	
+	<select id="getOvertime" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.OvertimeAlarm">
+	SELECT a.areaname,oa.card_id cardId,oa.worker_id workerId,w.`name`,oa.area_id areaId,oa.inarea_time inAreaTime,MAX(oa.alarm_time) alarmTime,MAX(oa.stay_time) stayTime
+	,oa.max_time maxTime,wt.`name` worktypeName,d.`name` departName
+		FROM t_overtime_alarm oa
+		LEFT JOIN t_worker w
+		ON oa.worker_id = w.id
+		LEFT JOIN t_worktype wt
+		ON w.worktype_id = wt.id
+		LEFT JOIN t_department d
+		ON w.depart_id = d.id
+		LEFT JOIN t_area a
+		ON oa.area_id = a.id
+		<where>
+			<if test="area_ids != null">
+				<foreach collection="area_ids" item="area_id" open="and (" close=")" separator="or">  
+                    oa.area_id=#{area_id}
+                </foreach> 
+			</if>
+			<if test="depart_id > 0">
+				and w.depart_id=#{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				and w.worktype_id=#{worktype_id}
+			</if>
+			<if test="workerPlaceId > 0">
+				and w.workplace_id=#{workerPlaceId}
+			</if>
+			<if test="dutyId > 0">
+				and w.duty_id=#{dutyId}
+			</if>
+			<if test="special > 0">
+				and wt.special=#{special}
+			</if>
+			AND oa.alarm_time BETWEEN #{starttime} AND #{endtime}
+			GROUP BY oa.card_id,oa.worker_id,oa.inarea_time
+		</where>
+	</select>
+	
+	<select id="getUnconnection" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.Unconnection">
+	SELECT a.areaname,un.card_id cardId,w.`name`,wt.`name` worktypeName,d.`name` departName,un.worker_id workerId,un.last_cardreader lastCardreader
+	,un.last_time lastTime,un.area_id areaId,MAX(un.during) during
+		FROM t_worker_unconnection un
+		LEFT JOIN t_worker w
+		ON un.worker_id = w.id
+		LEFT JOIN t_worktype wt
+		ON w.worktype_id = wt.id
+		LEFT JOIN t_department d
+		ON w.depart_id = d.id
+		LEFT JOIN t_area a
+		ON un.area_id = a.id
+		<where>
+			<if test="area_ids != null">
+				<foreach collection="area_ids" item="area_id" open="and (" close=")" separator="or">  
+                    un.area_id=#{area_id}
+                </foreach> 
+			</if>
+			<if test="depart_id > 0">
+				and w.depart_id=#{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				and w.worktype_id=#{worktype_id}
+			</if>
+			<if test="workerPlaceId > 0">
+				and w.workplace_id=#{workerPlaceId}
+			</if>
+			<if test="dutyId > 0">
+				and w.duty_id=#{dutyId}
+			</if>
+			<if test="special > 0">
+				and wt.special=#{special}
+			</if>
+			and un.last_time BETWEEN #{starttime} AND #{endtime}
+		</where>
+		GROUP BY un.worker_id,un.last_time
+	</select>
+	
+	<select id="getAreaLimited" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.AreaPass">
+	SELECT waw.card_id cardId,waw.worker_id workerId,w.`name`,responsetime startTime,waw.area_id areaId
+	,a.areaname areaName,wt.`name` worktypeName,d.`name` departName
+		FROM t_worker_area_warn waw
+		LEFT JOIN t_worker w
+		ON waw.worker_id = w.id
+		LEFT JOIN t_cardreder cr
+		ON cr.cid = waw.cardreader_id
+		LEFT JOIN t_area a
+		ON waw.area_id = a.id
+		LEFT JOIN t_worktype wt
+		ON w.worktype_id = wt.id
+		LEFT JOIN t_department d
+		ON w.depart_id = d.id
+		<where>
+			<if test="area_ids != null">
+				<foreach collection="area_ids" item="area_id" open="and (" close=")" separator="or">  
+                    waw.area_id=#{area_id}
+                </foreach> 
+			</if>		
+			<if test="depart_id > 0">
+				and w.depart_id=#{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				and w.worktype_id=#{worktype_id}
+			</if>
+			<if test="workerPlaceId > 0">
+				and w.workplace_id=#{workerPlaceId}
+			</if>
+			<if test="dutyId > 0">
+				and w.duty_id=#{dutyId}
+			</if>
+			<if test="special > 0">
+				and wt.special=#{special}
+			</if>
+			and responsetime BETWEEN #{starttime} AND #{endtime}
+		</where>
+		
+	</select>
+	
+	<select id="getLimited" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.AreaPass">
+	SELECT waw.worker_id workerId,waw.responsetime startTime,waw.area_id areaId
+		FROM t_worker_area_warn waw
+		LEFT JOIN t_worker w
+		ON waw.worker_id = w.id
+		LEFT JOIN t_cardreder cr
+		ON cr.cid = waw.cardreader_id
+		LEFT JOIN t_area a
+		ON waw.area_id = a.id
+		LEFT JOIN t_worktype wt
+		ON w.worktype_id = wt.id
+		<where>
+			<if test="area_ids != null">
+				<foreach collection="area_ids" item="area_id" open="and (" close=")" separator="or">  
+                    waw.area_id=#{area_id}
+                </foreach> 
+			</if>		
+			<if test="depart_id > 0">
+				and w.depart_id=#{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				and w.worktype_id=#{worktype_id}
+			</if>
+			<if test="workerPlaceId > 0">
+				and w.workplace_id=#{workerPlaceId}
+			</if>
+			<if test="dutyId > 0">
+				and w.duty_id=#{dutyId}
+			</if>
+			<if test="special > 0">
+				and wt.special=#{special}
+			</if>
+			and responsetime BETWEEN #{starttime} and #{endtime}
+			ORDER BY waw.worker_id,responsetime
+		</where>
+	</select>
+	
+	<select id="getAreasOverMan" resultType="com.cm.entity.vo.OverManVo">
+		SELECT area_id areaId,areaname areaName,personNum,t_overman.max_allow maxAllow,a.default_allow defaultAllow,
+		DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') filltime,a.emphasis,DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') endtime
+		FROM t_overman
+		LEFT JOIN t_area a
+		ON area_id = a.id
+		WHERE responsetime BETWEEN #{0} AND #{1} AND a.id > 1
+	</select>
+	
+	<select id="getOverManByDay" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.OverManVo">
+		SELECT area_id areaId,areaname areaName,MAX(personNum) personNum,a.max_allow maxAllow,a.default_allow defaultAllow,responsetime filltime,a.emphasis 
+		FROM t_overman
+		LEFT JOIN t_area a
+		ON area_id = a.id
+		<where>
+			<if test="area_ids != null">
+				<foreach collection="area_ids" item="area_id" open="and (" close=")" separator="or">  
+                    area_id=#{area_id}
+                </foreach> 
+			</if>
+			and  responsetime BETWEEN #{starttime} AND #{endtime} AND a.id > 1
+		</where>
+		GROUP BY area_id
+	</select>
+	
+	<select id="getOverManByMonth" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.OverManVo">
+		SELECT area_id areaId,personNum,max_allow maxAllow,default_allow defaultAllow,emphasis,cards,responsetime,
+		DATE_FORMAT(filltime,'%Y-%m-%d %H:%i:%S') filltime,DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') endtime
+		FROM t_overman
+		where  responsetime BETWEEN #{starttime} AND #{endtime} AND area_id = 1
+	</select>
+	
+	<select id="getEXPIds" parameterType="java.util.Map" statementType="STATEMENT" resultType="java.lang.Integer">
+		SELECT worker_id,card from ${table}
+		WHERE ${time} BETWEEN '${startTime}' AND '${endTime}'
+		GROUP BY worker_id
+	</select>
+	
+	<select id="getExpAL" resultType="com.cm.entity.vo.ExpVo">
+		SELECT worker_id,card_id,responsetime FROM t_worker_area_warn WHERE responsetime BETWEEN #{0} AND #{1}
+	</select>
+	
+	<select id="getExpUN" resultType="com.cm.entity.vo.ExpVo">
+		SELECT worker_id,card_id,last_time responsetime FROM t_worker_unconnection WHERE last_time BETWEEN #{0} AND #{1}
+	</select>
+	
+	<select id="getMineOverman" resultType="com.cm.entity.vo.OverManVo">
+		SELECT area_id areaId,personNum,max_allow maxAllow,default_allow defaultAllow,emphasis,cards,responsetime,
+		DATE_FORMAT(filltime,'%Y-%m-%d %H:%i:%S') filltime,DATE_FORMAT(end_time,'%Y-%m-%d %H:%i:%S') endtime
+		FROM t_overman WHERE responsetime >= #{0} AND responsetime &lt; #{1} and area_id = 1
+	</select>
+	
+</mapper>

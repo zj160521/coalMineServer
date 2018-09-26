@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.CurvecolorDao">
+
+    <insert id="add">
+        insert into t_curvecolor(realvalue,maxvalues,minvalue,avgvalue,cbvalue,feedvalue,level1,level2,level3,level4,supplyvalue,initialColor,calibratevalue,unusualvalue)
+        values (#{realvalue},#{maxvalues},#{minvalue},#{avgvalue},#{cbvalue},#{feedvalue},#{level1},#{level2},#{level3},#{level4},#{supplyvalue},#{initialColor},#{calibratevalue},#{unusualvalue})
+    </insert>
+
+    <update id="update">
+        update t_curvecolor
+        <set>
+            <if test="null!=realvalue">
+                realvalue = #{realvalue},
+            </if>
+            <if test="null!=maxvalues">
+                maxvalues=#{maxvalues},
+            </if>
+            <if test="null!=minvalue">
+                minvalue=#{minvalue},
+            </if>
+            <if test="null!=avgvalue">
+                avgvalue=#{avgvalue},
+            </if>
+            <if test="null!=cbvalue">
+                cbvalue=#{cbvalue},
+            </if>
+            <if test="null!=feedvalue">
+                feedvalue=#{feedvalue},
+            </if>
+            level1=#{level1},
+            level2=#{level2},
+            level3=#{level3},
+            level4=#{level4},
+            supplyvalue=#{supplyvalue},
+            initialColor=#{initialColor},
+            unusualvalue=#{unusualvalue},
+            calibratevalue=#{calibratevalue}
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+
+    <select id="getAll" resultType="com.cm.entity.CurveColor">
+        select * from t_curvecolor limit 1
+    </select>
+    
+    <delete id="delete">
+        delete from t_curvecolor where id=#{id}
+    </delete>
+
+</mapper>

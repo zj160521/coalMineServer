@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.FilecontentDao">
+
+    <insert id="add">
+        insert into t_filecontent(filename,str) values (#{filename},#{str})
+    </insert>
+
+    <select id="getAll" resultType="com.cm.entity.Filecontent">
+        select * from t_filecontent
+    </select>
+
+    <delete id="delete">
+        delete from t_filecontent where id=#{id}
+    </delete>
+
+    <update id="update">
+        update t_filecontent
+        <set>
+            status=0
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+
+</mapper>

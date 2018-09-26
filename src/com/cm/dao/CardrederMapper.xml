@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.CardrederDao">
+		
+		<!-- 添加 -->
+		<insert id="addCardreder" parameterType="com.cm.entity.Cardreder" useGeneratedKeys="true" keyProperty="id">
+			insert into t_cardreder
+			(substation_id,cid,position_id,cstate,crange,ctype,addr,typeid,n_point,e_point,is_exit,alais,x_point,y_point) 
+			values 
+			(#{substation_id},#{cid},#{position_id},1,#{crange},#{ctype},#{addr},64,#{n_point},#{e_point},#{is_exit},#{alais},#{x_point},#{y_point})
+		</insert>
+		<!-- 查询非假删除状态的读卡器-->
+		<select id="getallCardreder" parameterType="com.cm.entity.Cardreder" resultType="com.cm.entity.Cardreder">
+			select tc.id,tc.substation_id,ts.ipaddr subname,tc.areaid,a.areaname,
+			tc.cid,tc.position_id,tst.v position,tc.cstate,
+			tc.crange,tc.ctype,tc.addr,tc.typeid,tc.n_point,tc.e_point,tc.is_exit,tc.alais,tc.uid,tc.x_point,tc.y_point,tst2.v as type  
+			from t_cardreder tc
+			left join t_substation ts on ts.id=tc.substation_id
+			left join t_static tst on tst.id=tc.position_id
+			left join t_static tst2 on tst2.id=tc.typeid
+			left join t_area a on tc.areaid = a.id
+			where tc.cstate &lt; 3
+			<if test="substation_id>0">
+				and tc.substation_id=#{substation_id}
+			</if>
+			<if test="cid>0">
+				and tc.cid=#{cid}
+			</if>
+			<if test="id>0">
+				and tc.id=#{id}
+			</if>	
+		</select>
+		<select id="getCardrederbysub" parameterType="int" resultType="com.cm.entity.Cardreder">
+			select tc.id,tc.substation_id,ts.ipaddr subname,
+			tc.cid,tc.position_id,tst.v position,tc.cstate,
+			tc.crange,tc.ctype,tc.addr,tc.typeid,tc.n_point,tc.e_point,tc.is_exit,tc.uid,tc.x_point,tc.y_point  
+			from t_cardreder tc
+			left join t_substation ts on ts.id=tc.substation_id
+			left join t_static tst on tst.id=tc.position_id 
+			where tc.cstate &lt; 3 and tc.substation_id=#{subid}
+		</select>
+		
+		<select id="getCardreders" resultType="com.cm.entity.Cardreder">
+			select tc.id,tc.substation_id,ts.ipaddr subname,
+			tc.cid,tc.position_id,tst.v position,tc.cstate,
+			tc.crange,tc.ctype,tc.addr,tc.typeid,tc.areaid areaid,ta.areaname areaname,
+			tc.n_point n_point,tc.e_point e_point,tc.is_exit,tc.uid,tc.x_point,tc.y_point 
+			from t_cardreder tc
+			left join t_substation ts on ts.id=tc.substation_id
+			left join t_static tst on tst.id=tc.position_id
+			left join t_area ta on tc.areaid=ta.id 
+		</select>
+		
+		<select id="getCardreder" parameterType="com.cm.entity.Cardreder" resultType="com.cm.entity.Cardreder">
+			SELECT t1.*,t2.ipaddr subname
+			FROM t_cardreder t1
+			LEFT JOIN t_substation t2 ON t1.substation_id=t2.id
+			where t1.id=#{id}
+		</select>
+		<select id="isuse" parameterType="com.cm.entity.Cardreder" resultType="int">
+			select count(id) from t_cardreder where substation_id=#{substation_id} and cid=#{cid} and id!=#{id}
+		</select>
+		<!-- 更新 -->
+		<update id="updateCardreder" parameterType="com.cm.entity.Cardreder">
+			update t_cardreder 
+			<set>
+				<if test="substation_id>0">
+					substation_id=#{substation_id},
+				</if>
+				<if test="cid>0">
+					cid=#{cid},
+				</if>
+				<if test="position_id>0">
+					position_id=#{position_id},
+				</if>
+				<if test="crange>0">
+					crange=#{crange},
+				</if>
+				<if test="ctype>-1">
+					ctype=#{ctype},
+				</if>
+				<if test="is_exit>0">
+					is_exit=#{is_exit},
+				</if>
+				<if test="addr!=null and addr!=''">
+					addr=#{addr},
+				</if>
+				<if test="uid!=null and uid!=''">
+					uid=#{uid},
+				</if>
+					n_point=#{n_point},
+					e_point=#{e_point},
+					x_point=#{x_point},
+					y_point=#{y_point}
+			</set>
+			where id=#{id}
+		</update>
+		<update id="delete" parameterType="com.cm.entity.Cardreder">
+			update t_cardreder set cid=0,cstate=3 where id=#{id}
+		</update>
+		
+		<select id="getById" resultType="com.cm.entity.Cardreder">
+			SELECT t1.*,t2.ipaddr subname
+			FROM t_cardreder t1
+			LEFT JOIN t_substation t2 ON t1.substation_id=t2.id
+			where t1.id=#{id}
+		</select>
+		
+		<select id="getbyCid" parameterType="com.cm.entity.Cardreder" resultType="com.cm.entity.Cardreder">
+			SELECT * FROM t_cardreder WHERE substation_id=#{substation_id} AND cid=#{cid} AND cstate IN (1,2)
+		</select>
+</mapper>

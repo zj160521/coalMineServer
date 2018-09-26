@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.IBaseinfoDao">
+	
+	<!-- 添加传感器配置信息 -->
+	<insert id="addBaseinfo" parameterType="com.cm.entity.Sensor" useGeneratedKeys="true" keyProperty="id">
+		insert into t_sensor (station,sensorId,input_type,control,sensor_type,min_range,middle_rang,max_range,min_frequency,
+		max_frequency,sensor_position,n_point,e_point,error_band,limit_warning,floor_warning,
+		limit_alarm,floor_alarm,limit_power,floor_power,limit_repower,floor_repower,iscalc,isDrainage,area_id,alais,devlinkId,floorDevlinkId,period,drainageId,x_point,y_point,
+		coId,methaneId,calibration,upgrade3,upgrade2,upgrade1,position_type_id,upper_level1,upper_level2,upper_level3,upper_level4,floor_level1,floor_level2,
+		floor_level3,floor_level4,direction,x2_point,y2_point,x3_point,y3_point,n2_point,e2_point,n3_point,e3_point)
+		values(#{station},#{sensorId},#{input_type},#{control},#{sensor_type},#{min_range},#{middle_rang},#{max_range},
+		#{min_frequency},#{max_frequency},#{sensor_position},#{n_point},#{e_point},
+		#{error_band},#{limit_warning},#{floor_warning},#{limit_alarm},#{floor_alarm},
+		#{limit_power},#{floor_power},#{limit_repower},#{floor_repower},#{iscalc},#{isDrainage},#{area_id},#{alais},#{devlinkId},#{floorDevlinkId},#{period},#{drainageId},#{x_point},#{y_point},
+		#{coId},#{methaneId},#{calibration},#{upgrade3},#{upgrade2},#{upgrade1},#{position_type_id},#{upper_level1},#{upper_level2},#{upper_level3},
+		#{upper_level4},#{floor_level1},#{floor_level2},#{floor_level3},#{floor_level4},#{direction},#{x2_point},#{y2_point},#{x3_point},#{y3_point},
+		#{n2_point},#{e2_point},#{n3_point},#{e3_point})
+	</insert>
+	
+	<!-- 获得所有的传感器配置信息 -->
+	<select id="getAllSensor" parameterType="int" resultType="com.cm.entity.Sensor">
+		SELECT tr.id,tr.station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tr.sensorId,tct.id sensor_type,tct.pid,tct.k sensorUnit,tct.v type,tct.path,
+		tcp.id sensor_position,tcp.v position,tct.path2,
+		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
+		tr.n_point,tr.e_point,tr.alais,tr.period,tr.fluctuation_range,
+		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,tr.area_id,tas.areaname,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,
+		tr.uid,tr.drainageId,tr.x_point,tr.y_point,
+        tr.calibration,tr.upgrade3,tr.upgrade2,tr.upgrade1,tr.position_type_id,tpt.`name` position_type,tr.upper_level1,tr.upper_level2,tr.upper_level3,
+        tr.upper_level4,tr.floor_level1,tr.floor_level2,tr.floor_level3,tr.floor_level4,tr.direction,tr.x2_point,tr.y2_point,tr.x3_point,tr.y3_point,
+        tr.n2_point,tr.e2_point,tr.n3_point,tr.e3_point
+		FROM t_sensor tr 
+		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
+		LEFT JOIN t_substation sub ON tr.station=sub.id
+		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
+		LEFT JOIN t_area tas ON tr.area_id=tas.id
+		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
+		LEFT JOIN t_position_type tpt on tr.position_type_id=tpt.id
+		where tr.control!=3
+		<if test="type>0 and type != null">
+			and tr.sensor_type=#{type}
+		</if>
+		ORDER BY sub.ipaddr,tr.sensorId
+	</select>
+	
+	<update id="updateUid">
+		update t_sensor
+		<set>
+			<if test="null!=uid">
+				uid=#{uid}
+			</if>
+		</set>
+		<where>
+			id=#{id}
+		</where>
+	</update>
+	
+	<!-- 获得所有的传感器配置信息 -->
+	<select id="getAllSensor2" resultType="com.cm.entity.Sensor">
+		SELECT tr.id,tr.station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tr.sensorId,tct.id sensor_type,tct.pid,tct.k sensorUnit,tct.v type,tct.path,
+		tcp.id sensor_position,tcp.v position,tct.path2,
+		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
+		tr.n_point,tr.e_point,tr.alais,tr.period,tr.fluctuation_range,
+		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,tr.area_id,tas.areaname,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,
+		tr.uid,tr.drainageId,tr.x_point,tr.y_point,
+		tr.calibration,tr.upgrade3,tr.upgrade2,tr.upgrade1,tr.position_type_id,tpt.`name` position_type,tr.upper_level1,tr.upper_level2,tr.upper_level3,
+        tr.upper_level4,tr.floor_level1,tr.floor_level2,tr.floor_level3,tr.floor_level4,tct.islogical,tr.direction,tr.x2_point,tr.y2_point,tr.x3_point,tr.y3_point,
+        tr.n2_point,tr.e2_point,tr.n3_point,tr.e3_point
+		FROM t_sensor tr 
+		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
+		LEFT JOIN t_substation sub ON tr.station=sub.id
+		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
+		LEFT JOIN t_area tas ON tr.area_id=tas.id
+		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
+		LEFT JOIN t_position_type tpt ON tr.position_type_id=tpt.id
+		where tr.control!=3
+		ORDER BY sub.ipaddr,tr.sensorId
+	</select>
+	
+	<!-- 查询分站下的所有传感器 -->
+	<select id="getbysubid" parameterType="int" resultType="com.cm.entity.Sensor">
+		SELECT tr.id,tr.station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tr.sensorId,tct.id sensor_type,tct.pid,tct.k sensorUnit,tct.v type,tct.path,
+		tcp.id sensor_position,tcp.v position,
+		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
+		tr.n_point,tr.e_point,tr.fluctuation_range,
+		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,
+		tr.uid,tr.alais,tr.calibration,tr.upgrade3,tr.upgrade2,
+		tr.upgrade1,tr.upper_level1,tr.upper_level2,tr.upper_level3,
+        tr.upper_level4,tr.floor_level1,tr.floor_level2,tr.floor_level3,tr.floor_level4,tr.direction,tr.x2_point,tr.y2_point,tr.x3_point,tr.y3_point,
+        tr.n2_point,tr.e2_point,tr.n3_point,tr.e3_point
+		FROM t_sensor tr 
+		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
+		LEFT JOIN t_substation sub ON tr.station=sub.id
+		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
+		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
+		where tr.control!=3 and tr.station=#{subid}
+		ORDER BY sub.ipaddr,tr.sensorId
+	</select>
+	
+	<select id="getbyareaid" parameterType="int" resultType="com.cm.entity.Sensor">
+		SELECT tr.id,tr.station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tr.sensorId,tct.id sensor_type,tct.pid,tct.k sensorUnit,tct.v type,tct.path,
+		tcp.id sensor_position,tcp.v position,
+		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
+		tr.n_point,tr.e_point,tr.fluctuation_range,
+		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,
+		tr.uid,tr.alais,tr.calibration,
+		tr.upgrade3,tr.upgrade2,tr.upgrade1,tr.position_type_id,tpt.`name` position_type,tr.upper_level1,tr.upper_level2,tr.upper_level3,
+        tr.upper_level4,tr.floor_level1,tr.floor_level2,tr.floor_level3,tr.floor_level4,tr.direction,tr.x2_point,tr.y2_point,tr.x3_point,tr.y3_point,
+        tr.n2_point,tr.e2_point,tr.n3_point,tr.e3_point
+		FROM t_sensor tr 
+		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
+		LEFT JOIN t_substation sub ON tr.station=sub.id
+		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
+		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
+		LEFT JOIN t_position_type tpt ON tr.position_type_id=tpt.id
+		where tr.control!=3 and tr.area_id=#{areaid}
+		ORDER BY sub.ipaddr,tr.sensorId
+	</select>
+	
+	<select id="getbyuids" resultType="com.cm.entity.Sensor">
+		SELECT tr.id,tr.station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tr.sensorId,tct.id sensor_type,tct.pid,tct.k sensorUnit,tct.v type,tct.path,
+		tcp.id sensor_position,tcp.v position,
+		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
+		tr.n_point,tr.e_point,tr.fluctuation_range,
+		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,tr.uid,tr.alais,tr.calibration,
+        tr.upgrade3,tr.upgrade2,tr.upgrade1,tr.upper_level1,tr.upper_level2,tr.upper_level3,
+        tr.upper_level4,tr.floor_level1,tr.floor_level2,tr.floor_level3,tr.floor_level4
+		FROM t_sensor tr
+		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
+		LEFT JOIN t_substation sub ON tr.station=sub.id
+		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
+		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
+		where tr.control!=3 and tr.uid IN 
+		<foreach collection="uids" item="uid" index="index" open="(" separator="," close=")">
+		#{uid}
+		</foreach>
+	</select>
+	
+	<!-- 通过id更新某一个传感器的配置信息 -->
+	<update id="updateSensor" parameterType="com.cm.entity.Sensor">
+	 	update t_sensor 
+		<set>
+			<if test="station!=null and station>0">
+				station=#{station},
+			</if>
+			<if test="sensorId!=null and sensorId>-1">
+				sensorId=#{sensorId},
+			</if>
+			<if test="null!=input_type">
+				input_type=#{input_type},
+			</if>
+			<if test="null!=sensor_type">
+				sensor_type=#{sensor_type},
+			</if>
+			control=#{control},
+			<if test="null!=min_range">
+				min_range=#{min_range},
+			</if>
+			<if test="null!=middle_rang">
+				middle_rang=#{middle_rang},
+			</if>
+			<if test="null!=max_range">
+				max_range=#{max_range},
+			</if>
+			<if test="null!=min_frequency">
+				min_frequency=#{min_frequency},
+			</if>
+			<if test="null!=max_frequency">
+				max_frequency=#{max_frequency},
+			</if>
+			<if test="null!=sensor_position">
+				sensor_position=#{sensor_position},
+			</if>
+			n_point=#{n_point},
+			e_point=#{e_point},
+			devlinkId=#{devlinkId},
+			floorDevlinkId=#{floorDevlinkId},
+            y_point=#{y_point},
+            x_point=#{x_point},
+			<if test="null!=error_band">
+				error_band=#{error_band},
+			</if>
+			<if test="null!=limit_warning">
+				limit_warning=#{limit_warning},
+			</if>
+			<if test="null!=floor_warning">
+				floor_warning=#{floor_warning},
+			</if>
+			<if test="null!=limit_alarm">
+				limit_alarm=#{limit_alarm},
+			</if>
+			<if test="null!=floor_alarm">
+				floor_alarm=#{floor_alarm},
+			</if>
+			<if test="null!=limit_power">
+				limit_power=#{limit_power},
+			</if>
+			<if test="null!=floor_power">
+				floor_power=#{floor_power},
+			</if>
+			<if test="null!=limit_repower">
+				limit_repower=#{limit_repower},
+			</if>
+			<if test="null!=floor_repower">
+				floor_repower=#{floor_repower},
+			</if>
+			<if test="configsync>-1">
+				configsync=#{configsync},
+			</if>
+			<if test="area_id>0">
+				area_id=#{area_id},
+			</if>
+			<if test="period>0">
+				period=#{period},
+			</if>
+			<if test="iscalc>-1">
+				iscalc=#{iscalc},
+			</if>
+			<if test="fluctuation_range>0">
+				fluctuation_range=#{fluctuation_range},
+			</if>
+            <if test="drainageId>-1">
+                drainageId=#{drainageId},
+            </if>
+            <if test="isDrainage>-1">
+                isDrainage=#{isDrainage},
+            </if>
+            <if test="coId>-1">
+                coId=#{coId},
+            </if>
+            <if test="methaneId>-1">
+                methaneId=#{methaneId},
+            </if>
+            <if test="null!=calibration">
+                calibration=#{calibration},
+            </if>
+            upgrade3=#{upgrade3},
+            upgrade2=#{upgrade2},
+            upgrade1=#{upgrade1},
+            position_type_id=#{position_type_id},
+            upper_level1=#{upper_level1},
+            upper_level2=#{upper_level2},
+            upper_level3=#{upper_level3},
+            upper_level4=#{upper_level4},
+            floor_level1=#{floor_level1},
+            floor_level2=#{floor_level2},
+            floor_level3=#{floor_level3},
+            floor_level4=#{floor_level4},
+            direction=#{direction},
+            x2_point=#{x2_point},
+            y2_point=#{y2_point},
+            x3_point=#{x3_point},
+            y3_point=#{y3_point},
+            n2_point=#{n2_point},
+            e2_point=#{e2_point},
+            n3_point=#{n3_point},
+            e3_point=#{e3_point}
+		</set>
+		<where>
+			<if test="id>0">
+				id=#{id}
+			</if>
+		</where>
+	</update>
+	
+	<!-- 根据id删除某一个传感器 -->
+	<update id="deleteSensor" parameterType="int">
+		update t_sensor set sensorId=0,control=3,devlinkId=0,floorDevlinkId=0 where id=#{id}
+	</update>
+	
+	<!-- 根据id查询传感器 -->
+	<select id="getById" resultType="com.cm.entity.Sensor">
+		select ss.*,sub.ipaddr,st.v AS type,st2.v AS position from t_sensor ss
+		LEFT JOIN t_substation sub ON ss.station = sub.id
+		LEFT JOIN t_static st ON ss.sensor_type = st.id
+		LEFT JOIN t_static st2 ON ss.sensor_position = st2.id
+		WHERE ss.id=#{id}
+	</select>
+
+    <select id="getByCoId" resultType="com.cm.entity.Sensor">
+		select ss.*,sub.ipaddr,st.v AS type,st2.v AS position from t_sensor ss
+		LEFT JOIN t_substation sub ON ss.station = sub.id
+		LEFT JOIN t_static st ON ss.sensor_type = st.id
+		LEFT JOIN t_static st2 ON ss.sensor_position = st2.id
+		WHERE ss.CoId=#{CoId} and ss.control!=3
+		limit 1
+	</select>
+
+    <select id="getBymethaneId" resultType="com.cm.entity.Sensor">
+		select ss.*,sub.ipaddr,st.v AS type,st2.v AS position from t_sensor ss
+		LEFT JOIN t_substation sub ON ss.station = sub.id
+		LEFT JOIN t_static st ON ss.sensor_type = st.id
+		LEFT JOIN t_static st2 ON ss.sensor_position = st2.id
+		WHERE ss.methaneId=#{methaneId} and ss.control!=3
+		limit 1
+	</select>
+	
+	<select id="getById2" resultType="com.cm.entity.Sensor">
+		select ss.*,sub.ipaddr,st.v AS type,st2.v AS position from t_sensor ss
+		LEFT JOIN t_substation sub ON ss.station = sub.id
+		LEFT JOIN t_static st ON ss.sensor_type = st.id
+		LEFT JOIN t_static st2 ON ss.sensor_position = st2.id
+		WHERE ss.id=#{id}
+	</select>
+	
+	<!-- 更新传感器的分站信息 -->
+	<update id="updateSubstation">
+		update t_sensor set station = (select id from t_substation where ipaddr=#{ipaddr}) where id=#{id}
+	</update>
+	
+	<!-- 查询未同步设备 -->
+	<select id="getNoSync" resultType="com.cm.entity.Sensor">
+		SELECT tr.*,ts.ipaddr FROM t_sensor tr
+		LEFT JOIN t_substation ts ON tr.station=ts.id
+		WHERE control != 3 AND configsync=1
+	</select>
+	
+	<!-- 根据id修改传感器同步情况 -->
+	<update id="updateConfigById">
+		update t_sensor
+		<set>
+			configsync=#{configsync}
+		</set>
+		<where>
+			id=#{id}
+		</where>
+	</update>
+
+    <!--查询所有的GD5传感器-->
+    <select id="getGd5Sensors" resultType="com.cm.entity.Sensor">
+        SELECT tr.id,tr.station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tr.sensorId,tct.id sensor_type,tct.pid,tct.k sensorUnit,tct.v type,tct.path,
+		tcp.id sensor_position,tcp.v position,tct.path2,
+		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
+		tr.n_point,tr.e_point,tr.alais,tr.period,tr.fluctuation_range,
+		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,tr.area_id,tas.areaname,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,
+		tr.uid,tr.drainageId,tr.x_point,tr.y_point
+		FROM t_sensor tr
+		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
+		LEFT JOIN t_substation sub ON tr.station=sub.id
+		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
+		LEFT JOIN t_area tas ON tr.area_id=tas.id
+		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
+		where tr.control!=3 AND tr.sensor_type=69
+		ORDER BY sub.ipaddr,tr.sensorId
+    </select>
+	
+	<select id="getSensorByAreaId" parameterType="int" resultType="com.cm.entity.Sensor">
+		SELECT tr.id,tr.station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tr.sensorId,tct.id sensor_type,tct.pid,tct.k sensorUnit,tct.v type,tct.path,
+		tcp.id sensor_position,tcp.v position,
+		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
+		tr.n_point,tr.e_point,tr.fluctuation_range,
+		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,tr.devlinkId,tr.floorDevlinkId,
+		tdl.action_devid linkageDeviceId,tdl.param action,tdl1.action_devid floorLinkId,tdl1.param flooraction,tr.uid,tr.alais,tr.calibration,
+		tr.upgrade3,tr.upgrade2,tr.upgrade1,tr.position_type_id,tpt.`name` position_type,tr.upper_level1,tr.upper_level2,tr.upper_level3,
+        tr.upper_level4,tr.floor_level1,tr.floor_level2,tr.floor_level3,tr.floor_level4
+		FROM t_sensor tr 
+		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
+		LEFT JOIN t_substation sub ON tr.station=sub.id
+		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
+		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
+		LEFT JOIN t_dev_link tdl ON tr.devlinkId=tdl.id
+		LEFT JOIN t_dev_link tdl1 ON tr.floorDevlinkId=tdl1.id
+		LEFT JOIN t_position_type tpt ON tr.position_type_id=tpt.id
+		INNER JOIN (SELECT uid FROM t_area_sensor WHERE area_id=#{areaid} AND sensor_type_id=100) tud ON tr.uid=tud.uid
+		where tr.control!=3 ORDER BY tr.sensorId
+	</select>
+</mapper>

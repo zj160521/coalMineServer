@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.SwitchEfficiencyDao">
+	
+	<select id="getsensors" resultType="com.cm.entity.SwitchEfficiency">
+		SELECT a.id sensor_id,b.ipaddr ip,a.sensorId,a.sensor_type,c1.v sensortype,c.v position,a.break_display power,a.alais,c1.k powers FROM t_switch_sensor a
+		LEFT JOIN t_substation b ON a.station=b.id
+		LEFT JOIN t_static c ON a.sensor_position=c.id
+		LEFT JOIN t_static c1 ON a.sensor_type=c1.id WHERE a.control&lt;3
+	</select>
+	
+	<select id="getBasicdata" resultType="com.cm.entity.Coalmine">
+		SELECT ip,devid,type,value,status,level,DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') responsetime FROM ${tablename} 
+		WHERE responsetime<![CDATA[>=]]>DATE_SUB(#{time},INTERVAL 1 HOUR) AND responsetime<![CDATA[<=]]>#{time}  AND ip=#{s.ip}
+		AND devid=#{s.sensorId} AND type=#{s.sensor_type} ORDER BY responsetime
+	</select>
+	
+	<select id="isexisting" parameterType="com.cm.entity.SwitchEfficiency" resultType="int">
+		SELECT COUNT(id) FROM t_switch_efficiency WHERE statistictime=#{statistictime}
+	</select>
+	
+	<insert id="adddata">
+		insert into t_switch_efficiency(sensor_id,ip,alais,sensorId,sensor_type,sensortype,position,powers,statistictime,switcheff,switchtime,powercnt,remark)
+		values
+		<foreach collection="list" item="s" index="index" separator=",">
+		(#{s.sensor_id},#{s.ip},#{s.alais},#{s.sensorId},#{s.sensor_type},#{s.sensortype},#{s.position},#{s.powers},#{s.statistictime},#{s.switcheff},#{s.switchtime},#{s.powercnt},#{s.remark})
+		</foreach>
+		on duplicate key update sensor_id=values(sensor_id),alais=values(alais),sensortype=values(sensortype),position=values(position),position=values(position),powers=values(powers),switcheff=values(switcheff),switchtime=values(switchtime),
+		powercnt=values(powercnt),remark=values(remark) 
+	</insert>
+	
+	<select id="getall" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.SwitchEfficiency">
+		SELECT b.alais,sensortype,position,powers,DATE_FORMAT(statistictime,'%Y-%m-%d %H:%i:%S') statistictime,CONVERT(switcheff,DECIMAL(10,2)) switcheff,switchtime,powercnt,remark FROM t_switch_efficiency a
+		INNER JOIN 
+		(SELECT a.id sensor_id,b.ipaddr,a.sensorId,a.sensor_type,a.alais FROM t_switch_sensor a
+		LEFT JOIN t_substation b ON a.station=b.id
+		)b ON a.ip=b.ipaddr AND a.sensorId=b.sensorId AND a.sensor_type=b.sensor_type
+		WHERE b.sensor_id=#{id} 
+		AND TO_DAYS(a.statistictime)=TO_DAYS(#{starttime}) 
+		GROUP BY a.statistictime
+	</select>
+</mapper>

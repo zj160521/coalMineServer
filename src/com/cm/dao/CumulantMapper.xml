@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.CumulantDao">
+
+    <insert id="batchAdd">
+        insert into t_gd5_sum (sensor_id,ip,sensorId,type,flow_work,flow_standard,flow_pure,status,responsetime)
+        values
+        <foreach collection="list" item="cumulant" index="index" separator=",">
+            (#{cumulant.sensor_id},#{cumulant.ip},#{cumulant.sensorId},#{cumulant.type},#{cumulant.flow_work},#{cumulant.flow_standard},#{cumulant.flow_pure},#{cumulant.status},#{cumulant.responsetime})
+        </foreach>
+    </insert>
+
+    <update id="batchUpdate">
+        <foreach collection="list" separator="," item="cumulant" index="index">
+            update t_gd5_sum
+            <set>
+                flow_work=#{cumulant.flow_work},
+                flow_standard=#{cumulant.flow_standard},
+                flow_pure=#{cumulant.flow_pure},
+                sensorId=#{cumulant.sensorId},
+                ip=#{cumulant.ip},
+                type=#{cumulant.type},
+                responsetime=#{cumulant.responsetime}
+            </set>
+            <where>
+                id=#{cumulant.id}
+            </where>
+        </foreach>
+    </update>
+
+    <select id="getAllCumulant" resultType="com.cm.entity.Cumulant">
+        SELECT t1.sensor_id,t1.ip,t1.sensorId,t1.type,t1.responsetime,t1.flow_pure,t1.flow_standard,t1.flow_work,t1.`status`,t3.v position,t2.alais
+        FROM t_gd5_sum t1
+        LEFT JOIN t_sensor t2 ON t1.sensor_id=t2.id
+        LEFT JOIN t_static t3 ON t2.sensor_position=t3.id
+        WHERE t2.control!=3
+        <if test="sensor_position>0">
+            and t2.sensor_position=#{sensor_position}
+        </if>
+    </select>
+
+    <select id="getBasedata" resultType="com.cm.entity.GD5Report">
+        SELECT ip,devid,type sensor_type,responsetime,temperature,pressure,wasi,co,flow_work,flow_pure,flow_standard
+        FROM ${tableName}
+        WHERE responsetime BETWEEN #{starttime} AND #{endtime} ORDER BY responsetime
+    </select>
+
+    <select id="getAllTotalCumulant" resultType="com.cm.entity.Cumulant">
+        select * from t_gd5_sum where status = 1
+    </select>
+
+    <select id="getAllYearCumulant" resultType="com.cm.entity.Cumulant">
+        select * from t_gd5_sum where status = 2
+    </select>
+
+    <select id="getAllMonthCumulant" resultType="com.cm.entity.Cumulant">
+        select * from t_gd5_sum where status = 3
+    </select>
+
+    <select id="getAllDayCumulant" resultType="com.cm.entity.Cumulant">
+        select * from t_gd5_sum where status = 4
+    </select>
+
+    <insert id="add">
+        insert into t_gd5_sum (sensor_id, ip, sensorId, type, flow_work, flow_standard, flow_pure, status, responsetime) values
+        (#{sensor_id}, #{ip}, #{sensorId}, #{type}, #{flow_work}, #{flow_standard}, #{flow_pure}, #{status}, #{responsetime})
+    </insert>
+
+</mapper>

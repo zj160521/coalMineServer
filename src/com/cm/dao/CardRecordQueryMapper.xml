@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.CardRecordQueryDao">
+	
+	<select id="getCardReaderRecord" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.CardBattaryRecordVo">
+	SELECT w.rfcard_id,w.`name`,dpt.`name` AS departname,wt.`name` AS worktypename,cr.battary,cr.responsetime FROM t_coalMine_route cr
+	LEFT JOIN t_worker w
+	ON cr.card = w.rfcard_id
+	LEFT JOIN t_department dpt
+	ON w.depart_id = dpt.id
+	LEFT JOIN t_worktype wt
+	ON w.worktype_id = wt.id
+	<where>
+			<if test="rfcard_id > 0">
+				cr.card=#{rfcard_id}
+			</if>
+			<if test="depart_id > 0">
+				AND w.depart_id=#{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				AND w.worktype_id=#{worktype_id}
+			</if>
+			<if test="starttime != null and endtime != null">
+				AND cr.responsetime BETWEEN #{starttime} AND #{endtime}
+			</if>
+		</where>
+	</select>
+</mapper>

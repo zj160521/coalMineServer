@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.AreaOvermanQueryDao">
+	
+	<select id="getData" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.AreaOvertimeVo">
+		
+	SELECT a.areaname,a.max_allow,cr.personNum,cr.responsetime FROM t_coalMine_route cr
+	LEFT JOIN t_area a
+	ON cr.area_id = a.id
+	<where>
+		cr.personNum > a.max_allow
+		<if test="area_id > 0">
+			AND cr.area_id=#{area_id}
+		</if>
+		AND responsetime BETWEEN #{starttime} AND #{endtime}
+	</where>
+		ORDER BY responsetime
+		
+	</select>
+</mapper>

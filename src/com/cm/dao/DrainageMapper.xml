@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.IDrainageDao">
+	
+	<resultMap type="com.cm.entity.Drainage" id="DrainSensorMap">
+		<id column="did" property="id"/>
+		<result column="pid" property="pid"/>
+		<result column="name" property="type"/>
+		<result column="unit" property="unit"/>
+		<result column="remark" property="remark"/>
+		<result column="typeid" property="typeid"/>
+		<collection property="list" ofType="com.cm.entity.Drainage">
+			<id column="ddid" property="id"/>
+			<result column="dpid" property="pid"/>
+			<result column="dname" property="type"/>
+			<result column="dunit" property="unit"/>
+			<result column="dremark" property="remark"/>
+			<result column="dtypeid" property="typeid"/>
+			<collection property="switches" ofType="com.cm.entity.SwitchSensor">
+				<id column="seid" property="id"/>
+				<result column="ssensorId" property="sensorId"/>
+				<result column="ssensor_type" property="sensor_type"/>
+				<result column="stype" property="type"/>
+				<result column="sbreak_display" property="break_display"/>
+				<result column="sbreak_d" property="break_d"/>
+				<result column="sconnect_display" property="connect_display"/>
+				<result column="sconnect_d" property="connect_d"/>
+				<result column="alarm_status" property="alarm_status"/>
+				<result column="control" property="control"/>
+				<result column="input_type" property="input_type"/>
+				<result column="power_status" property="power_status"/>
+				<result column="ssensor_position" property="sensor_position"/>
+				<result column="sposition" property="position"/>
+				<result column="sstation" property="station"/>
+				<result column="sip" property="ipaddr"/>
+				<result column="spath" property="path"/>
+				<result column="sn_point" property="n_point"/>
+				<result column="se_point" property="e_point"/>
+				<result column="spid" property="pid"/>
+				<result column="sisDrainage" property="isDrainage"/>
+                <result column="sdrainageId" property="drainageId"/>
+                <result column="slinkageDeviceId" property="linkageDeviceId"/>
+                <result column="sdevlinkId" property="devlinkId"/>
+                <result column="saction" property="action"/>
+                <result column="sx_point" property="x_point"/>
+			</collection>
+			<collection property="sensors" ofType="com.cm.entity.Sensor">
+				<id column="id" property="id"/>
+				<result column="station" property="station"/>
+				<result column="ipaddr" property="ipaddr"/>
+				<result column="sensorId" property="sensorId"/>
+				<result column="ppid" property="pid"/>
+				<result column="control" property="control"/>
+				<result column="sensor_type" property="sensor_type"/>
+				<result column="sensorUnit" property="sensorUnit"/>
+				<result column="type" property="type"/>
+				<result column="min_range" property="min_range"/>
+				<result column="max_range" property="max_range"/>
+				<result column="middle_rang" property="middle_rang"/>
+				<result column="min_frequency" property="min_frequency"/>
+				<result column="max_frequency" property="max_frequency"/>
+				<result column="sensor_position" property="sensor_position"/>
+				<result column="position" property="position"/>
+				<result column="n_point" property="n_point"/>
+				<result column="e_point" property="e_point"/>
+				<result column="error_band" property="error_band"/>
+				<result column="limit_warning" property="limit_warning"/>
+				<result column="floor_warning" property="floor_warning"/>
+				<result column="limit_alarm" property="limit_alarm"/>
+				<result column="floor_alarm" property="floor_alarm"/>
+				<result column="limit_power" property="limit_power"/>
+				<result column="floor_power" property="floor_power"/>
+				<result column="limit_repower" property="limit_repower"/>
+				<result column="floor_repower" property="floor_repower"/>
+				<result column="input_type" property="input_type"/>
+				<result column="configsync" property="configsync"/>
+				<result column="iscalc" property="iscalc"/>
+				<result column="path" property="path"/>
+				<result column="menu" property="menu"/>
+				<result column="isDrainage" property="isDrainage"/>
+                <result column="drainageId" property="drainageId"/>
+                <result column="linkageDeviceId" property="linkageDeviceId"/>
+                <result column="devlinkId" property="devlinkId"/>
+                <result column="action" property="action"/>
+                <result column="x_point" property="x_point"/>
+			</collection>
+		</collection>
+	</resultMap>
+	
+	<resultMap type="com.cm.entity.Drainage" id="sensorDataMap">
+		<id column="id" property="id"/>
+		<result column="pid" property="pid"/>
+		<result column="name" property="type"/>
+		<result column="unit" property="unit"/>
+		<result column="remark" property="remark"/>
+		<result column="typeid" property="typeid"/>
+		<collection property="switches" ofType="com.cm.entity.SwitchSensor">
+            <id column="seid" property="id"/>
+            <result column="ssensorId" property="sensorId"/>
+            <result column="ssensor_type" property="sensor_type"/>
+            <result column="stype" property="type"/>
+            <result column="break_display" property="break_display"/>
+            <result column="break_d" property="break_d"/>
+            <result column="connect_display" property="connect_display"/>
+            <result column="connect_d" property="connect_d"/>
+            <result column="alarm_status" property="alarm_status"/>
+            <result column="scontrol" property="control"/>
+            <result column="power_status" property="power_status"/>
+            <result column="ssensor_position" property="sensor_position"/>
+            <result column="sposition" property="position"/>
+            <result column="sstation" property="station"/>
+            <result column="sip" property="ipaddr"/>
+            <result column="spath" property="path"/>
+            <result column="spath2" property="path2"/>
+            <result column="sn_point" property="n_point"/>
+            <result column="se_point" property="e_point"/>
+            <result column="spid" property="pid"/>
+            <result column="sisDrainage" property="isDrainage"/>
+            <result column="sdrainageId" property="drainageId"/>
+            <result column="slinkageDeviceId" property="linkageDeviceId"/>
+            <result column="sdevlinkId" property="devlinkId"/>
+            <result column="saction" property="action"/>
+            <result column="sx_point" property="x_point"/>
+            <result column="sy_point" property="y_point"/>
+            <result column="salais" property="alais"/>
+            <result column="suid" property="uid"/>
+            <result column="sx2_point" property="x2_point"/>
+            <result column="sy2_point" property="y2_point"/>
+            <result column="sx3_point" property="x3_point"/>
+            <result column="sy3_point" property="y3_point"/>
+            <result column="sn2_point" property="n2_point"/>
+            <result column="se2_point" property="e2_point"/>
+            <result column="sn3_point" property="n3_point"/>
+            <result column="se3_point" property="e3_point"/>
+        </collection>
+		<collection property="sensors" ofType="com.cm.entity.Sensor">
+			<id column="senid" property="id"/>
+			<result column="station" property="station"/>
+			<result column="ipaddr" property="ipaddr"/>
+			<result column="sensorId" property="sensorId"/>
+			<result column="control" property="control"/>
+			<result column="sensor_type" property="sensor_type"/>
+			<result column="sensorUnit" property="sensorUnit"/>
+			<result column="type" property="type"/>
+			<result column="min_range" property="min_range"/>
+			<result column="max_range" property="max_range"/>
+			<result column="middle_rang" property="middle_rang"/>
+			<result column="min_frequency" property="min_frequency"/>
+			<result column="max_frequency" property="max_frequency"/>
+			<result column="sensor_position" property="sensor_position"/>
+			<result column="position" property="position"/>
+			<result column="n_point" property="n_point"/>
+			<result column="e_point" property="e_point"/>
+			<result column="error_band" property="error_band"/>
+			<result column="limit_warning" property="limit_warning"/>
+			<result column="floor_warning" property="floor_warning"/>
+			<result column="limit_alarm" property="limit_alarm"/>
+			<result column="floor_alarm" property="floor_alarm"/>
+			<result column="limit_power" property="limit_power"/>
+			<result column="floor_power" property="floor_power"/>
+			<result column="limit_repower" property="limit_repower"/>
+			<result column="floor_repower" property="floor_repower"/>
+			<result column="input_type" property="input_type"/>
+			<result column="configsync" property="configsync"/>
+			<result column="path" property="path"/>
+			<result column="dpid" property="pid"/>
+			<result column="path2" property="path2"/>
+			<result column="iscalc" property="iscalc"/>
+			<result column="isDrainage" property="isDrainage"/>
+            <result column="drainageId" property="drainageId"/>
+            <result column="linkageDeviceId" property="linkageDeviceId"/>
+            <result column="devlinkId" property="devlinkId"/>
+            <result column="action" property="action"/>
+            <result column="x_point" property="x_point"/>
+            <result column="y_point" property="y_point"/>
+            <result column="alais" property="alais"/>
+            <result column="uid" property="uid"/>
+            <result column="coId" property="coId"/>
+            <result column="methaneId" property="methaneId"/>
+            <result column="x2_point" property="x2_point"/>
+            <result column="y2_point" property="y2_point"/>
+            <result column="x3_point" property="x3_point"/>
+            <result column="y3_point" property="y3_point"/>
+            <result column="n2_point" property="n2_point"/>
+            <result column="e2_point" property="e2_point"/>
+            <result column="n3_point" property="n3_point"/>
+            <result column="e3_point" property="e3_point"/>
+			<collection property="coalmines" ofType="com.cm.entity.Coalmine">
+				<id column="cid" property="id"/>
+				<result column="value" property="value"/>
+				<result column="filltime" property="filltime"/>
+			</collection>
+		</collection>
+	</resultMap>
+	
+	<!-- 查询所有抽采参数 -->
+	<select id="getAllDrainage" parameterType="com.cm.entity.Drainage" resultType="com.cm.entity.Drainage">
+		SELECT td.id id,td.pid pid,td.name type,td.unit unit,td.remark remark,td.typeid typeid,ts.v typename FROM t_drainage td
+		LEFT JOIN t_static ts ON td.typeid=ts.id
+		where td.pid=#{pid}
+	</select>
+
+	<select id="getAllDrainageParam" resultMap="DrainSensorMap">
+		SELECT t1.id did,t1.pid,t1.`name`,t1.unit,t1.remark,IFNULL(t1.typeid,0),
+		t2.id ddid,t2.pid dpid,t2.`name` dname,t2.unit dunit,t2.remark dremark,t2.typeid dtypeid,
+		t4.id,t4.station,t7.ipaddr,t4.sensorId,t4.control,t4.sensor_type,t6.k sensorUnit,
+		t6.v type,t6.path,t6.path2,t4.min_range,t4.max_range,t4.middle_rang,t4.min_frequency,t4.x_point,t4.y_point,
+		t4.max_frequency,t4.sensor_position,t5.v position,t4.n_point,t4.e_point,t6.pid ppid,
+		t4.error_band,t4.limit_warning,t4.floor_warning,t4.limit_alarm,t4.floor_alarm,
+		t4.limit_power,t4.floor_power,t4.limit_repower,t4.floor_repower,t4.isDrainage,
+		t4.configsync,t4.iscalc,t4.isDrainage,t8.id seid,t8.sensorId ssensorId,tt1.id devlinkId,tt1.action_devid linkageDeviceId,tt1.param action,
+		t8.station sstation,t9.ipaddr sip,t8.sensor_type ssensor_type,t10.v stype,t10.path spath,t10.path2 spath2,
+		t8.sensor_position ssensor_position,t11.v sposition,t8.break_display sbreak_display,
+		t12.v sbreak_d,t8.connect_display sconnect_display,t13.v sconnect_d,t8.isDrainage sisDrainage,
+		t8.power_status,t8.alarm_status,t8.n_point sn_point,t8.e_point se_point,t10.pid spid,t4.drainageId,t8.drainageId sdrainageId,
+		tt2.id sdevlinkId,tt2.action_devid slinkageDeviceId,tt2.param saction,t8.x_point sx_point,t8.y_point sy_point
+		FROM t_drainage t1
+		LEFT JOIN t_drainage t2 ON t2.pid=t1.id
+		LEFT JOIN (SELECT * FROM t_sensor WHERE control!=3) t4 ON t4.drainageId=t2.id
+		LEFT JOIN t_static t5 ON t4.sensor_position=t5.id
+		LEFT JOIN t_static t6 ON t4.sensor_type=t6.id
+		LEFT JOIN t_substation t7 ON t4.station=t7.id
+		LEFT JOIN t_dev_link tt1 ON t4.devlinkId=tt1.id
+		LEFT JOIN t_switch_sensor t8 ON t8.drainageId=t2.id
+		LEFT JOIN t_substation t9 ON t9.id=t8.station
+		LEFT JOIN t_static t10 ON t10.id=t8.sensor_type
+		LEFT JOIN t_static t11 ON t11.id=t8.sensor_position
+		LEFT JOIN t_static t12 ON t12.id=t8.break_display
+		LEFT JOIN t_static t13 ON t13.id=t8.connect_display
+		LEFT JOIN t_dev_link tt2 ON t8.devlinkId=tt2.id
+		WHERE t1.pid=10
+	</select>
+	
+	<!-- 添加抽采参数 -->
+	<insert id="addDrainageParam" parameterType="com.cm.entity.Drainage">
+		insert into t_drainage (pid,name,unit,remark,typeid) values(#{pid},#{type},#{unit},#{remark},#{typeid})
+	</insert>
+	
+	<!-- 修改抽采参数 -->
+	<update id="updateDrainage" parameterType="com.cm.entity.Drainage">
+		UPDATE t_drainage
+		<set>
+			<if test="type!=null and type!=''">
+				name=#{type}
+			</if>
+			<if test="unit!=null and unit!=''">
+				,unit=#{unit}
+			</if>
+			<if test="remark!=null and remark!=''">
+				,remark=#{remark}
+			</if>
+			<if test="typeid>0">
+				,typeid=#{typeid}
+			</if>
+		</set> 
+		WHERE id=#{id}
+	</update>
+	
+	<!-- 验证参数是否已存在 -->
+	<select id="validation" parameterType="com.cm.entity.Drainage" resultType="int">
+		select count(id) from t_drainage where  name=#{type} and id!=#{id}
+	</select>
+	
+	<delete id="deleteDrainage" parameterType="com.cm.entity.Drainage">
+		delete from t_drainage where id=#{id}
+	</delete>
+	
+	<!-- 根据id查询 -->
+	<select id="getById" resultType="com.cm.entity.Drainage">
+		SELECT id,pid,name type,unit,remark,typeid from t_drainage WHERE id=#{id}
+	</select>
+	
+	<!-- 添加传感器 -->
+	<insert id="addDrainageSensor">
+		insert into t_drainage_sensor (drainageId,sensorId) values (#{drainageId},#{sensorId})
+	</insert>
+	
+	<!-- 查询传感器的值 -->
+	<select id="getAllSensorData" resultMap="sensorDataMap">
+		SELECT t1.id did,t1.pid,t1.`name`,t1.unit,t1.remark,IFNULL(t1.typeid,0),t3.id senid,t3.station,t3.configsync,t3.control,t3.e_point,t3.error_band,
+		t3.floor_alarm,t3.floor_power,t3.floor_repower,t3.floor_warning,t3.input_type,
+		t3.iscalc,t3.limit_alarm,t3.limit_power,t3.limit_repower,t3.limit_warning,
+		t3.max_frequency,t3.max_range,t3.middle_rang,t3.min_frequency,t3.min_range,
+		t3.n_point,t3.sensorId,t3.sensor_position,t3.sensor_type,
+		t6.k sensorUnit,t6.v type,t7.v position,t4.ipaddr,t5.id cid,t5.`value`,t5.responsetime filltime
+		FROM t_drainage t1 
+		LEFT JOIN t_drainage_sensor t2 ON t2.drainageId=t1.id
+		LEFT JOIN t_sensor t3 ON t3.id=t2.sensorId AND t3.control!=3
+		LEFT JOIN t_substation t4 ON t4.id=t3.station
+		LEFT JOIN t_coalMine t5 ON t5.ip=t4.ipaddr AND t5.devid=t3.sensorId AND t5.type=t3.sensor_type AND responsetime BETWEEN #{starttime} AND NOW()
+		LEFT JOIN t_static t6 ON t6.id=t3.sensor_type
+		LEFT JOIN t_static t7 ON t7.id=t3.sensor_position
+		WHERE t1.pid!=0 AND t1.pid!=10 AND t1.id=#{id}
+		ORDER BY t5.responsetime
+	</select>
+	
+	<!-- 删除传感器和抽采参数中间表 -->
+	<delete id="deleteSensor">
+		delete from t_drainage_sensor where sensorId=#{id}
+	</delete>
+	
+	<!--根据设备类型查询瓦斯抽放的传感器-->
+    <select id="getAlldrainageCOSensor" resultType="com.cm.entity.Sensor">
+        SELECT tr.id,tr.station,sub.station_name station_name,sub.ipaddr ipaddr,
+        tr.sensorId,tct.id sensor_type,tct.pid,tct.k sensorUnit,tct.v type,tct.path,
+        tcp.id sensor_position,tcp.v position,tct.path2,
+        tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
+        tr.n_point,tr.e_point,tr.alais,tr.period,tr.fluctuation_range,
+        tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,tr.area_id,tas.areaname,
+        tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tr.iscalc,tr.devlinkId,tr.floorDevlinkId,
+        tdl.action_devid linkageDeviceId,tdl.param action,tdl1.action_devid floorLinkId,tdl1.param flooraction,tr.uid,tr.drainageId,tr.x_point,tr.y_point
+        FROM t_sensor tr
+        LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
+        LEFT JOIN t_substation sub ON tr.station=sub.id
+        LEFT JOIN t_static tct ON tr.sensor_type=tct.id
+        LEFT JOIN t_area tas ON tr.area_id=tas.id
+        LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
+        LEFT JOIN t_dev_link tdl ON tr.devlinkId=tdl.id
+        LEFT JOIN t_dev_link tdl1 ON tr.floorDevlinkId=tdl1.id
+        where tr.control!=3 and tr.sensor_type=37
+    </select>
+
+    <select id="getAlldrainageMethaneSensor" resultType="com.cm.entity.Sensor">
+        SELECT tr.id,tr.station,sub.station_name station_name,sub.ipaddr ipaddr,
+        tr.sensorId,tct.id sensor_type,tct.pid,tct.k sensorUnit,tct.v type,tct.path,
+        tcp.id sensor_position,tcp.v position,tct.path2,
+        tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
+        tr.n_point,tr.e_point,tr.alais,tr.period,tr.fluctuation_range,
+        tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,tr.area_id,tas.areaname,
+        tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tr.iscalc,tr.devlinkId,tr.floorDevlinkId,
+        tdl.action_devid linkageDeviceId,tdl.param action,tdl1.action_devid floorLinkId,tdl1.param flooraction,tr.uid,tr.drainageId,tr.x_point,tr.y_point
+        FROM t_sensor tr
+        LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
+        LEFT JOIN t_substation sub ON tr.station=sub.id
+        LEFT JOIN t_static tct ON tr.sensor_type=tct.id
+        LEFT JOIN t_area tas ON tr.area_id=tas.id
+        LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
+        LEFT JOIN t_dev_link tdl ON tr.devlinkId=tdl.id
+        LEFT JOIN t_dev_link tdl1 ON tr.floorDevlinkId=tdl1.id
+        where tr.control!=3 and (tr.sensor_type=32 or tr.sensor_type=33 or tr.sensor_type=34 or tr.sensor_type=35 or tr.sensor_type=70 or tr.sensor_type=80)
+    </select>
+
+    <!-- 查询一级分类下面的传感器 -->
+	<select id="getAlloneparam" resultMap="sensorDataMap">
+		SELECT t1.*,t3.id senid,t3.station,t3.configsync,t3.control,t3.e_point,t3.error_band,
+		t3.floor_alarm,t3.floor_power,t3.floor_repower,t3.floor_warning,t3.input_type,
+		t3.iscalc,t3.limit_alarm,t3.limit_power,t3.limit_repower,t3.limit_warning,
+		t3.max_frequency,t3.max_range,t3.middle_rang,t3.min_frequency,t3.min_range,t3.x_point,t3.y_point,t3.coId,t3.methaneId,
+		t3.n_point,t3.sensorId,t3.sensor_position,t3.sensor_type,t5.pid dpid,t3.isDrainage,tt1.id devlinkId,tt1.action_devid linkageDeviceId,tt1.param action,
+		t3.x2_point,t3.y2_point,t3.x3_point,t3.y3_point,t3.n2_point,t3.e2_point,t3.n3_point,t3.e3_point,
+		t5.k sensorUnit,t5.v type,t5.path,t5.path2,t6.v position,t4.ipaddr,t7.id seid,
+		t7.station sstation,t8.ipaddr sip,t7.sensorId ssensorId,t7.sensor_type ssensor_type,
+		t9.v stype,t9.path spath,t9.path2 spath2,t7.sensor_position ssensor_position,t10.v sposition,t7.break_display,
+		t11.v break_d,t7.connect_display,t12.v connect_d,t7.power_status,t7.alarm_status,
+		t7.control scontrol,t7.n_point sn_point,t7.e_point se_point,t9.pid spid,t7.isDrainage sisDrainage,t3.drainageId,t7.drainageId sdrainageId,
+		tt2.id sdevlinkId,tt2.action_devid slinkageDeviceId,tt2.param saction,t7.x_point sx_point,t7.y_point sy_point,t3.alais,t7.alais salais,t3.uid,t7.uid suid,
+		t7.x2_point sx2_point,t7.y2_point sy2_point,t7.x3_point sx3_point,t7.y3_point sy3_point,t7.n2_point sn2_point,t7.e2_point se2_point,t7.n3_point sn3_point,
+		t7.e3_point se3_point
+		FROM t_drainage t1
+		LEFT JOIN t_sensor t3 ON t3.drainageId=t1.id AND t3.control!=3
+		LEFT JOIN t_substation t4 ON t3.station=t4.id
+		LEFT JOIN t_static t5 ON t3.sensor_type=t5.id
+		LEFT JOIN t_static t6 ON t3.sensor_position=t6.id
+		LEFT JOIN t_dev_link tt1 ON t3.devlinkId=tt1.id
+		LEFT JOIN t_switch_sensor t7 ON t7.drainageId=t1.id AND t7.control!=3
+		LEFT JOIN t_substation t8 ON t8.id=t7.station
+		LEFT JOIN t_static t9 ON t9.id=t7.sensor_type
+		LEFT JOIN t_static t10 ON t10.id=t7.sensor_position
+		LEFT JOIN t_static t11 ON t11.id=t7.break_display
+		LEFT JOIN t_static t12 ON t12.id=t7.connect_display
+		LEFT JOIN t_dev_link tt2 ON t7.devlinkId=tt2.id
+		WHERE t1.pid=10
+	</select>
+
+	<select id="getAlldrainageParamSwitchSensor" resultMap="DrainSensorMap">
+		SELECT t1.id did,t1.pid,t1.`name`,t1.unit,t1.remark,t2.id ddid,t2.`name` dname,
+		t2.unit dunit,t2.remark dremark,t4.id senid,t4.sensorId,t4.sensor_type,t6.v type,
+		t4.break_display,t8.v break_d,t4.connect_display,t9.v connect_d,t4.alarm_status,
+		t4.control,t4.input_type,t4.power_status,t4.sensor_position,t7.v position,t4.station,
+		t5.ipaddr
+		FROM t_drainage t1
+		LEFT JOIN t_drainage t2 ON t2.pid=t1.id
+		LEFT JOIN t_drainage_sensor t3 ON t2.id=t3.drainageId
+		LEFT JOIN t_switch_sensor t4 ON t4.id=t3.sensorId AND t4.control!=3
+		LEFT JOIN t_substation t5 ON t5.id=t4.station
+		LEFT JOIN t_static t6 ON t6.id=t4.sensor_type
+		LEFT JOIN t_static t7 ON t7.id=t4.sensor_position
+		LEFT JOIN t_static t8 ON t8.id=t4.break_display
+		LEFT JOIN t_static t9 ON t9.id=t4.connect_display
+		WHERE t1.pid=10
+	</select>
+
+</mapper>

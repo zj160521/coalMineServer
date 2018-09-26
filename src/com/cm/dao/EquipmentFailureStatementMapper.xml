@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.EquipmentFailureStatementDao">
+	<select id="getAna" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.CommunicationmentVo">
+	SELECT t.id,t.sensor_id,t.ip,t.sensorId,t.alais,t.status,t.type,t.alerts,k.v sensortype,t.position position FROM
+		(SELECT a.id,f.id sensor_id,a.ip,a.sensor_id sensorId,f.alais,a.status,a.type,COUNT(a.id) alerts,f.position position FROM t_analoginfo_query a
+		INNER JOIN 
+		(SELECT a.id,c.ipaddr,a.sensorId,a.sensor_type,b.v position,a.alais FROM t_sensor a
+		LEFT JOIN t_static b ON a.sensor_position=b.id
+		LEFT JOIN t_substation c ON a.station=c.id WHERE a.isDrainage=0)f ON a.ip=f.ipaddr AND a.sensor_id=f.sensorId AND a.type=f.sensor_type
+		LEFT JOIN t_analoginfo d ON a.startId=d.id 
+		LEFT JOIN t_analoginfo d1 ON a.endId=d1.id
+		<where>
+			a.status=5 
+			<if test="starttime!=null and endtime!=null">
+			AND	d.starttime<![CDATA[>=]]> #{starttime}
+			AND d.starttime<![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="starttime!=null and endtime==null">
+			AND TO_DAYS(d.starttime)=TO_DAYS(#{starttime})
+			</if>
+			<if test="id>0">
+				and f.id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and a.type=#{sensor_type}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND a.ip=#{ip}
+			</if>
+			AND a.endId>0
+			
+		</where>
+		GROUP BY a.sensor_id,a.type,a.ip) t
+		LEFT JOIN t_static k ON t.type=k.id
+	</select>
+	
+	<select id="getbySwitch" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.CommunicationmentVo">
+		SELECT t.id,t.sensor_id,t.ip,t.sensorId,t.alais,t.status,t.type,t.alerts,k.v sensortype,t.position position FROM
+		(SELECT a.id,f.id sensor_id,a.ip,a.sensor_id sensorId,f.alais,a.status,a.type,COUNT(a.id) alerts,f.position position FROM t_analoginfo_query a
+		INNER JOIN
+		(SELECT a.id,c.ipaddr,a.sensorId,a.sensor_type,b.v position,a.alais FROM t_switch_sensor a
+		LEFT JOIN t_static b ON a.sensor_position=b.id
+		LEFT JOIN t_substation c ON a.station=c.id WHERE a.isDrainage=0)f ON a.ip=f.ipaddr AND a.sensor_id=f.sensorId AND a.type=f.sensor_type
+		LEFT JOIN t_analoginfo d ON a.startId=d.id 
+		LEFT JOIN t_analoginfo d1 ON a.endId=d1.id
+		<where>
+			(a.status=5 
+			<if test="starttime!=null and endtime!=null">
+			AND	d.starttime<![CDATA[>=]]> #{starttime}
+			AND d.starttime<![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="starttime!=null and endtime==null">
+			AND TO_DAYS(d.starttime)=TO_DAYS(#{starttime})
+			</if>
+			<if test="id>0">
+				and f.id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and a.type=#{sensor_type}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND a.ip=#{ip}
+			</if>
+			AND a.endId>0) 
+				OR 
+			(a.status=5
+			<if test="starttime!=null and endtime!=null">
+			AND d.starttime<![CDATA[<]]> #{endtime}
+			</if>
+			<if test="starttime!=null and endtime==null">
+			AND TO_DAYS(d.starttime)<![CDATA[<=]]>TO_DAYS(#{starttime})
+			</if> 
+			<if test="id>0">
+				and f.id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and a.type=#{sensor_type}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND a.ip=#{ip}
+			</if>
+			AND a.endId=0)
+		</where>
+		GROUP BY a.sensor_id,a.type,a.ip) t
+		LEFT JOIN t_static k ON t.type=k.id
+	</select>
+	
+	<select id="getTime" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.CommunicationVo">
+		SELECT  b.starttime,b1.starttime endtime FROM t_analoginfo_query a 
+		LEFT JOIN t_analoginfo b ON a.startId=b.id 
+		LEFT JOIN t_analoginfo b1 ON a.endId=b1.id
+		<where>
+			(a.status=#{atype}
+			<if test="starttime!=null and endtime!=null">
+			AND	b.starttime<![CDATA[>=]]> #{starttime}
+			AND b.starttime<![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="starttime!=null and endtime==null">
+			AND TO_DAYS(b.starttime)=TO_DAYS(#{starttime})
+			</if>
+			and a.sensor_id=#{id}
+			and a.type=#{sensor_type}
+			and a.ip =#{ip}
+			AND a.endId>0) 
+			OR 
+			(a.status=#{atype}
+			<if test="starttime!=null and endtime!=null">
+			AND b.starttime<![CDATA[<]]> #{endtime}
+			</if>
+			<if test="starttime!=null and endtime==null">
+			AND TO_DAYS(b.starttime)<![CDATA[<=]]>TO_DAYS(#{starttime})
+			</if>
+			and a.sensor_id=#{id}
+			and a.type=#{sensor_type}
+			and a.ip=#{ip}
+			AND a.endId=0)
+		</where>
+	</select>
+</mapper>

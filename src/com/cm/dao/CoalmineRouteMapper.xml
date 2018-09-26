@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.ICoalmineRouteDao">
+	
+	<select id="getMaxPNByDay" resultType="java.lang.Integer">
+		SELECT IFNULL(MAX(totalPN),0) FROM t_coalMine_route WHERE responsetime BETWEEN #{0} AND #{1}
+	</select>
+	
+	<select id="getWorkerIds" resultType="java.lang.Integer">
+		SELECT worker_id FROM t_coalMine_route WHERE responsetime BETWEEN #{0} AND #{1}
+		GROUP BY worker_id
+	</select>
+</mapper>

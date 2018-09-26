@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.AdjoinAreaDao">
+
+    <insert id="addAdjoinArea">
+        insert into t_area_neighbor (m_area_id,s_area_id) values
+        <foreach collection="list" separator="," item="area" index="index">
+            (#{area.typeid},#{area.id})
+        </foreach>
+    </insert>
+
+    <insert id="addAdjoinArea2">
+        insert into t_area_neighbor (m_area_id, s_area_id) values
+        <foreach collection="list" separator="," item="area" index="index">
+            (#{area.id},#{area.typeid})
+        </foreach>
+    </insert>
+
+    <delete id="deleteAdjoinArea">
+        delete from t_area_neighbor where m_area_id=#{area_id} or s_area_id=#{area_id}
+    </delete>
+
+    <select id="getSensorByAreaid" resultType="com.cm.entity.Sensor">
+        SELECT t1.id,t1.station,t2.ipaddr,t1.sensorId,t1.sensor_type,t3.v type,t3.pid,t1.uid,t1.alais,
+		t1.sensor_position,t4.v position,t1.area_id,t11.areaname
+		FROM t_sensor t1
+		LEFT JOIN t_substation t2 ON t1.station=t2.id
+		LEFT JOIN t_static t3 ON t1.sensor_type=t3.id
+		LEFT JOIN t_static t4 ON t1.sensor_position=t4.id
+		LEFT JOIN t_env_area t11 ON t1.area_id=t11.id
+		WHERE t1.control!=3 AND t1.area_id=#{m_area_id} or t1.area_id=#{s_area_id}
+		UNION
+		SELECT t5.id,t5.station,t6.ipaddr,t5.sensorId,t5.sensor_type,t7.v type,t7.pid,t5.uid,t5.alais,
+		t5.sensor_position,t8.v position,t5.area_id,t12.areaname
+		FROM t_switch_sensor t5
+		LEFT JOIN t_substation t6 ON t5.station=t6.id
+		LEFT JOIN t_static t7 ON t5.sensor_type=t7.id
+		LEFT JOIN t_static t8 ON t5.sensor_position=t8.id
+		LEFT JOIN t_env_area t12 ON t5.area_id=t12.id
+		WHERE t5.control!=3 AND t5.area_id=#{m_area_id} or t5.area_id=#{s_area_id}
+    </select>
+
+    <select id="getSensorByAdjoinArea" resultType="com.cm.entity.Sensor">
+        SELECT t2.id,t2.alais,t2.sensorId,t3.ipaddr,t4.v type, t5.v position,t6.`name` position_type,t1.id area_sensor_id,t1.area_id,
+        t7.areaname
+        FROM t_area_sensor t1
+        LEFT JOIN t_sensor t2 ON t1.sensor_id=t2.id
+        LEFT JOIN t_substation t3 ON t2.station=t3.id
+        LEFT JOIN t_static t4 ON t2.sensor_type=t4.id
+        LEFT JOIN t_static t5 ON t2.sensor_position=t5.id
+        LEFT JOIN t_position_type t6 ON t2.position_type_id=t6.id
+        LEFT JOIN t_env_area t7 ON t1.area_id=t7.id
+        WHERE t2.control!=3 and t1.sensor_type_id=100
+        <if test="null != list">
+            <foreach collection="list" item="id" separator="or" open="and (" close=")">
+                t1.area_id=#{id}
+            </foreach>
+        </if>
+        union
+        SELECT t2.id,t2.alais,t2.sensorId,t3.ipaddr,t4.v type, t5.v position,t6.`name` position_type,t1.id area_sensor_id,t1.area_id,
+        t7.areaname
+        FROM t_area_sensor t1
+        LEFT JOIN t_switch_sensor t2 ON t1.sensor_id=t2.id
+        LEFT JOIN t_substation t3 ON t2.station=t3.id
+        LEFT JOIN t_static t4 ON t2.sensor_type=t4.id
+        LEFT JOIN t_static t5 ON t2.sensor_position=t5.id
+        LEFT JOIN t_position_type t6 ON t2.position_type_id=t6.id
+        LEFT JOIN t_env_area t7 ON t1.area_id=t7.id
+        WHERE t2.control!=3 and t1.sensor_type_id=25
+        <if test="null != list">
+            <foreach collection="list" item="id" separator="or" open="and (" close=")">
+                t1.area_id=#{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getAreaSensorByIds" resultType="com.cm.entity.AreaSensor">
+        select * from t_area_sensor
+        <where>
+            <foreach collection="list" separator="or" item="sensor">
+                id=#{sensor.area_sensor_id}
+            </foreach>
+        </where>
+    </select>
+
+    <delete id="deleteAreaneighbor">
+        <foreach collection="list" item="as" separator=";">
+            delete from t_area_neighbor
+            <where>
+                m_area_id=#{as.m_area_id} and s_area_id=#{as.area_id}
+            </where>
+        </foreach>
+    </delete>
+
+    <insert id="addAreaneighborSensor">
+        insert into t_area_neighbor (m_area_id, s_area_id, area_sensor_id) values
+        <foreach collection="list" separator="," item="as">
+            (#{as.m_area_id},#{as.area_id},#{as.id})
+        </foreach>
+    </insert>
+
+    <select id="getAllAreaSensor" resultType="com.cm.entity.Sensor">
+        SELECT t2.id,t2.alais,t2.sensorId,t3.ipaddr,t4.v type, t5.v position,t6.`name` position_type,t1.id area_sensor_id,t1.area_id,
+        t7.areaname
+        FROM t_area_sensor t1
+        LEFT JOIN t_sensor t2 ON t1.sensor_id=t2.id
+        LEFT JOIN t_substation t3 ON t2.station=t3.id
+        LEFT JOIN t_static t4 ON t2.sensor_type=t4.id
+        LEFT JOIN t_static t5 ON t2.sensor_position=t5.id
+        LEFT JOIN t_position_type t6 ON t2.position_type_id=t6.id
+        LEFT JOIN t_env_area t7 ON t1.area_id=t7.id
+        WHERE t2.control!=3 and t1.sensor_type_id=100
+        union
+        SELECT t2.id,t2.alais,t2.sensorId,t3.ipaddr,t4.v type, t5.v position,t6.`name` position_type,t1.id area_sensor_id,t1.area_id,
+        t7.areaname
+        FROM t_area_sensor t1
+        LEFT JOIN t_switch_sensor t2 ON t1.sensor_id=t2.id
+        LEFT JOIN t_substation t3 ON t2.station=t3.id
+        LEFT JOIN t_static t4 ON t2.sensor_type=t4.id
+        LEFT JOIN t_static t5 ON t2.sensor_position=t5.id
+        LEFT JOIN t_position_type t6 ON t2.position_type_id=t6.id
+        LEFT JOIN t_env_area t7 ON t1.area_id=t7.id
+        WHERE t2.control!=3 and t1.sensor_type_id=25
+    </select>
+
+    <insert id="addNeighborSensor">
+        insert into t_area_neighbor (m_area_id, s_area_id, area_sensor_id) values 
+        <foreach collection="list" separator="," item="sensor">
+            (#{sensor.m_area_id},#{sensor.s_area_id},#{sensor.area_sensor_id})
+        </foreach>
+    </insert>
+
+    <delete id="deleteNeighborArea">
+        delete from t_area_neighbor where m_area_id=#{area_id}
+    </delete>
+
+</mapper>

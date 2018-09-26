@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.IRSAKeyDao">
+
+	<select id="get" resultType="java.lang.String">
+		SELECT encrypt_key from t_rsa_key where filename = #{0};
+	</select>
+	<select id="getRSAKey" resultType="com.cm.entity.RsaKey">
+		SELECT id,filename,encrypt_key encryptKey,undecrypt_key undecryptKey,filltime from t_rsa_key where filename = #{0};
+	</select>
+	<insert id="add" parameterType="com.cm.entity.RsaKey">
+		insert into t_rsa_key(filename,encrypt_key,undecrypt_key) values(#{filename}, #{encryptKey}, #{undecryptKey});
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="String">
+		delete from t_rsa_key where filltime &lt;= #{0};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="com.cm.entity.RsaKey">
+		update t_rsa_key
+		<set>
+			<if test="encryptKey != null">
+				encrypt_key=#{encryptKey}
+			</if>
+			<if test="undecryptKey != null">
+				undecrypt_key=#{undecryptKey}
+			</if>
+		</set>
+		where filename=#{filename}
+	</update>
+
+</mapper>

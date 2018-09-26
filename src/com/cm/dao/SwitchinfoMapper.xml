@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.SwitchinfoDao">
+	
+	<select id="getall" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.Switchinfo">
+		SELECT s.sensor_id,CONCAT_WS('.',s.ip,s.sensorId) pid,k.position,k.sensortype,DATE_FORMAT(s.starttime,'%Y-%m-%d %H:%i:%S') starttime,DATE_FORMAT(s.endtime,'%Y-%m-%d %H:%i:%S') endtime,s.avalue,s.status FROM
+		(SELECT a.sensor_id,b.sensorId,a.type,a.status,b.starttime starttime,b1.starttime endtime,b.ip,b.avalue FROM t_analoginfo_query a
+		LEFT JOIN t_analoginfo b ON a.startId=b.id
+		LEFT JOIN t_analoginfo b1 ON a.endId=b1.id
+		<where>
+			b.starttime <![CDATA[>=]]> #{starttime} 
+			AND b.starttime <![CDATA[<=]]> #{endtime} 
+			AND a.status=#{atype}
+			<if test="id>0">
+				and a.sensor_id=#{id}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND b.ip=#{ip}
+			</if>
+		</where>
+		) s
+		INNER JOIN 
+		(SELECT d.id id,t.v position,d.sensor_type,t1.v sensortype FROM t_switch_sensor d
+		LEFT JOIN t_static t ON d.sensor_position=t.id
+		LEFT JOIN t_static t1 ON d.sensor_type=t1.id) k ON s.sensor_id=k.id AND s.type=k.sensor_type
+		limit #{start_row},#{page_rows}
+	</select>
+	<select id="getallcount" parameterType="com.cm.entity.vo.NameTime" resultType="int">
+		SELECT count(a.sensor_id) FROM t_analoginfo_query a
+		LEFT JOIN t_analoginfo b ON a.startId=b.id
+		INNER join t_switch_sensor c on a.sensor_id=c.id and a.type=c.sensor_type
+		<where>
+			b.starttime <![CDATA[>=]]> #{starttime} 
+			AND b.starttime <![CDATA[<=]]> #{endtime} 
+			AND a.status=#{atype}
+			<if test="id>0">
+				and a.sensor_id=#{id}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND b.ip=#{ip}
+			</if>
+		</where>
+	</select>
+	<select id="getallAna" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.Switchinfo">
+		SELECT s.sensor_id,CONCAT_WS('.',s.ip,s.sensorId) pid,k.position,k.sensortype,s.starttime,s.endtime,s.avalue,s.status FROM
+		(SELECT a.sensor_id,b.sensorId,a.type,a.status,b.starttime starttime,b1.starttime endtime,b.ip,b.avalue FROM t_analoginfo_query a
+		LEFT JOIN t_analoginfo b ON a.startId=b.id
+		LEFT JOIN t_analoginfo b1 ON a.endId=b1.id
+		<where>
+			b.starttime <![CDATA[>=]]> #{starttime} 
+			AND b.starttime <![CDATA[<=]]> #{endtime} 
+			AND a.status=#{atype}
+			<if test="id>0">
+				and a.sensor_id=#{id}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND b.ip=#{ip}
+			</if>
+		</where>
+		) s
+		INNER JOIN 
+		(SELECT d.id id,t.v position,d.sensor_type,t1.v sensortype FROM t_switch_sensor d
+		LEFT JOIN t_static t ON d.sensor_position=t.id
+		LEFT JOIN t_static t1 ON d.sensor_type=t1.id) k ON s.sensor_id=k.id AND s.type=k.sensor_type
+	</select>
+	<select id="getAnas" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.AnalogoutVo">
+		SELECT DATE_FORMAT(ta.starttime,'%Y-%m-%d %H:%i:%S') starttime,ta.alevel alevel,ta.avalue avalue,ta.status status
+		FROM t_analoginfo ta
+		INNER JOIN t_switch_sensor ts ON  ta.sensor_id=ts.id and ta.type=ts.sensor_type
+		<where>
+			ta.starttime <![CDATA[>=]]> #{starttime} 
+			AND ta.starttime <![CDATA[<=]]> #{endtime} 
+			AND ta.status=#{atype}
+			<if test="id>0">
+				and ta.sensor_id=#{id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getWarnimgRec" parameterType="com.cm.entity.vo.SSParaVo" resultType="com.cm.entity.vo.SSWarning">
+		SELECT 
+		aq.ip,aq.sensor_id,aq.type sensor_type,aq.startTime starttime,aq.endTime endtime,aq.startValue,aq.endValue,s.k,ss.alais,aq.measure,aq.measuretime,
+		ss.sensor_position,tsc.v position,s.v type,aq.status,t2.power_scope,ss.power_scope
+		FROM t_analoginfo_query aq
+        LEFT JOIN t_substation tss on aq.ip = tss .ipaddr
+		LEFT JOIN t_switch_sensor ss ON aq.sensor_id = ss.sensorId and ss.station = tss.id
+		LEFT JOIN t_static s ON aq.type = s.id
+		LEFT JOIN t_static tsc ON ss.sensor_position = tsc.id
+        LEFT JOIN t_dev_link t1 ON t1.logic_devid = ss.id
+        LEFT JOIN t_switch_sensor t2 ON t1.action_devid = t2.id
+		<where>
+			<if test="null!=starttime and null==endtime">
+				and to_days(aq.starttime) = to_days(#{starttime})
+			</if>
+			<if test="null!=starttime and null!=endtime">
+				and aq.starttime between #{starttime} and #{endtime}
+			</if>
+			<if test="id > 0">
+				and aq.sensor_id=#{id}
+			</if>
+            <if test="null!=ip and ip!=''">
+                and aq.ip=#{ip}
+            </if>
+			<if test="sensor_position > 0">
+				and ss.sensor_position = #{sensor_position}
+			</if>
+			<if test="atype > 0">
+				and aq.`status` = #{atype}
+			</if>
+            <if test="sensor_type > 0">
+                and  aq.type = #{sensor_type}
+            </if>
+			<if test="list != null">
+				<foreach collection="list" item="id" open="and (" close=")" separator="or">  
+					aq.type = #{id}
+				</foreach>
+			</if>
+		</where> 
+	</select>
+	
+	<select id="getStatusChangeRecs" parameterType="com.cm.entity.vo.SSParaVo" resultType="com.cm.entity.vo.SwitchRecs">
+		SELECT ip,dev_id,devid,type,`value`,`status`,responsetime FROM t_coalMine
+		<where>
+			<if test="ip != null">
+				and ip = #{ip}
+			</if>
+			<if test="sensorId > 0">
+				and devid = #{sensorId}
+			</if>
+			<if test="areaId > 0">
+				and area_id = #{areaId}
+			</if>
+			AND debug = 0
+			<foreach collection="list" item="id" open="and (" close=")" separator="or">  
+				type = #{id}
+			</foreach> 
+			AND responsetime BETWEEN #{starttime} AND #{endtime}
+			ORDER BY ip,devid,responsetime
+		</where> 
+	</select>
+	
+</mapper>

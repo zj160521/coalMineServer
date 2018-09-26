@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.MaporgDao">
+	
+		<insert id="add" parameterType="com.cm.entity.Maporg">
+			insert into t_maporg(url,longitude,latitude,filename,img,type) 
+			values(#{url},#{longitude},#{latitude},#{filename},#{img},#{type})
+		</insert>
+		<update id="update" parameterType="com.cm.entity.Maporg">
+			update t_maporg 
+			<set>
+				<if test="url!=null and url!=''">
+					url=#{url},
+				</if>
+				<if test="filename!=null and filename!=''">
+					filename=#{filename},
+				</if>
+				<if test="longitude!=0">
+					longitude=#{longitude},
+				</if>
+				<if test="latitude!=0">
+					latitude=#{latitude},
+				</if>
+				<if test="img!=0">
+					img=#{img},
+				</if>
+				<if test="type!=0">
+					type=#{type}
+				</if>
+			</set>
+			where
+			id=#{id}
+		</update>
+		
+		<select id="get" resultType="com.cm.entity.Maporg">
+			select * from t_maporg
+		</select>
+		
+		<select id="getByType" parameterType="int" resultType="com.cm.entity.Maporg">
+			select * from t_maporg where type=#{type}
+		</select>
+		
+		<delete id="del" parameterType="com.cm.entity.Maporg">
+		    delete from t_maporg where id=#{id}
+		</delete>
+</mapper>

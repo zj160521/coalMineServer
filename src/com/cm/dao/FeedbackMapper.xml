@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.IFeedbackDao">
+
+	<select id="getCutStatus" resultType="com.cm.entity.Feedback">
+		SELECT id,ip,devid,DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') responsetime,cut_devid,is_cut,feedback,feedstatus FROM t_feedback
+		<where>
+			<if test="feedDevId > 0">
+				cut_devid=#{feedDevId}
+			</if>
+			<if test="startTime != null">
+				and responsetime >= #{startTime}
+			</if>
+			<if test="endTime != null">
+				and responsetime &lt;= #{endTime}
+			</if>
+			AND devid = #{devid} AND ip = #{ip}
+		</where>
+	</select>
+	
+	<select id="getCutFeedSensor" resultType="com.cm.entity.vo.CutFeedVo">
+		SELECT ss.id,ss.alais,ss.uid,sta.v sensorTypeName,sta2.v position 
+		FROM t_feedback fb
+		LEFT JOIN t_switch_sensor ss ON fb.cut_devid = ss.id
+		LEFT JOIN t_static sta ON ss.sensor_type = sta.id
+		LEFT JOIN t_static sta2 ON ss.sensor_position = sta2.id
+		<where>
+			fb.devid = #{devid} AND fb.ip = #{ip}
+		</where>
+		GROUP BY id
+	</select>
+
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.IRadioSoundDao">
+	<select id="get" parameterType="com.cm.entity.RadioSound" resultType="com.cm.entity.RadioSound">
+		SELECT r.*,o.name as radioName,u.name as userName from t_radio_sound r
+        left join t_radio o on r.radio_id=o.id
+        left join t_user u on r.user_id=u.id
+	</select>
+	
+	<insert id="add" parameterType="com.cm.entity.RadioSound">
+	    insert into t_radio_sound 
+	    <set>
+	       <if test="radio_id!=0">
+	          radio_id=#{radio_id},
+	       </if>
+	       <if test="user_id!=0">
+	          user_id=#{user_id},
+	       </if>
+	       <if test="sound_path!=null and sound_path!=''">
+	          sound_path=#{sound_path},
+	       </if>
+	       <if test="filename!=null and filename!=''">
+	          filename=#{filename}
+	       </if>
+	    </set>
+	</insert>
+</mapper>

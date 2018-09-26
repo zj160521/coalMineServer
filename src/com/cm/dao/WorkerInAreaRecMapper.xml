@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.IWorkerInAreaRecDao">
+	
+	<insert id="addRec">
+	   insert into t_workerInAreaRec
+	   <set>
+	      <if test="card_id != null">
+	          card_id=#{card_id},
+	      </if>
+	      <if test="area_id > 0">
+	          area_id=#{area_id},
+	      </if>
+	      <if test="dev_id > 0">
+	          dev_id=#{dev_id}
+	      </if>
+	   </set>
+	</insert>
+	
+
+
+	<select id="getCard" resultType="java.lang.Integer">
+		SELECT card_id from t_workerInAreaRec WHERE worker_id = 0 AND area_id = 0
+		AND responsetime BETWEEN #{0} AND #{1}
+		GROUP BY card_id
+	</select>
+	
+	<select id="getDailyRecByWorker" resultType="com.cm.entity.WorkerInAreaRec">
+		SELECT id,worker_id,card_id,area_id,dev_id,responsetime as startTime,status FROM t_workerInAreaRec 
+		WHERE worker_id = #{0} AND area_id = 0 AND responsetime BETWEEN #{1} AND #{2}
+		ORDER BY responsetime,id
+	</select>
+	
+	<select id="getDailyRecByCard" resultType="com.cm.entity.WorkerInAreaRec">
+		SELECT id,worker_id,card_id,area_id,dev_id,responsetime as startTime,status FROM t_workerInAreaRec 
+		WHERE area_id = 0 AND worker_id = 0 AND card_id = #{0} AND responsetime BETWEEN #{1} AND #{2}  
+		ORDER BY responsetime,id
+	</select>
+	
+	<select id="getDailyRecs" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.AreaPass">
+		SELECT wiar.id,wiar.worker_id workerId,wiar.card_id cardId,w.rfcard_id,wiar.area_id areaId,wiar.dev_id,IFNULL(a.areaname,'出入口') areaname,w.`name`,d.id departId,d.`name` departName,wt.id worktypeId,wt.`name` worktypeName,wt.special special
+		,w.duty_id dutyId, s.v dutyName,w.workplace_id workplaceId,s2.areaname workplace,wiar.responsetime as startTime,wiar.`status`,a.default_allow defaultAllow,a.emphasis emphasis
+			FROM t_workerInAreaRec wiar
+			LEFT JOIN t_worker w
+			ON wiar.worker_id = w.id
+			LEFT JOIN t_department d
+			ON w.depart_id = d.id
+			LEFT JOIN t_worktype wt
+			ON w.worktype_id = wt.id
+			LEFT JOIN t_area a
+			ON wiar.area_id = a.id
+			LEFT JOIN t_static s
+			ON w.duty_id = s.id
+			LEFT JOIN t_area s2
+			ON w.workplace_id = s2.id
+		<where>
+			<if test="area_ids != null">
+				<foreach collection="area_ids" item="area_id" open="and (" close=")" separator="or">
+                    wiar.area_id=#{area_id}
+                </foreach> 
+			</if>
+			<if test="depart_id > 0">
+				and w.depart_id = #{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				and w.worktype_id = #{worktype_id}
+			</if>
+			<if test="workerPlaceId > 0">
+				and w.workplace_id = #{workerPlaceId}
+			</if>
+			<if test="dutyId > 0">
+				and w.duty_id = #{dutyId}
+			</if>
+			<if test="special > 0">
+				and wt.special = #{special}
+			</if>
+			<if test="rfcard_id > 0">
+				and wiar.card_id = #{rfcard_id}
+			</if>
+			and responsetime BETWEEN #{starttime} AND #{endtime} and wiar.area_id >= 0
+		</where>
+			order by wiar.card_id,wiar.responsetime,wiar.id
+	</select>
+	
+	<select id="getCradWorker" resultType="com.cm.entity.CardWorker">
+	    SELECT w.id,w.rfcard_id AS card_id FROM t_worker w
+	</select>
+	
+	<select id="getRecentlyInMineRec" resultType="com.cm.entity.WorkerInAreaRec">
+	    SELECT id,card_id,area_id,dev_id,sub_id,`status`,worker_id,DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') responsetime,starTime FROM t_workerInAreaRec WHERE responsetime = 
+		(SELECT MAX(responsetime) responsetime from t_workerInAreaRec WHERE worker_id = #{0} AND area_id = 0 AND responsetime &lt; #{1})
+		AND worker_id = #{0} AND area_id = 0
+	</select>
+	
+	<select id="getRecentlyInMineRec2" resultType="com.cm.entity.WorkerInAreaRec">
+   		SELECT id,card_id,area_id,dev_id,sub_id,`status`,worker_id,DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') responsetime,starTime FROM t_workerInAreaRec WHERE responsetime = 
+		(SELECT MAX(responsetime) responsetime from t_workerInAreaRec WHERE card_id = #{0} AND area_id >= 0 AND responsetime &lt; #{1})
+		AND card_id = #{0} AND area_id >= 0
+	</select>
+
+    <select id="getWorkerName" resultType="com.cm.entity.Worker">
+        SELECT w.id,w.`name`,d.`name` AS departname,t.`name` AS worktypename,s.v AS duty
+        FROM t_worker w
+		LEFT JOIN t_department d
+		ON w.depart_id=d.id
+		LEFT JOIN t_worktype t
+		ON w.worktype_id=t.id
+		LEFT JOIN t_static s
+		ON w.duty_id=s.id
+    </select>
+</mapper>

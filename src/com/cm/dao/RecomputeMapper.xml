@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.RecomputeDao">
+
+    <select id="getReimportByTime" resultType="com.cm.entity.Coalmine_route">
+		SELECT * FROM t_coalMine_route WHERE filltime BETWEEN DATE_SUB(NOW(),INTERVAL 5 minute) AND NOW();
+	</select>
+
+	<select id="getReimport" resultType="com.cm.entity.Coalmine_route">
+		select * from t_coalMine_route where date(filltime) = curdate();
+	</select>
+	
+	<delete id="reimportDel">
+	    delete from t_coalMine_route where date(filltime) = curdate();
+	</delete>
+	
+	<select id="getCardGroup" resultType="com.cm.entity.Coalmine_route">
+		select * from t_coalMine_route where date(filltime) = curdate() GROUP BY date(filltime),card;
+	</select>
+	
+	<select id="getDayRoute" parameterType="java.util.Map" resultType="com.cm.entity.Coalmine_route">
+		${sql}
+	</select>
+	
+	<insert id="addold" parameterType="java.util.Map">
+	    ${sql}
+	</insert>
+	
+	<insert id="addAll" parameterType="java.util.List">
+		insert into t_workerInAreaRec (card_id,area_id,dev_id,status,sub_id,worker_id,responsetime)values
+	    <foreach collection="list" item="fuel" index="index" separator=",">  
+	       (#{fuel.card_id},#{fuel.area_id},#{fuel.dev_id},#{fuel.status},#{fuel.sub_id},#{fuel.worker_id},#{fuel.responsetime})
+	    </foreach>
+	</insert>
+	
+	<delete id="del">
+	    delete from t_workerInAreaRec where date(starTime)=#{0} and card_id=#{1};
+	</delete>
+</mapper>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.IDrainageRealTimeValueDao">
+
+	<select id="getAllrealtimevalue" resultType="com.cm.entity.vo.DrainageRealTimeValue">
+		SELECT t1.id,t1.`name`,t1.unit,t4.`value`
+		FROM t_drainage t1
+		LEFT JOIN t_drainage_sensor t2 ON t1.id=t2.drainageId
+		LEFT JOIN t_sensor t3 ON t2.sensorId=t3.id
+		LEFT JOIN t_coalMine t4 ON t3.id=t4.dev_id
+		WHERE t1.pid=#{id}
+	</select>
+
+</mapper>

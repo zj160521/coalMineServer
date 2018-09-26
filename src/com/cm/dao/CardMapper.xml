@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.CardDao">
+
+	<select id="getAll" parameterType="com.cm.entity.Card" resultType="com.cm.entity.Card">
+		select
+		c.checktime,w.rfcard_id,w.name,(select d.name from t_department d
+		where w.depart_id = d.id) as departname,
+		(select wt.name from t_worktype wt where wt.id = w.worktype_id) as
+		worktypename,c.battery
+		from t_worker w,t_card c
+		<where>
+			w.rfcard_id = c.cid
+			<if test="rfcard_id > 0">
+				and w.rfcard_id = #{rfcard_id} 
+			</if>
+			<if test="depart_id > 0">
+				and w.depart_id = #{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				and w.worktype_id = #{worktype_id}
+			</if>
+			<if test="starttime != null">
+				and c.checktime <![CDATA[>=]]> #{starttime} 
+			</if>
+			<if test="endtime != null">
+				and c.checktime <![CDATA[<=]]> #{endtime}
+			</if>
+		</where>
+	</select>
+</mapper>

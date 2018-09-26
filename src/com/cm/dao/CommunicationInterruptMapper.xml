@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.CommunicationInterruptDao">
+	 
+	<select id="getbySensor" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.CommunicationVo">
+		SELECT a.id,f.id sensor_id,f.alais,DATE_FORMAT(a.startTime,'%Y-%m-%d %H:%i:%S') starttime,DATE_FORMAT(a.endTime,'%Y-%m-%d %H:%i:%S') endtime,a.type,f.position position,f.sensortype,f.uid,a.status,a.debug FROM t_analoginfo_query a 
+		INNER JOIN 
+		(SELECT a.id,c.ipaddr,a.sensorId,a.sensor_type,b.v position,a.alais,d.v sensortype,a.uid,a.sensor_position FROM t_sensor a
+		LEFT JOIN t_static b ON a.sensor_position=b.id
+		LEFT JOIN t_static d ON a.sensor_type=d.id
+		LEFT JOIN t_substation c ON a.station=c.id WHERE a.isDrainage=0)f ON a.ip=f.ipaddr AND a.sensor_id=f.sensorId AND a.type=f.sensor_type
+		<where>
+			(a.status=5 or a.debug=1 or a.debug=2)
+			<if test="starttime!=null and endtime!=null">
+			AND	a.startTime<![CDATA[>=]]> #{starttime}
+			AND a.startTime<![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="starttime!=null and endtime==null">
+			AND TO_DAYS(a.startTime)=TO_DAYS(#{starttime})
+			</if>
+			<if test="id>0">
+				and f.id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and a.type=#{sensor_type}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND a.ip=#{ip}
+			</if>
+			<if test="sensor_position>0">
+				and f.sensor_position=#{sensor_position}
+			</if>
+			AND a.endId>0
+		</where>
+	</select>
+	
+	<select id="getbySwitch" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.CommunicationVo">
+		SELECT a.id,f.id sensor_id,f.alais,DATE_FORMAT(a.startTime,'%Y-%m-%d %H:%i:%S') starttime,DATE_FORMAT(a.endTime,'%Y-%m-%d %H:%i:%S') endtime,a.type,f.position position,f.sensortype,f.uid,a.status,a.debug FROM t_analoginfo_query a 
+		INNER JOIN 
+		(SELECT a.id,c.ipaddr,a.sensorId,a.sensor_type,b.v position,a.alais,d.v sensortype,a.uid,a.sensor_position FROM t_switch_sensor a
+		LEFT JOIN t_static b ON a.sensor_position=b.id
+		LEFT JOIN t_static d ON a.sensor_type=d.id
+		LEFT JOIN t_substation c ON a.station=c.id WHERE a.isDrainage=0)f ON a.ip=f.ipaddr AND a.sensor_id=f.sensorId AND a.type=f.sensor_type
+		<where>
+			(a.status=5 or a.debug=1 or a.debug=2)
+			<if test="starttime!=null and endtime!=null">
+			AND	a.startTime<![CDATA[>=]]> #{starttime}
+			AND a.startTime<![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="starttime!=null and endtime==null">
+			AND TO_DAYS(a.startTime)=TO_DAYS(#{starttime})
+			</if>
+			<if test="id>0">
+				and f.id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and a.type=#{sensor_type}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND a.ip=#{ip}
+			</if>
+			<if test="sensor_position>0">
+				and f.sensor_position=#{sensor_position}
+			</if>
+			AND a.endId>0
+		</where>
+	</select>
+	
+	
+	
+	
+	<select id="getbySensors" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.Analoginfo">
+		SELECT k.sensor_id,k.ip,k.sensorId,DATE_FORMAT(k.starttime,'%Y-%m-%d %H:%i:%S') starttime,DATE_FORMAT(k.endtime,'%Y-%m-%d %H:%i:%S') endtime,s.v sensortype,s1.v position from 
+		(SELECT a.id,b.ip,b.sensorId,a.sensor_id,b.starttime,b1.starttime endtime,a.type,e.sensor_position position
+		 FROM t_analoginfo_query a 
+		LEFT JOIN t_analoginfo b ON a.startId=b.id 
+		LEFT JOIN t_analoginfo b1 ON a.endId=b1.id
+		INNER JOIN t_sensor e ON a.sensor_id=e.id AND a.type=e.sensor_type
+		WHERE (a.status=#{atype}
+			AND	b.starttime <![CDATA[>=]]> #{starttime} 
+			AND b.starttime <![CDATA[<=]]> #{endtime} 
+			<if test="id>0">
+				and a.sensor_id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and a.type=#{sensor_type}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND b.ip=#{ip}
+			</if>
+			AND a.endId>0) 
+			OR 
+			(a.status=#{atype}
+			<if test="id>0">
+				and a.sensor_id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and a.type=#{sensor_type}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND b.ip=#{ip}
+			</if>
+			AND a.endId=0)) k
+		LEFT JOIN t_static s ON k.type=s.id
+		LEFT JOIN t_static s1 ON k.position=s1.id
+		UNION
+		SELECT k.sensor_id,k.ip,k.sensorId,DATE_FORMAT(k.starttime,'%Y-%m-%d %H:%i:%S') starttime,DATE_FORMAT(k.endtime,'%Y-%m-%d %H:%i:%S') endtime,s.v sensortype,s1.v position from 
+		(SELECT a.id,b.ip,b.sensorId,a.sensor_id,b.starttime,b1.starttime endtime,a.type,f.sensor_position position FROM t_analoginfo_query a 
+		LEFT JOIN t_analoginfo b ON a.startId=b.id 
+		LEFT JOIN t_analoginfo b1 ON a.endId=b1.id
+		INNER JOIN t_switch_sensor f ON a.sensor_id=f.id AND a.type=f.sensor_type
+		WHERE (a.status=#{atype}
+			AND	b.starttime <![CDATA[>=]]> #{starttime} 
+			AND b.starttime <![CDATA[<=]]> #{endtime} 
+			<if test="id>0">
+				and a.sensor_id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and a.type=#{sensor_type}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND b.ip=#{ip}
+			</if>
+			AND a.endId>0) 
+			OR 
+			(a.status=#{atype}
+			<if test="id>0">
+				and a.sensor_id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and a.type=#{sensor_type}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND b.ip=#{ip}
+			</if>
+			AND a.endId=0) ) k
+		LEFT JOIN t_static s ON k.type=s.id
+		LEFT JOIN t_static s1 ON k.position=s1.id
+	</select>
+	
+	<select id="getcount" parameterType="com.cm.entity.vo.NameTime" resultType="int">
+		SELECT SUM(t.cnt) FROM
+		(SELECT  COUNT(a.id) cnt FROM t_analoginfo_query a 
+		LEFT JOIN t_analoginfo b ON a.startId=b.id 
+		LEFT JOIN t_analoginfo b1 ON a.endId=b1.id
+		INNER JOIN t_sensor e ON a.sensor_id=e.id AND a.type=e.sensor_type
+		WHERE (a.status=#{atype}
+			AND	b.starttime <![CDATA[>=]]> #{starttime} 
+			AND b.starttime <![CDATA[<=]]> #{endtime} 
+			<if test="id>0">
+				and a.sensor_id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and a.type=#{sensor_type}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND b.ip=#{ip}
+			</if>
+			AND a.endId>0) 
+			OR 
+			(a.status=#{atype}
+			<if test="id>0">
+				and a.sensor_id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and a.type=#{sensor_type}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND b.ip=#{ip}
+			</if>
+			AND a.endId=0)
+		UNION
+		SELECT  COUNT(a.id) cnt FROM t_analoginfo_query a 
+		LEFT JOIN t_analoginfo b ON a.startId=b.id 
+		LEFT JOIN t_analoginfo b1 ON a.endId=b1.id
+		INNER JOIN t_switch_sensor f ON a.sensor_id=f.id AND a.type=f.sensor_type
+		WHERE (a.status=#{atype}
+			AND	b.starttime <![CDATA[>=]]> #{starttime} 
+			AND b.starttime <![CDATA[<=]]> #{endtime} 
+			<if test="id>0">
+				and a.sensor_id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and a.type=#{sensor_type}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND b.ip=#{ip}
+			</if>
+			AND a.endId>0) 
+			OR 
+			(a.status=#{atype}
+			<if test="id>0">
+				and a.sensor_id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and a.type=#{sensor_type}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND b.ip=#{ip}
+			</if>
+			AND a.endId=0)) t
+	</select>
+	<select id="getallbySensor" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.Analoginfo">
+		SELECT  tat.id id,tat.starttime starttime,tat.status status
+		FROM
+		(SELECT c.id id,DATE_FORMAT(c.starttime,'%Y-%m-%d %H:%i:%S') starttime,c.status status
+		FROM t_analoginfo c
+		LEFT JOIN t_sensor s ON s.id=c.sensor_id AND s.sensor_type=c.type
+		LEFT JOIN t_switch_sensor w ON w.id=c.sensor_id AND w.sensor_type=c.type
+		<where>
+			c.status=#{atype}
+			AND	c.starttime <![CDATA[>=]]> #{starttime} 
+			AND c.starttime <![CDATA[<=]]> #{endtime} 
+			<if test="id>0">
+				and c.sensor_id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and c.type=#{sensor_type}
+			</if>
+			</where> 
+			) tat
+	</select>
+	
+	
+</mapper>

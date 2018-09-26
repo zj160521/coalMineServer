@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.WindwattDao">
+	
+	<insert id="addWindwatt" parameterType="com.cm.entity.Windwatt" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO t_windwatt(areaId,name,alarm) VALUES(#{areaId},#{name},#{alarm})
+	</insert>
+	
+	<insert id="addWindwattSensor">
+		 INSERT INTO t_windwatt_sensor(serialnumber,uid,alarmvalue,powervalue,status,windwattId) VALUES 
+	    <foreach collection="list" item="it" index="index" separator=","> 
+			(#{it.serialnumber},#{it.uid},#{it.alarmvalue},#{it.powervalue},#{it.status},#{it.windwattId})
+	    </foreach>
+	</insert>
+	
+	<update id="updateWindwatt" parameterType="com.cm.entity.Windwatt">
+		UPDATE t_windwatt set areaId=#{areaId},name=#{name},alarm=#{alarm} where id=#{id} 
+	</update>
+	
+	<update id="updateWindwattSensor" parameterType="com.cm.entity.vo.WindwattVo">
+		UPDATE t_windwatt_sensor set uid=#{uid},alarmvalue=#{alarmvalue},powervalue=#{powervalue},status=#{status} where serialnumber=#{serialnumber} and windwattId=#{windwattId}
+	</update>
+	
+	<delete id="deleteWindwatt">
+		delete from t_windwatt where id=#{id}
+	</delete>
+	
+	<delete id="deleteWindwattSensor">
+		delete from t_windwatt_sensor where windwattId=#{windwattId}
+	</delete>
+	
+	<select id="getallWindwatt" resultType="com.cm.entity.Windwatt">
+		select * from t_windwatt
+	</select>
+	
+	<select id="getWindwattSensor" resultType="com.cm.entity.vo.WindwattVo">
+		select * from t_windwatt_sensor where windwattId=#{windwattId}
+	</select>
+	
+	<select id="getallsensor"  resultType="com.cm.entity.vo.WindwattVo">
+		SELECT serialnumber,uid FROM t_windwatt_sensor
+	</select>
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.ILicenseDao">
+	
+	<insert id="add" parameterType="com.cm.entity.License">
+	    INSERT INTO t_license (type,license) VALUES (#{type},#{license})
+	</insert>
+	
+	<update id="update" parameterType="com.cm.entity.License">
+	    UPDATE t_license SET license=#{license} WHERE id=#{id}
+	</update>
+	
+	<select id="getAll" resultType="com.cm.entity.License">
+	    SELECT l.*,p.`name` FROM t_license l
+        LEFT JOIN t_permission p ON p.id=l.type
+	</select>
+	
+	<delete id="del" parameterType="int">
+	    DELETE FROM t_license WHERE id=#{id};
+	</delete>
+</mapper>

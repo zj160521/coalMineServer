@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.DevLinkDao">
+	
+	<insert id="addDevLink" parameterType="java.util.List">
+	    INSERT INTO t_dev_link(id,logic_devid,action_devid,action,param) VALUES 
+	    <foreach collection="list" item="it" index="index" separator=","> 
+			(#{it.id},#{it.lgcDevId},#{it.actDevId},#{it.action},#{it.param})
+	    </foreach>
+	</insert>
+	
+	<insert id="addDevLgcGroup" parameterType="java.util.List">
+	    INSERT INTO t_dev_logic_group(id,pid,area_id,name,logic_exps,alarm,is_use,file_path,crarea,least_num,repower_exps,isControl) VALUES
+	    <foreach collection="list" item="it" index="index" separator=","> 
+			(#{it.id},#{it.pid},#{it.areaId},#{it.name},#{it.lgcExps},#{it.alarm},#{it.isUse},#{filePath},#{crarea},#{leastNum},#{repowerExps},#{isControl})
+	    </foreach>
+	</insert>
+	
+	<update id="updateLgcGroup" parameterType="com.cm.entity.vo.DevLinkVo" >
+	  update t_dev_logic_group
+		   <set>
+			   <if test="pid > 0">
+			   		pid = #{pid},
+			   </if>
+			   <if test="areaId > 0">
+			   		area_id = #{areaId},
+			   </if>
+			   <if test="name != null">
+			   		name = #{name},
+			   </if>
+			   <if test="lgcExps != null">
+			   		logic_exps = #{lgcExps},
+			   </if>
+			   <if test="alarm != null">
+			   		alarm = #{alarm},
+			   </if>
+			   <if test="isUse > 0">
+			   		is_use = #{isUse},
+			   </if>
+			    <if test="filePath != null">
+			   		file_path = #{filePath},
+			   </if>
+			   <if test="crarea != 0">
+			   		crarea = #{crarea},
+			   </if>
+			   <if test="leastNum > 0">
+			   		least_num = #{leastNum},
+			   </if>
+			   <if test="repowerExps != null">
+			   		repower_exps = #{repowerExps},
+			   </if>
+			   <if test="isControl != null">
+			   		isControl = #{isControl},
+			   </if>
+		   </set> 
+	   where id = #{id}
+  	</update>
+	
+	<insert id="addLgcGroup" parameterType="com.cm.entity.vo.DevLinkVo" useGeneratedKeys="true" keyProperty="id">  
+       INSERT INTO t_dev_logic_group(pid,area_id,name,logic_exps,alarm,is_use,file_path,crarea,least_num,repower_exps,isControl) VALUES
+         (#{pid},#{areaId},#{name},#{lgcExps},#{alarm},#{isUse},#{filePath},#{crarea},#{leastNum},#{repowerExps},#{isControl})
+    </insert> 
+	
+	<insert id="addDevLgc" parameterType="java.util.List">
+	    INSERT INTO t_dev_logic(group_id,logic_devid,dev,logic_value,logic_Operator,dev_type,logic_exps,switchvalue_text,dsp,dev2,comparison_type,
+	    ip,repower_value,repower_operator,repower_exps,scene,dev2_id,uid,uid2,logic_operator2,logic_value2,value_change,reverting,debugList) VALUES
+	    <foreach collection="list" item="it" index="index" separator=","> 
+			(#{it.groupId},#{it.lgcDevid},#{it.dev},#{it.value},#{it.lgcOperator},#{it.type},#{it.lgcExps},#{it.switchValueText}
+			,#{it.dsp},#{it.dev2},#{it.comparisonType},#{it.ip},#{it.value2},#{it.lgcOperator2},#{it.repowerExps},#{it.scene},#{it.dev2Id},
+			#{it.uid},#{it.uid2},#{it.lgcOperator3},#{it.value3},#{it.value_change},#{it.reverting},#{it.debugList})
+	    </foreach>
+	</insert>
+	
+	<update id="updateDevLgc" parameterType="java.util.List" >
+	   <foreach collection="list" item="obj" index="index" separator=";"> 
+	   		update t_dev_logic 
+		   <set>
+			   <if test="obj.groupId > 0">
+			   		group_id = #{obj.groupId},
+			   </if>
+			   <if test="obj.lgcDevid > 0">
+			   		logic_devid = #{obj.lgcDevid},
+			   </if>
+			   <if test="obj.dev != null">
+			   		dev = #{obj.dev},
+			   </if>
+			   <if test="obj.value != null">
+			   		logic_value = #{obj.value},
+			   </if>
+			   <if test="obj.lgcOperator != null">
+			   		logic_Operator = #{obj.lgcOperator},
+			   </if>
+			   <if test="obj.type >= 0">
+			   		dev_type = #{obj.type},
+			   </if>
+			   <if test="obj.lgcExps != null">
+			   		logic_exps = #{obj.lgcExps},
+			   </if>
+			   <if test="obj.switchValueText != null">
+			   		switchvalue_text = #{obj.switchValueText},
+			   </if>
+			   <if test="obj.dsp != null">
+			   		dsp = #{obj.dsp},
+			   </if>
+			   <if test="obj.dev2 != null">
+			   		dev2 = #{obj.dev2},
+			   </if>
+			   <if test="obj.comparisonType > 0">
+			   		comparison_type = #{obj.comparisonType},
+			   </if>
+		       <if test="obj.ip != null">
+			   		ip = #{obj.ip},
+			   </if>
+			   <if test="obj.value2  > 0">
+			   		repower_value = #{obj.value2},
+			   </if>
+			   <if test="obj.lgcOperator2 != null">
+			   		repower_operator = #{obj.lgcOperator2},
+			   </if>
+			   <if test="obj.repowerExps != null">
+			   		repower_exps = #{obj.repowerExps},
+			   </if>
+			   <if test="obj.scene > 0">
+			   		scene = #{obj.scene},
+			   </if>
+			   <if test="obj.dev2Id > 0">
+			   		dev2_id = #{obj.dev2Id},
+			   </if>
+			   <if test="obj.uid != null">
+			   		uid = #{obj.uid},
+			   </if>
+			   <if test="obj.uid2 != null">
+			   		uid2 = #{obj.uid2},
+			   </if>
+			   <if test="obj.lgcOperator3 != null">
+			   		logic_operator2 = #{obj.lgcOperator3},
+			   </if>
+			   <if test="obj.value3 != null">
+			   		logic_value2 = #{obj.value3},
+			   </if>
+			   <if test="obj.value_change != null">
+			   		value_change = #{obj.value_change},
+			   </if>
+			   <if test="obj.reverting != null">
+			   		reverting = #{obj.reverting},
+			   </if>
+			   <if test="obj.debugList != null">
+			   		debugList = #{obj.debugList},
+			   </if>
+		   </set> 
+		   where id = #{obj.id}
+		</foreach>
+  	</update>
+	
+	<insert id="addDevAction" parameterType="java.util.List">
+	    INSERT INTO t_dev_action(group_id,action_devid,dev,action,param,dev_type,dsp,ip,sensor_id,uid) VALUES
+	    <foreach collection="list" item="it" index="index" separator=","> 
+			(#{it.groupId},#{it.actDevid},#{it.dev},#{it.action},#{it.param},#{it.devType},#{it.dsp},#{it.ip},#{it.sensorId},#{it.uid})
+	    </foreach>
+	</insert>
+	
+	<!-- 添加基础联动 -->
+	<insert id="addBasisDevLink">
+		 INSERT INTO t_dev_link(logic_devid,logic_uid,logic_ip,logic_type,action_devid,action_uid,action_ip,action_type,logic_exps,action,param,repower_exps,dsp) VALUES 
+		 <foreach collection="list" item="s" index="index" separator=",">
+		 	(#{s.lgcDevId},#{s.logic_uid},#{s.logic_ip},#{s.logic_type},#{s.actDevId},#{s.action_uid},#{s.action_ip},#{s.action_type},#{s.logic_exps},#{s.action},#{s.param},#{s.repower_exps},#{s.dsp})
+		 </foreach>
+	</insert>
+	
+	<select id="getBasisDevlink" resultType="com.cm.entity.DevLink">
+		SELECT logic_uid,action_uid,action_type,action_ip,action_devid actDevId,param,CONCAT_WS('/',b.alais,b.sensortype,b.v) dsp FROM t_dev_link a
+		LEFT JOIN
+		(SELECT a.uid,a.alais,b.v,c.v sensortype FROM t_switch_sensor a
+		LEFT JOIN t_static b ON a.sensor_position=b.id
+		LEFT JOIN t_static c ON a.sensor_type=c.id	
+		UNION
+		SELECT a.uid,a.alais,b.v,c.v sensortype FROM t_radio a 
+		LEFT JOIN t_static b ON a.positionId=b.id
+		LEFT JOIN t_static c ON a.type=c.id)b ON a.action_uid=b.uid
+	</select>
+	
+	<update id="updateBasisDevlink" parameterType="com.cm.entity.DevLink">
+		update t_dev_link 
+			<set>
+				<if test="actDevId>0">
+					action_devid=#{actDevId},
+				</if>
+				<if test="action!=null and action!=''">
+					action=#{action},
+				</if>
+				<if test="param>=0">
+					param=#{param},
+				</if>
+				<if test="logic_exps!=null and logic_exps!=''">
+					logic_exps=#{logic_exps},
+				</if>
+				<if test="repower_exps!=null and repower_exps!=''">
+					repower_exps=#{repower_exps}
+				</if>
+			</set>
+			where id=#{id}
+	</update>
+	
+	<delete id="deleteBasisDevlink" parameterType="com.cm.entity.DevLink">
+		DELETE FROM t_dev_link WHERE logic_uid=#{logic_uid}
+	</delete>
+	
+	<update id="updateDevAction" parameterType="java.util.List" >
+	   <foreach collection="list" item="obj" index="index" separator=";"> 
+	  		 update t_dev_action 
+		   <set>
+			   <if test="obj.groupId > 0">
+			   		group_id = #{obj.groupId},
+			   </if>
+			   <if test="obj.actDevid > 0">
+			   		action_devid = #{obj.actDevid},
+			   </if>
+			   <if test="obj.dev != null">
+			   		dev = #{obj.dev},
+			   </if>
+			   <if test="obj.action != null">
+			   		action = #{obj.action},
+			   </if>
+			   <if test="obj.param != null">
+			   		param = #{obj.param},
+			   </if>
+			    <if test="obj.devType > 0">
+			   		dev_type = #{obj.devType},
+			   </if>
+			   <if test="obj.dsp != null">
+			   		dsp = #{obj.dsp},
+			   </if>
+			   <if test="obj.ip != null">
+			   		ip = #{obj.ip},
+			   </if>
+			   <if test="obj.sensorId > 0">
+			   		sensor_id = #{obj.sensorId},
+			   </if>
+			   <if test="obj.uid != null">
+			   		uid = #{obj.uid},
+			   </if>
+		   </set> 
+		   where id = #{obj.id}
+		</foreach>
+  	</update>
+
+	<select id="getAllGroupLgc" resultType="com.cm.entity.vo.GroupLgc">
+		SELECT dlg.id groupId,pid,`name`,area_id areaId,alarm,is_use isUse,least_num leastNum,dlg.logic_exps groupExps,file_path filePath,crarea,dl.id lgcId,logic_devid lgcDevId,dev,
+			   logic_value value,logic_Operator lgcOperator,dev_type type,dl.logic_exps lgcExps,switchvalue_text switchValueText,dsp,dev2,comparison_type comparisonType,
+			   dl.repower_exps reLgcExps,dl.repower_operator reOper,dl.repower_value reValue,dlg.repower_exps reGroupExps,scene,dev2_id dev2Id,isControl,uid,uid2,
+			   logic_operator2 lgcOperator3,logic_value2 value3,value_change,reverting,debugList
+			FROM t_dev_logic_group dlg
+			LEFT JOIN t_dev_logic dl
+			ON dl.group_id = dlg.id where dlg.pid=0
+	</select>
+	
+	<select id="getDevLinkVos" resultType="com.cm.entity.vo.DevlinksVo">
+		SELECT id,name label FROM t_dev_logic_group WHERE pid=0
+	</select>
+	
+	<select id="getbygoupid" resultType="java.lang.String">
+		SELECT uid FROM t_dev_action WHERE group_id=#{pid}
+		UNION
+		SELECT uid FROM t_dev_logic WHERE group_id=#{pid}
+	</select>
+	
+	<select id="getAllAct" resultType="com.cm.entity.DevAction">
+		SELECT id,group_id groupId,action_devid actDevid,dev,action,param,dev_type devType,dsp,ip,sensor_id sensorId,uid FROM t_dev_action
+	</select>
+	
+  	<delete id="delGroup" parameterType="java.util.List" >  
+		delete from t_dev_logic_group
+		<where>
+			<foreach collection="list" item="id" open="and (" close=")" separator="or">  
+				id=#{id}
+			</foreach>
+		</where> 
+	</delete>
+	
+	<delete id="delDecAction" >  
+		delete from t_dev_action where id= #{0}
+	</delete>
+	
+	<delete id="delLgc" >  
+		delete from t_dev_logic where id= #{0}
+	</delete>
+	
+	<delete id="delActByGrp" >  
+		delete from t_dev_action where group_id = #{0} and dev_type = #{1}
+	</delete>
+
+    <select id="getAllDevLink" resultType="com.cm.entity.DevLink">
+        select id,logic_devid lgcDevId,action_devid actDevId,logic_exps,action,param,repower_exps from t_dev_link
+    </select>
+    
+    <select id="getDevLinkById" resultType="com.cm.entity.DevLink">
+		select dl.id,dl.logic_devid lgcDevId,dl.action_devid actDevId,dl.logic_exps,dl.action,dl.param,dl.repower_exps,aq.startTime,aq.endTime
+		from t_dev_link dl
+		LEFT JOIN t_switch_sensor ss ON dl.action_devid = ss.id
+		LEFT JOIN t_analoginfo_query aq ON ss.sensorId = aq.sensor_id
+		where dl.id = #{id} AND ss.sensor_type = 56 AND aq.status = 1 AND aq.endTime > #{startTime} AND aq.startTime &lt; #{endTime}
+    </select>
+    
+    <delete id="deletelgcgroup">
+    	delete from t_dev_logic_group where pid=#{pid}
+    </delete>
+    
+    <select id="getBasicDevLinkById" resultType="com.cm.entity.vo.BasicDevLinkVo">
+		select dl.id,dl.logic_devid lgcDevId,dl.action_devid actDevId,dl.logic_exps,dl.action,dl.param,dl.repower_exps,ss.sensorId,sub.ipaddr
+		from t_dev_link dl
+		LEFT JOIN t_switch_sensor ss ON action_devid = ss.sensorId
+		LEFT JOIN t_substation sub ON ss.station = sub.id
+		where dl.id = #{id} AND ss.sensor_type = 56
+    </select>
+    
+     <select id="getCutDevScope" resultType="com.cm.entity.vo.BasicDevLinkVo">
+		SELECT power_scope FROM t_dev_link 
+		LEFT JOIN t_switch_sensor ss ON action_devid = ss.sensorId
+		LEFT JOIN t_substation sub ON ss.station = sub.id
+		WHERE logic_ip = #{ip} AND logic_devid = #{id} AND action_type = 56 OR action_type = 53
+    </select>
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.IPermissionDao">
+	
+	<select id="getAllPermission" resultType="com.cm.entity.Permission">
+	    SELECT id,pid,name as pname,icon,path,ctrlpath FROM t_permission
+	</select>
+	
+	<select id="getAllPermissionByRole" parameterType="int" resultType="com.cm.entity.Permission">
+	    SELECT mp.permission_id as id,p.pid,p.`name`,p.ctrlpath 
+        FROM t_mid_permission mp 
+        LEFT JOIN t_permission p
+        ON mp.permission_id=p.id
+        WHERE mp.role_id=#{roleid} 
+	</select>
+	
+	<delete id="delPermissionByPid" parameterType="int">
+	     DELETE FROM t_mid_permission WHERE permission_id=#{permission_id};
+	</delete>
+	
+	<delete id="delPermissionByRole" parameterType="int">
+	     DELETE FROM t_mid_permission WHERE role_id=#{roleid};
+	</delete>
+	
+	<insert id="addAllPer" parameterType="java.util.List">
+		insert into t_mid_permission(role_id,permission_id) values
+		<foreach collection="list" item="it" index="index" separator=","> 
+		(#{it.roleid},#{it.id})
+		</foreach>
+		on duplicate key update id=id
+	</insert>
+	
+	<select id="getMidPer"  parameterType="int" resultType="com.cm.entity.MidPermission">
+	    select * from t_mid_permission where permission_id=#{permission_id}
+	</select>
+	
+	<select id="getAllRoleId"  resultType="com.cm.entity.MidPermission">
+	    select * from t_mid_permission group by role_id;
+	</select>
+	
+	<insert id="addMidPer" parameterType="com.cm.entity.MidPermission">
+	    insert into t_mid_permission (role_id,permission_id) values(#{role_id},#{permission_id})
+	</insert>
+</mapper>

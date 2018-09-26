@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.CheckcardpersonDao">
+	
+	
+	<select id="getall" parameterType="com.cm.entity.vo.CheckcardpersonVo" resultType="com.cm.entity.Checkcardperson">
+		SELECT a.card_id rfcard_id,a.worker_id,b.name,b.isuse,b.idnumber,TIMESTAMPDIFF(YEAR,b.birthday,NOW()) age,c.v duty,d.name worktype,e.name department,f.areaname workplace FROM
+		(SELECT b.card_id,b.worker_id FROM
+		(SELECT card_id,worker_id  FROM t_workerInAreaRec WHERE MONTH(responsetime)=MONTH(#{month}) ORDER BY responsetime DESC)b GROUP BY b.card_id,worker_id) a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		LEFT JOIN t_static c ON b.duty_id=c.id
+		LEFT JOIN t_worktype d ON b.worktype_id=d.id
+		LEFT JOIN t_department e ON b.depart_id=e.id
+		LEFT JOIN t_area f ON b.workplace_id=f.id
+		<where>
+			1=1
+			<if test="rfcard_id!=null and rfcard_id!=''">
+			and b.rfcard_id=#{rfcard_id}	
+			</if>
+			<if test="name!=null and name!=''">
+			and b.name like concat('%',#{name},'%')
+			</if>
+			<if test="duty_id!=null and duty_id.length>0">
+			and b.duty_id in
+				<foreach collection="duty_id" item="duty_id" index="index" open="(" close=")" separator=",">
+				#{duty_id}
+				</foreach>
+			</if>
+			<if test="worktype_id>0">
+			and b.worktype_id=#{worktype_id}
+			</if>
+			<if test="department_id>0">
+			and b.depart_id=#{department_id}
+			</if>
+			<if test="workplace_id>0">
+			and b.workplace_id=#{workplace_id}
+			</if>
+			<if test="special>0">
+			and d.special=#{special}
+			</if>
+		</where>
+		 ORDER BY a.card_id
+	</select>
+	
+	<select id="getallbycard" parameterType="com.cm.entity.vo.CheckcardpersonVo" resultType="com.cm.entity.WorkerTrackRecord">
+		SELECT a.id id,a.card_id card_id,c.name,c.isuse,DATE_FORMAT(b.responsetime,'%Y-%m-%d') theDate,a.wokerInArea_intoId wokerInArea_intoId,
+		a.wokerInArea_outId wokerInArea_outId,DATE_FORMAT(b.responsetime,'%Y-%m-%d %H:%i:%S') intoTime,DATE_FORMAT(b1.responsetime,'%Y-%m-%d %H:%i:%S') outTime,TIME_TO_SEC(TIMEDIFF(b1.responsetime,b.responsetime)) seconds FROM t_workerTrackRecord a
+		LEFT JOIN t_workerInAreaRec b  ON a.wokerInArea_intoId=b.id
+		LEFT JOIN t_workerInAreaRec b1 ON a.wokerInArea_outId=b1.id
+		LEFT JOIN t_worker c ON c.rfcard_id=a.card_id
+		where a.card_id=#{rfcard_id} and a.worker_id=#{worker_id} and MONTH(b.responsetime)=MONTH(#{month}) ORDER BY b.starTime
+	</select>
+	
+	<select id="getData" parameterType="com.cm.entity.vo.CheckcardpersonVo" resultType="com.cm.entity.WorkerInAreaRec">
+		SELECT a.card_id,b.name,b.isuse,a.area_id,a.dev_id,DATE_FORMAT(a.responsetime,'%Y-%m-%d') theDate,DATE_FORMAT(a.responsetime,'%Y-%m-%d %H:%i:%S') startTime,DATE_FORMAT(a.responsetime,'%Y-%m-%d %H:%i:%S') responsetime,a.status 
+		FROM t_workerInAreaRec a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		WHERE MONTH(a.responsetime)=MONTH(#{month}) AND a.card_id=#{rfcard_id} AND a.worker_id=#{worker_id} ORDER BY a.card_id,responsetime
+	</select>
+</mapper>

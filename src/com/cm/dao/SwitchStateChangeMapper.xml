@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.SwitchStateChangeDao">
+	
+	
+	<select id="getBasicdata" resultType="com.cm.entity.Coalmine">
+		SELECT a.ip,a.devid,a.type,a.value,DATE_FORMAT(a.responsetime,'%Y-%m-%d %H:%i:%S') responsetime,
+		DATE_FORMAT(a.responsetime,'%Y-%m-%d 00:00:00') filltime,b.dev_id,b.k response,a.status FROM
+		(SELECT ip,devid,type,value,responsetime,status FROM ${tablename}  WHERE TO_DAYS(responsetime)=(TO_DAYS(NOW()))-1)a
+		INNER JOIN
+		(SELECT a.id dev_id,b.ipaddr,a.sensorId,a.sensor_type,c.k FROM t_switch_sensor a
+		LEFT JOIN t_substation b ON a.station=b.id 
+		LEFT JOIN t_static c ON a.sensor_type=c.id
+		)b ON a.ip=b.ipaddr AND a.devid=b.sensorId AND a.type=b.sensor_type 
+		ORDER BY b.dev_id,a.responsetime
+	</select>
+	
+	<select id="isexisting" parameterType="com.cm.entity.vo.SwitchStateChangeVo" resultType="int">
+		SELECT COUNT(id) FROM t_switch_statechange WHERE filltime=#{filltime}
+	</select>
+	
+	
+	<insert id="add">
+		INSERT INTO t_switch_statechange(dev_id,ip,devid,type,value,statechange,responsetime,filltime) 
+		VALUES
+		<foreach collection="list" item="s" index="index" separator=",">
+		(#{s.dev_id},#{s.ip},#{s.devid},#{s.type},#{s.value},#{s.statechange},#{s.responsetime},#{s.filltime})
+		</foreach>
+		on duplicate key update dev_id=values(dev_id),statechange=values(statechange),filltime=values(filltime),value=values(value)
+	</insert>
+	
+	<select id="getall" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.SwitchStateChangeVo">
+		SELECT a.dev_id,a.ip,a.devid,a.type,a.value,a.statechange,DATE_FORMAT(a.responsetime,'%Y-%m-%d %H:%i:%S') responsetime,
+		DATE_FORMAT(a.filltime,'%Y-%m-%d %H:%i:%S') filltime,c.v position,d.v sensortype,b.alais,b.alarm_status,d.k alarmstatus FROM t_switch_statechange a
+		LEFT JOIN t_switch_sensor b ON a.dev_id=b.id
+		LEFT JOIN t_static c ON b.sensor_position=c.id
+		LEFT JOIN t_static d ON a.type=d.id
+		 <where>
+		 	1=1
+		 	<if test="starttime!=null and endtime!=null and endtime!=''">
+		 	AND a.responsetime<![CDATA[>=]]>#{starttime} 
+			AND a.responsetime<![CDATA[<=]]>#{endtime}
+		 	</if>
+		 	<if test="endtime==null or endtime==''">
+		 	AND TO_DAYS(a.responsetime)=TO_DAYS(#{starttime})
+		 	</if>
+			<if test="id>0">
+			AND	a.dev_id=#{id}
+			</if>
+			<if test="ip!=null and ip!=''">
+			AND a.ip=#{ip}
+			</if>
+			<if test="sensor_position>0">
+			AND b.sensor_position=#{sensor_position}
+			</if> 
+		 </where>
+	</select>
+	
+</mapper>

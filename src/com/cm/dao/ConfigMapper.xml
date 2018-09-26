@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.IConfigDao">
+
+	<!-- resultMap -->
+	<resultMap type="config" id="configMap">
+		<result property="id" column="id" />
+		<result property="k" column="k" />
+		<result property="v" column="v" />
+
+	</resultMap>
+
+	<select id="get" parameterType="String" resultType="String">
+		SELECT v from t_config where k = #{k};
+	</select>
+	<select id="getConfig" parameterType="String" resultMap="configMap">
+		SELECT id,k,v from t_config where k = #{k};
+	</select>
+	<select id="getConfigByV" parameterType="String" resultMap="configMap">
+		SELECT id,k,v from t_config where v = #{v};
+	</select>
+	<insert id="add" parameterType="config" useGeneratedKeys="true" keyProperty="id">
+		insert into t_config(k,v) values(#{k}, #{v});
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="String">
+		delete from t_config where k=#{k};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="config">
+		update t_config
+		<set>
+			<if test="k != null">
+				k=#{k},
+			</if>
+			<if test="v != null">
+				v=#{v}
+			</if>
+		</set>
+		where k=#{k}
+	</update>
+
+</mapper>

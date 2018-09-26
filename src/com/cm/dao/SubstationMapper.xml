@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.ISubstationDao">
+
+	<resultMap type="com.cm.entity.Substation" id="SubstationMap">
+		<id column="stationid" property="id"/>
+		<result column="ipaddr" property="ipaddr"/>
+		<result column="station_name" property="station_name"/>
+		<result column="subn_point" property="n_point"/>
+		<result column="sube_point" property="e_point"/>
+		<result column="path" property="path"/>
+		<collection property="switches" ofType="com.cm.entity.SwitchSensor">
+			<id column="switchid" property="id"/>
+			<result column="staid" property="station"/>
+			<result column="station" property="station_name"/>
+			<result column="ip" property="ipaddr"/>
+			<result column="sensorId" property="sensorId"/>
+			<result column="sensor_type" property="sensor_type"/>
+			<result column="type0x" property="type0x"/>
+			<result column="type" property="type"/>
+			<result column="control" property="control"/>
+			<result column="alarm_status" property="alarm_status"/>
+			<result column="power_status" property="power_status"/>
+			<result column="break_display" property="break_display"/>
+			<result column="break_d" property="break_d"/>
+			<result column="connect_display" property="connect_display"/>
+			<result column="connect_d" property="connect_d"/>
+			<result column="n_point" property="n_point"/>
+			<result column="e_point" property="e_point"/>
+			<result column="input_type" property="input_type"/>
+			<result column="sensor_position" property="sensor_position"/>
+			<result column="position" property="position"/>
+			<result column="alais" property="alais"/>
+		</collection>
+	</resultMap>
+	
+	<select id="getAllipaddr" resultType="string">
+		select ipaddr from t_substation
+	</select>
+
+	<!-- 查询所有分站 -->
+	<select id="getAll" resultType="com.cm.entity.Substation">
+		SELECT t1.id,t1.station_name,t1.ipaddr,t3.path,t1.positionId,ifnull(t2.v,'未配置位置') position,t1.alais,t1.n_point,t1.e_point,t1.type,t1.uid,x_point,y_point,
+		start_adr,sys_info,chksum_len,chksum,s_ip,s_nm,s_gw,dns_ip,ser_ip,ser_port,dev_en,send_msg_time,rcv,dev_id,can1_baud_rate,can2_baud_rate,
+		rs485_baud_rate,can1_mount_cnt,can2_mount_cnt,rs485_mount_cnt,rs485_led
+		FROM t_substation t1 
+		LEFT JOIN t_static t2 ON t1.positionId=t2.id
+		LEFT JOIN t_static t3 ON t1.type=t3.id
+		order by t1.ipaddr
+	</select>
+	
+	<!-- 添加分站 -->
+	<insert id="addup" parameterType="com.cm.entity.Substation" useGeneratedKeys="true" keyProperty="id">
+		insert into t_substation(station_name,ipaddr,n_point,e_point,positionId,path,x_point,y_point,alais,uid,start_adr,sys_info,chksum_len,chksum,s_ip,
+		s_nm,s_gw,dns_ip,ser_ip,ser_port,dev_en,send_msg_time,rcv,dev_id,can1_baud_rate,can2_baud_rate,rs485_baud_rate,can1_mount_cnt,can2_mount_cnt,
+		rs485_mount_cnt,rs485_led) values(#{station_name},#{ipaddr},#{n_point},#{e_point},#{positionId},#{path},#{x_point},#{y_point},#{alais},#{uid},
+		#{start_adr},#{sys_info},#{chksum_len},#{chksum},#{s_ip},#{s_nm},#{s_gw},#{dns_ip},#{ser_ip},#{ser_port},#{dev_en},#{send_msg_time},#{rcv},#{dev_id},
+		#{can1_baud_rate},#{can2_baud_rate},#{rs485_baud_rate},#{can1_mount_cnt},#{can2_mount_cnt},#{rs485_mount_cnt},#{rs485_led})
+	</insert>
+	
+	<!-- 更新分站 -->
+	<update id="update" parameterType="com.cm.entity.Substation">
+		update t_substation
+		<set>
+			<if test="station_name!=null and station_name!=''">
+				station_name=#{station_name},
+			</if>
+			<if test="ipaddr!=null and ipaddr!=''">
+				ipaddr=#{ipaddr},
+			</if>
+				n_point=#{n_point},
+				e_point=#{e_point},
+			<if test="positionId>0">
+				positionId=#{positionId},
+			</if>
+			<if test="null!=path and path!=''">
+				path=#{path},
+			</if>
+                x_point=#{x_point},
+                y_point=#{y_point},
+            <if test="null!=alais and alais!=''">
+                alais=#{alais},
+            </if>
+            <if test="null!=uid and uid!=''">
+                uid=#{uid},
+            </if>
+                start_adr=#{start_adr},
+                sys_info=#{sys_info},
+                chksum_len=#{chksum_len},
+                chksum=#{chksum},
+                s_ip=#{s_ip},
+                s_nm=#{s_nm},
+                s_gw=#{s_gw},
+                dns_ip=#{dns_ip},
+                ser_ip=#{ser_ip},
+                ser_port=#{ser_port},
+                dev_en=#{dev_en},
+                send_msg_time=#{send_msg_time},
+                rcv=#{rcv},
+                dev_id=#{dev_id},
+                can1_baud_rate=#{can1_baud_rate},
+                can2_baud_rate=#{can2_baud_rate},
+                rs485_baud_rate=#{rs485_baud_rate},
+                can1_mount_cnt=#{can1_mount_cnt},
+                can2_mount_cnt=#{can2_mount_cnt},
+                rs485_mount_cnt=#{rs485_mount_cnt},
+                rs485_led=#{rs485_led}
+		</set>
+		<where>
+			<if test="id!=null">
+				id=#{id}
+			</if>
+		</where>
+	</update>
+	
+	<!-- 删除分站 -->
+	<delete id="delete" parameterType="int">
+		delete from t_substation where id=#{id}
+	</delete>
+	
+	<!-- 查询分站是否有重复地址的传感器 -->
+	<select id="getRepetition" resultType="com.cm.entity.Sensor">
+		SELECT * from 
+		(SELECT station,sensorId,sensor_type FROM t_sensor WHERE control!=3
+		UNION ALL
+		SELECT station,sensorId,sensor_type FROM t_switch_sensor WHERE control!=3
+		UNION ALL
+		SELECT substation_id,cid,typeid FROM t_cardreder WHERE cstate!=3
+		UNION ALL
+		SELECT stationId,radioId,type FROM t_radio WHERE `status` !=3
+		UNION ALL
+		SELECT stationId,devid,type FROM t_equipment WHERE devid!=0) as s
+		WHERE station=#{station} AND sensorId=#{sensorId}
+		limit 1
+	</select>
+	
+	<!-- 查询分站上所有传感器的个数 -->
+	<select id="sensorCount" resultType="int">
+		SELECT COUNT(*) FROM
+		(SELECT station,sensorId FROM t_sensor WHERE control!=3
+		UNION ALL
+		SELECT station,sensorId from t_switch_sensor WHERE control!=3
+		UNION ALL
+		SELECT substation_id,cid FROM t_cardreder WHERE cstate!=3) as s
+		WHERE station=#{station}
+		GROUP BY station ORDER BY station
+	</select>
+	
+	<!-- 查询分站所有的传感器 -->
+	<select id="getAllSensor" resultType="com.cm.entity.vo.StationSensorVo">
+		SELECT s.id as stationId,s.station_name,s.ipaddr,s.n_point AS station_n_point,s.e_point AS station_e_point,r.*,
+        (SELECT st.v FROM t_static st WHERE st.id=r.sensor_position) AS position,
+        (SELECT st.v FROM t_static st WHERE st.id=r.sensor_type) AS type,
+        (SELECT st.k FROM t_static st WHERE st.id=r.sensor_type) AS sensorUnit
+        FROM t_substation s
+        LEFT JOIN t_sensor r ON r.station=s.id
+        WHERE r.control!=3 and r.isDrainage!=1
+	</select>
+	
+	<select id="getSubbyid" parameterType="int" resultType="com.cm.entity.Substation">
+		select * from t_substation where id=#{id}
+	</select>
+	
+	<!-- 查询所有分站上开关量传感器 -->
+	<select id="getAllSwitchSensor" resultMap="SubstationMap">
+		SELECT sub.id stationid,sub.ipaddr ipaddr,sub.station_name,sub.n_point subn_point,
+		sub.e_point sube_point,tss.id switchid,tss.station staid,sub.station_name station,
+		sub.ipaddr ip,tss.sensorId,sub.path,
+		tss.sensor_type,tsc.k type0x,tsc.v type,tss.control,tss.alarm_status,tss.power_status,
+		tss.break_display,tcb.v break_d,tss.connect_display,tcc.v connect_d,
+		tss.n_point,tss.e_point,tss.input_type,tss.sensor_position,tc.v position,tss.alais
+		FROM t_substation sub
+		LEFT JOIN t_switch_sensor tss ON tss.station=sub.id
+		LEFT JOIN t_static tsc ON tss.sensor_type=tsc.id
+		LEFT JOIN t_static tc ON tss.sensor_position=tc.id
+		LEFT JOIN t_static tcb ON tss.break_display=tcb.id
+		LEFT JOIN t_static tcc ON tss.connect_display=tcc.id
+		where tss.control!=3
+	</select>
+	
+	<!-- 根据ip地址查询分站 -->
+	<select id="getByIp" resultType="com.cm.entity.Substation">
+		select * from t_substation where ipaddr=#{ip}
+	</select>
+
+    <update id="updateUid">
+        update t_substation
+        <set>
+            <if test="null!=uid">
+                uid=#{uid}
+            </if>
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+
+    <select id="getUid" resultType="java.lang.String">
+        SELECT t.uid
+        FROM (SELECT t1.uid,t1.sensorId,t2.ipaddr
+        FROM t_sensor t1
+        LEFT JOIN t_substation t2 ON t1.station=t2.id
+        WHERE t1.control!=3
+        UNION
+        SELECT t3.uid,t3.sensorId,t4.ipaddr
+        FROM t_switch_sensor t3
+        LEFT JOIN t_substation t4 ON t3.station=t4.id
+        WHERE t3.control!=3) t
+        WHERE t.sensorId=#{sensorId} AND t.ipaddr=#{ipaddr}
+    </select>
+</mapper>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.WorkbasicDao">
+		
+		<!-- 添加 -->
+		<insert id="addWorkbasic" parameterType="com.cm.entity.Workbasic">
+			insert into t_work_basic(name,marker) values (#{name},4)
+		</insert>
+		<!-- 查询 -->
+		<select id="getAllWorkbasic" resultType="com.cm.entity.Workbasic">
+			select * from t_work_basic where marker=4
+		</select>
+		<select id="getWorkbasicbyMarker" parameterType="com.cm.entity.Workbasic" resultType="com.cm.entity.Workbasic">
+			select * from t_work_basic 
+			<where>
+				marker=4
+				<if test="id>0">
+					and id=#{id}
+				</if>
+				<if test="name != null and name != ''">
+					and name=#{name}
+				</if>
+			</where>
+		</select>
+		<!-- 更新 -->
+		<update id="updateWorkbasic" parameterType="com.cm.entity.Workbasic">
+			update t_work_basic set name=#{name} where id=#{id}
+		</update>
+		<!-- 删除 -->
+		<delete id="deleteWorkbasic" parameterType="com.cm.entity.Workbasic">
+			delete from t_work_basic where id=#{id}
+		</delete>
+		
+		<!-- 添加 -->
+		<insert id="addposition" parameterType="com.cm.entity.Workbasic">
+			insert into t_work_basic(name,marker) values (#{name},5)
+		</insert>
+		<!-- 查询 -->
+		<select id="getallposition" resultType="com.cm.entity.Workbasic">
+			select * from t_work_basic where marker=5
+		</select>
+		<select id="getpositionbyname" parameterType="com.cm.entity.Workbasic" resultType="com.cm.entity.Workbasic">
+			select * from t_work_basic 
+			<where>
+				marker=5
+				<if test="id>0">
+					and id=#{id}
+				</if>
+				<if test="name != null and name != ''">
+					and name=#{name}
+				</if>
+			</where>
+		</select>
+		<!-- 更新 -->
+		<update id="updateposition" parameterType="com.cm.entity.Workbasic">
+			update t_work_basic set name=#{name} where id=#{id}
+		</update>
+		<!-- 删除 -->
+		<delete id="deleteposition" parameterType="com.cm.entity.Workbasic">
+			delete from t_work_basic where id=#{id}
+		</delete>
+		
+</mapper>

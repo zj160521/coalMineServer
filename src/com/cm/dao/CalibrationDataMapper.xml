@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.CalibrationDataDao">
+	
+	<select id="getall" resultType="com.cm.entity.Coalmine">
+		SELECT a.ip,a.devid,a.type,a.value,a.status,a.debug,a.responsetime,a.rescale FROM ${tablename} a
+		INNER JOIN t_static b ON a.type=b.id WHERE b.pid=100 ORDER BY a.responsetime
+	</select>
+	
+	
+	<update id="updatedata" parameterType="com.cm.entity.CalibrationData">
+		UPDATE t_calibrationData SET max_value=#{max_value},min_value=#{min_value} WHERE id=#{id}
+	</update>
+	
+	<select id="getpagedata" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.CalibrationData">
+		SELECT b.alais,b.position,b.sensortype,a.max_value,a.min_value,a.calibrationstatus,DATE_FORMAT(a.starttime,'%Y-%m-%d %H:%i:%S') starttime,DATE_FORMAT(a.endtime,'%Y-%m-%d %H:%i:%S') endtime FROM t_calibrationData a
+		INNER JOIN
+		(SELECT a.id sensor_id,a.alais,b.ipaddr,a.sensorId,a.sensor_type,c.v sensortype,d.v position,a.sensor_position from t_sensor a
+		 LEFT JOIN t_substation b ON a.station=b.id
+		 LEFT JOIN t_static c ON a.sensor_type=c.id
+		 LEFT JOIN t_static d ON a.sensor_position=d.id)b ON a.ip=b.ipaddr AND a.sensorId=b.sensorId AND a.sensor_type=b.sensor_type
+		 <where>
+		 	a.endtime is not null
+		 	<if test="starttime !=null and endtime !=null">
+		 		and a.starttime <![CDATA[>=]]>#{starttime}
+		 		and a.starttime <![CDATA[<=]]>#{endtime}
+		 	</if>
+		 	<if test="id>0">
+		 		and b.sensor_id=#{id}
+		 	</if>
+		 	<if test="ip!=null and ip!=''">
+				AND a.ip=#{ip}
+			</if>
+			<if test="sensor_position>0">
+				AND b.sensor_position=#{sensor_position}
+			</if>
+		 </where>
+		 limit #{start_row},#{page_rows} 
+	</select>
+	
+	<select id="getalldata" parameterType="com.cm.entity.vo.NameTime" resultType="int">
+		SELECT count(a.sensorId) FROM t_calibrationData a
+		INNER JOIN
+		(SELECT a.id sensor_id,a.alais,b.ipaddr,a.sensorId,a.sensor_type,c.v sensortype,d.v position,a.sensor_position from t_sensor a
+		 LEFT JOIN t_substation b ON a.station=b.id
+		 LEFT JOIN t_static c ON a.sensor_type=c.id
+		 LEFT JOIN t_static d ON a.sensor_position=d.id)b ON a.ip=b.ipaddr AND a.sensorId=b.sensorId AND a.sensor_type=b.sensor_type
+		 <where>
+		 	a.endtime is not null
+		 	<if test="starttime !=null and endtime !=null">
+		 		and a.starttime <![CDATA[>=]]>#{starttime}
+		 		and a.starttime <![CDATA[<=]]>#{endtime}
+		 	</if>
+		 	<if test="id>0">
+		 		and b.sensor_id=#{id}
+		 	</if>
+		 	<if test="ip!=null and ip!=''">
+				AND a.ip=#{ip}
+			</if>
+			<if test="sensor_position>0">
+				AND b.sensor_position=#{sensor_position}
+			</if>
+		 </where>
+	</select>
+	
+	<select id="getallnull"  resultType="com.cm.entity.CalibrationData">
+		SELECT id,ip,sensorId,sensor_type,starttime,endtime FROM t_calibrationData 
+		WHERE max_value IS NULL AND endtime IS NOT NULL
+	</select>
+	
+	<select id="getvalue"  resultType="com.cm.entity.CalibrationData">
+		SELECT MAX(value) max_value,MIN(value) min_value FROM ${tablename}
+		WHERE responsetime&gt;#{data.starttime} AND responsetime&lt;#{data.endtime}
+		AND ip=#{data.ip} AND devid=#{data.sensorId} AND type=#{data.sensor_type}
+	</select>
+</mapper>

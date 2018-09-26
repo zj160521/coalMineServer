@@ -1,0 +1,27 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.ISensorLogDao">
+
+	<!-- 插入 -->
+	<insert id="addSensorLog">
+		insert into t_sensor_log(content,result,feedback,sensorId,type,uid) values(#{content},#{result},#{feedback},#{sensorId},#{type},#{uid})
+	</insert>
+	
+	<!--  分页查询 -->
+	<select id="getByPage" resultType="com.cm.entity.SensorLog">
+		SELECT * FROM t_sensor_log
+		WHERE uid=#{uid} ORDER BY time DESC
+		LIMIT #{currentPage},#{pageSize}
+	</select>
+	
+	<!-- 查询总条数 -->
+	<select id="getTotalCount" resultType="int">
+		SELECT COUNT(*) FROM t_sensor_log WHERE uid=#{uid}
+	</select>
+	
+	<!-- 查询最近的一条记录 -->
+	<select id="getOrderByTime" resultType="com.cm.entity.SensorLog">
+		SELECT * FROM t_sensor_log WHERE uid=#{uid} ORDER BY time DESC LIMIT 1
+	</select>
+
+</mapper>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.AnaloginfoDao">
+	
+	<select id="getall" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.AnaloginfoQuery">
+	    SELECT ta1.id id,ta1.sensor_id sensor_id,CONCAT_WS('.',ta1.ip,ta1.sensorId) pid,ta1.status status,ta1.starttime starttime,ta1.endtime endtime,
+	    ta2.k unit,ta2.v sensortype,ta2.position,ta1.type sensor_type,ta1.startId startId,ta1.endId endId,ta2.limit_alarm FROM
+		(SELECT a.id id,a.sensor_id sensor_id,b.ip ip,b.sensorId sensorId,a.type,a.status status,
+		DATE_FORMAT(b.starttime,'%Y-%m-%d %H:%i:%S') starttime,a.startId startId,a.endId endId,
+		DATE_FORMAT(b1.starttime,'%Y-%m-%d %H:%i:%S') endtime
+		FROM t_analoginfo_query a
+		LEFT JOIN t_analoginfo b ON a.startId=b.id
+		LEFT JOIN t_analoginfo b1 ON a.endId=b1.id
+		<where>
+			b.starttime <![CDATA[>=]]> #{starttime} 
+			AND b.starttime <![CDATA[<=]]> #{endtime} 
+			AND a.status=#{atype}
+			<if test="id>0">
+				and a.sensor_id=#{id}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND b.ip=#{ip}
+			</if>
+		</where>
+		limit #{start_row},#{page_rows}
+		) ta1
+		INNER JOIN
+		(SELECT c.id id,d.k k,d.v v,d1.v position,c.sensor_type,c.limit_alarm FROM t_sensor c
+		LEFT JOIN t_static d ON c.sensor_type=d.id
+		LEFT JOIN t_static d1 ON c.sensor_position=d1.id 
+		)ta2 ON ta1.sensor_id=ta2.id AND ta1.type=ta2.sensor_type 
+	</select>
+	<select id="getallcount" parameterType="com.cm.entity.vo.NameTime" resultType="int">
+		SELECT count(ta.id)
+		FROM t_analoginfo_query ta
+		LEFT JOIN t_analoginfo tc ON ta.startId=tc.id
+		INNER JOIN t_sensor ts ON  ta.sensor_id=ts.id and ta.type=ts.sensor_type
+		<where>
+			tc.starttime <![CDATA[>=]]> #{starttime} 
+			AND tc.starttime <![CDATA[<=]]> #{endtime} 
+			AND ta.status=#{atype}
+			AND ta.endId&gt;0
+			<if test="id>0">
+				and ta.sensor_id=#{id}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND tc.ip=#{ip}
+			</if>
+		</where>
+	</select>
+	<select id="getallAna" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.AnaloginfoQuery">
+		SELECT a.ip,a.sensorId,b.sensor_type,b.sensor_id sensor_id,b.alais,a.status status,a.starttime starttime,a.endtime endtime,
+	    b.unit,b.sensortype,b.position,a.startId startId,a.endId endId,b.limit_alarm,a.measures,a.measurestime,a.debug FROM
+		(SELECT a.id id,a.ip,a.sensor_id sensorId,a.type,a.status status,
+		DATE_FORMAT(a.startTime,'%Y-%m-%d %H:%i:%S') starttime,a.startId startId,a.endId endId,
+		DATE_FORMAT(a.endTime,'%Y-%m-%d %H:%i:%S') endtime,a.measure measures,a.measuretime measurestime,IF(b.debug>0,b.debug,c.debug) debug
+		FROM t_analoginfo_query a
+		LEFT JOIN t_analoginfo b ON a.startId=b.id
+		LEFT JOIN t_analoginfo c ON a.endId=c.id
+		WHERE a.status=2 AND endId>0  AND a.endTime>DATE_SUB(NOW(),INTERVAL 1 HOUR)
+		) a
+		INNER JOIN
+		(SELECT a.id sensor_id,b.ipaddr ip,a.sensorId,a.sensor_type,d.k unit,d.v sensortype,c.v position,a.limit_alarm,a.alais FROM t_sensor a
+		LEFT JOIN t_substation b ON a.station=b.id
+		LEFT JOIN t_static c ON a.sensor_position=c.id
+		LEFT JOIN t_static d ON a.sensor_type=d.id
+		)b ON a.ip=b.ip AND a.sensorId=b.sensorId AND a.type=b.sensor_type
+	</select>
+	<select id="getAnas" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.AnalogoutVo">
+		SELECT DATE_FORMAT(ta.starttime,'%Y-%m-%d %H:%i:%S') starttime,ta.alevel alevel,ta.avalue avalue,ta.status status
+		FROM t_analoginfo ta
+		INNER JOIN t_sensor ts ON  ta.sensor_id=ts.id and ta.type=ts.sensor_type
+		<where>
+			ta.starttime <![CDATA[>=]]> #{starttime} 
+			AND ta.starttime <![CDATA[<=]]> #{endtime} 
+			AND ta.status=#{atype}
+			<if test="id>0">
+				and ta.sensor_id=#{id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getvalue" parameterType="com.cm.entity.vo.AnalogQueryVo" resultType="com.cm.entity.vo.AnaloginfoQuery">
+		SELECT a.maxvalues,a.avgvalue,DATE_FORMAT(b.starttime,'%Y-%m-%d %H:%i:%S') maxtime FROM 
+		(SELECT MAX(avalue) maxvalues,CONVERT(AVG(avalue),DECIMAL(10,2)) avgvalue FROM t_analoginfo 
+		WHERE id BETWEEN #{startId} AND #{endId} AND type=#{type} AND sensorId=#{sensor_id} AND status in (2,3) AND ip=#{ip} GROUP BY sensorId,type,ip)a
+		INNER JOIN
+		(SELECT avalue,starttime FROM t_analoginfo WHERE id BETWEEN #{startId} AND #{endId} AND type=#{type} AND sensorId=#{sensor_id} AND status in (2,3) AND ip=#{ip}	GROUP BY avalue)b
+		ON  a.maxvalues=b.avalue
+	</select>
+	
+	
+	<select id="getpower" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.AnaloginfoQuery">
+		SELECT ta1.id id,ta1.ip,ta1.sensorId,ta2.sensor_id sensor_id,ta2.alais,ta1.status status,ta1.starttime starttime,ta1.endtime endtime,
+	    ta1.k unit,ta1.v sensortype,ta2.position,ta1.type sensor_type,ta1.startId startId,ta1.endId endId,ta2.limit_power,ta2.limit_repower,ta1.debug FROM
+		(SELECT a.id id,a.ip,a.sensor_id sensorId,a.type,a.status status,
+		DATE_FORMAT(b.starttime,'%Y-%m-%d %H:%i:%S') starttime,a.startId startId,a.endId endId,
+		DATE_FORMAT(b1.starttime,'%Y-%m-%d %H:%i:%S') endtime,c.k,c.v,IF(b.debug>0,b.debug,b1.debug) debug
+		FROM t_analoginfo_query a
+		LEFT JOIN t_analoginfo b ON a.startId=b.id
+		LEFT JOIN t_analoginfo b1 ON a.endId=b1.id
+		LEFT JOIN t_static c ON a.type=c.id
+		WHERE a.status=3 AND b.starttime IS NOT NULL  AND b1.starttime IS NOT NULL AND a.endTime>DATE_SUB(NOW(),INTERVAL 1 HOUR)
+		) ta1
+		INNER JOIN
+		(SELECT c.id sensor_id,d.ipaddr ip,c.sensorId,d1.v position,c.sensor_type,c.limit_power,c.limit_repower,c.alais FROM t_sensor c
+		LEFT JOIN t_substation d ON c.station=d.id
+		LEFT JOIN t_static d1 ON c.sensor_position=d1.id
+		)ta2 ON ta1.ip=ta2.ip AND ta1.sensorId=ta2.sensorId AND ta1.type=ta2.sensor_type
+	</select>
+	
+	<select id="getfeed" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.AnaloginfoQuery">
+		SELECT sensor_id,startTime starttime,endTime endtime,measure measures,measuretime measurestime FROM t_analoginfo_query 
+		<where>
+		  status=1 AND type=0 AND link_sensor_id=#{name} and
+		  ((startTime >= #{starttime} and startTime &lt; #{endtime}) 
+		  or (startTime &lt; #{starttime} and endTime is null) 
+		  or (endTime &gt;#{starttime} and endTime &lt;#{endtime} and startTime &lt; #{starttime})
+		  or (startTime &lt;#{starttime} and endTime &gt;#{endtime}))
+		</where>
+	</select>
+	
+	<select id="getfeedError" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.AnaloginfoQuery">
+		SELECT a.ip,a.sensorId,c.sensor_type,c.sensortype,c.position,b.feeduid,b.powerposition,a.starttime,a.endtime,a.measure measures,a.measuretime measurestime,a.debug FROM
+		(SELECT a.sensor_id,a.startTime starttime,a.endTime endtime,SUBSTRING_INDEX(a.link_sensor_id,'.',4) ip,
+		SUBSTRING_INDEX(a.link_sensor_id,'.',-1) sensorId,a.measure,a.measuretime,IF(b.debug>0,b.debug,c.debug) debug FROM t_analoginfo_query a
+		LEFT JOIN t_analoginfo b ON a.startId=b.id
+		LEFT JOIN t_analoginfo c ON a.endId=c.id
+		WHERE a.status=1 AND a.type=0 AND a.endId>0) a
+		LEFT JOIN (SELECT a.id,a.uid feeduid,a.power_scope powerposition FROM t_switch_sensor a
+		LEFT JOIN t_static b ON a.sensor_position=b.id
+		)b ON a.sensor_id=b.id
+		LEFT JOIN (SELECT a.sensorId,b.ipaddr,a.sensor_type,c.v sensortype,d.v position FROM t_sensor a
+		LEFT JOIN t_substation b ON a.station=b.id
+		LEFT JOIN t_static c ON a.sensor_type=c.id
+		LEFT JOIN t_static d ON a.sensor_position=d.id
+		)c ON a.ip=c.ipaddr AND a.sensorId=c.sensorId
+	</select>
+	
+	<select id="getNullRec" resultType="com.cm.entity.AnalogQuery">
+		SELECT id,sensor_id,ip,startId,endId,type,status,measureId,startTime,IFNULL(endTime,NOW()) endTime 
+		from t_analoginfo_query 
+		WHERE startTime > #{0} AND measureId IS NULL
+	</select>
+	
+	<select id="getAllAnaloginfo" resultType="com.cm.entity.vo.AnalogAllVo">
+		SELECT starttime,ip,sensorId,debug,measureId FROM t_analoginfo 
+		WHERE starttime >= #{0}
+	</select>
+	
+	<select id="getDevlink" resultType="com.cm.entity.vo.AnaloginfoQuery">
+		SELECT a.logic_ip ip,a.logic_devid sensorId,b.id feedId,a.param powervalue,b.power_scope powerposition FROM t_dev_link a
+		LEFT JOIN t_switch_sensor b ON a.action_uid=b.uid
+		where a.action_type=56
+	</select>
+	
+</mapper>

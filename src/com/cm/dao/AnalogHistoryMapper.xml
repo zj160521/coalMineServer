@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.AnalogHistoryDao">
+	
+	<select id="getRealTimeRec" parameterType="com.cm.entity.vo.AnalogParamVo" resultType="com.cm.entity.vo.AnaloghisVo">
+		SELECT ip,devid,`value` avalue,DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') starttime,debug,status dataStatus,`level`
+		FROM t_coalMine
+		<where>
+			<if test="devid >= 0">
+				devid=#{devid}
+			</if>
+			<if test="ip != null and ip != ''">
+				and ip=#{ip}
+			</if>
+			<if test="startTime != null and startTime != ''">
+				and responsetime >= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				and responsetime &lt;= #{endTime}
+			</if>
+			<if test="limitValue > 0">
+				and value >= #{limitValue}
+			</if>
+			<if test="floorValue > 0">
+				and value &lt;= #{floorValue}
+			</if>
+			ORDER BY responsetime
+			<if test="page_rows > 0">
+				limit #{cur_page},#{page_rows}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getTotalRec" parameterType="com.cm.entity.vo.AnalogParamVo" resultType="int">
+		SELECT count(*) 
+		FROM t_coalMine
+		<where>
+			<if test="devid >= 0">
+				devid=#{devid}
+			</if>
+			<if test="ip != null and ip != ''">
+				and ip=#{ip}
+			</if>
+			<if test="startTime != null and startTime != ''">
+				and responsetime >= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				and responsetime &lt;= #{endTime}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getFeedErrorRealTimeRec" parameterType="com.cm.entity.vo.AnalogParamVo" resultType="com.cm.entity.vo.AnaloghisVo">
+		SELECT cm.ip,cm.devid,`value` avalue,DATE_FORMAT(cm.responsetime,'%Y-%m-%d %H:%i:%S') starttime,debug,status dataStatus,`level`
+		FROM t_coalMine cm
+		INNER JOIN t_feedback fd ON cm.ip = fd.ip AND cm.devid = fd.devid AND cm.responsetime = fd.responsetime
+		<where>
+			fd.feedstatus = 1
+			<if test="devid >= 0">
+				and cm.devid=#{devid}
+			</if>
+			<if test="ip != null and ip != ''">
+				and cm.ip=#{ip}
+			</if>
+			<if test="startTime != null and startTime != ''">
+				and cm.responsetime >= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				and cm.responsetime &lt;= #{endTime}
+			</if>
+			<if test="limitValue > 0">
+				and value >= #{limitValue}
+			</if>
+			<if test="floorValue > 0">
+				and value &lt;= #{floorValue}
+			</if>
+			<if test="id > 0">
+				and fd.feedstatus = #{id}
+			</if>
+			ORDER BY cm.responsetime
+		</where>
+	</select>
+	
+	<select id="getCurveHistory" parameterType="com.cm.entity.vo.AnalogParamVo" resultType="com.cm.entity.vo.AnalogCurveVo">
+		SELECT ip,devid,type,max_value,min_value,CONVERT(avg_value,DECIMAL(10,2)) avg_value,DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') responsetime,debug,status dataStatus,`level`
+		from t_coalmine_min_data
+		<where>
+			<if test="startTime != null and startTime != ''">
+				responsetime >= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				and responsetime &lt;= #{endTime}
+			</if>
+			<if test="devid >= 0">
+				and devid=#{devid}
+			</if>
+			<if test="ip != null and ip != ''">
+				and ip=#{ip}
+			</if>
+			<if test="limitValue > 0">
+				and max_value >= #{limitValue}
+			</if>
+			<if test="floorValue > 0">
+				and min_value &lt;= #{floorValue}
+			</if>
+			ORDER BY responsetime
+		</where>
+	</select>
+	
+	<select id="getHistory" parameterType="com.cm.entity.vo.AnalogParamVo" resultType="com.cm.entity.vo.AnaloghisVo">
+		SELECT `value` avalue,DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') starttime,debug,status dataStatus,feedback,`level`
+		FROM t_coalMine
+		<where>
+			<if test="devid >= 0">
+				devid=#{devid}
+			</if>
+			<if test="ip != null and ip != ''">
+				and ip=#{ip}
+			</if>
+			<if test="startTime != null and startTime != ''">
+				and responsetime >= #{startTime}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				and responsetime &lt;= #{endTime}
+			</if>
+			<if test="limitValue > 0">
+				and value >= #{limitValue}
+			</if>
+			<if test="floorValue > 0">
+				and value &lt;= #{floorValue}
+			</if>
+			ORDER BY responsetime
+			<if test="page_rows > 0">
+				limit #{cur_page},#{page_rows}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getHistoryRcs" parameterType="com.cm.entity.vo.AnalogParamVo" resultType="com.cm.entity.vo.AnaloghisVo">
+			SELECT `value` avalue,DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') starttime,ip,devid,`level`
+			FROM t_coalMine
+			<where>
+				<foreach collection="eqp" item="it" separator="or">  
+					(ip = #{it.ip} AND devid = #{it.devid})
+				</foreach>
+				<if test="startTime != null and startTime != '' and endTime != null and endTime != ''">
+					and responsetime BETWEEN #{startTime} and #{endTime}
+				</if>
+			</where>
+	</select>
+	
+	<select id="getSensor" parameterType="java.util.LinkedList" resultType="com.cm.entity.vo.SensorVo">
+		SELECT st.id positionId,st.v position,s.alais,s.limit_alarm upper_level1,s.limit_power,s.limit_repower,s.floor_alarm floor_level1,
+		s.floor_power,s.floor_repower,ar.areaname,s.devlinkId,s.floorDevlinkId,st2.k unit
+		FROM t_sensor s
+		LEFT JOIN t_substation sub ON s.station = sub.id
+		LEFT JOIN t_static st ON st.id = s.sensor_position
+		LEFT JOIN  t_env_area ar ON ar.id = s.area_id
+		LEFT JOIN t_static st2 ON st2.id = s.sensor_type
+		WHERE s.control &lt; 3 and
+		<foreach collection="list" item="it" separator="or">  
+			(ipaddr = #{it.ip} AND sensorId = #{it.devid})
+		</foreach> 
+		
+	</select>
+	
+	<select id="getSwitchSensor" parameterType="java.util.LinkedList" resultType="com.cm.entity.vo.SensorVo">
+		SELECT st.id positionId,st.v position,s.alais,ar.areaname,s.sensor_type type,s.sensorId devid,sub.ipaddr ip,s.power_scope
+		FROM t_switch_sensor s
+		LEFT JOIN t_substation sub ON s.station = sub.id
+		LEFT JOIN t_static st ON st.id = s.sensor_position
+		LEFT JOIN  t_env_area ar ON ar.id = s.area_id
+		WHERE s.control &lt; 3 and
+		<foreach collection="list" item="it" separator="or">  
+			(ipaddr = #{it.ip} AND sensorId = #{it.devid})
+		</foreach> 
+		
+	</select>
+	
+	<select id="getAllSensor" parameterType="java.util.LinkedList" resultType="com.cm.entity.vo.SensorVo">
+		SELECT st.v position,s.alais,0 limit_alarm,0 limit_power,0 limit_repower,0 floor_alarm,0 floor_power,0 floor_repower,ar.areaname,s.sensor_type type 
+		FROM t_switch_sensor s
+		LEFT JOIN t_substation sub ON s.station = sub.id
+		LEFT JOIN t_static st ON st.id = s.sensor_position
+		LEFT JOIN  t_env_area ar ON ar.id = s.area_id
+		WHERE s.control &lt; 3 and
+		<foreach collection="list" item="it" separator="or">  
+			(ipaddr = #{it.ip} AND sensorId = #{it.devid})
+		</foreach>
+		union all
+		SELECT st.v position,s.alais,s.limit_alarm upper_level1,s.limit_power,s.limit_repower,s.floor_alarm floor_level1,s.floor_power,s.floor_repower,ar.areaname,s.sensor_type type 
+		FROM t_sensor s
+		LEFT JOIN t_substation sub ON s.station = sub.id
+		LEFT JOIN t_static st ON st.id = s.sensor_position
+		LEFT JOIN  t_env_area ar ON ar.id = s.area_id
+		WHERE s.control &lt; 3 and
+		<foreach collection="list" item="it" separator="or">
+			(ipaddr = #{it.ip} AND sensorId = #{it.devid})
+		</foreach> 
+		
+	</select>
+	
+	<select id="getAnalogQry" resultType="com.cm.entity.vo.AnalogQueryVo">
+		SELECT sensor_id,startId,endId,type,`status`,ip,DATE_FORMAT(startTime,'%Y-%m-%d %H:%i:%S') startTime,
+		DATE_FORMAT(IFNULL(endTime,NOW()),'%Y-%m-%d %H:%i:%S') endTime,measure,DATE_FORMAT(measuretime,'%Y-%m-%d %H:%i:%S') measuretime
+		FROM t_analoginfo_query
+		WHERE sensor_id = #{0} AND ip = #{1} AND startTime &lt;= #{3} and IFNULL(endTime,NOW()) >= #{2}
+	</select>
+	
+	<select id="getCutDevAlarmRecs" resultType="com.cm.entity.vo.AnalogQueryVo">
+		SELECT ss.id,sensor_id,startId,endId,aq.type,`status`,ip,DATE_FORMAT(startTime,'%Y-%m-%d %H:%i:%S') startTime,
+		DATE_FORMAT(IFNULL(endTime,NOW()),'%Y-%m-%d %H:%i:%S') endTime,measure,DATE_FORMAT(measuretime,'%Y-%m-%d %H:%i:%S') measuretime
+		FROM t_switch_sensor ss
+		LEFT JOIN t_substation sub ON ss.station = sub.id
+		LEFT JOIN t_analoginfo_query aq ON aq.sensor_id = ss.sensorId AND sub.ipaddr = aq.ip
+		<where>
+		 aq.status = 1 and
+			<foreach collection="list" item="it" separator="or">  
+				(ss.id = #{it.id} and startTime &lt;= #{it.endTime} and IFNULL(endTime,NOW()) >= #{it.startTime})
+			</foreach>
+		</where> 
+	</select>
+	
+</mapper>

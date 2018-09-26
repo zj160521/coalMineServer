@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.AnalogStatementDao">
+	
+	<select id="getAnasByDay" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.SensorReportsVo" >
+		SELECT f.id sensor_id,f.alais,f.position,f.sensor_type,f.sensortype,f.unit,f.limit_alarms,f.floor_alarms,f.limit_powers,f.floor_powers,f.limit_repowers,f.floor_repowers,r.maxvalues maxvalues,
+		r.minvalue,r.avgvalue midvalue,DATE_FORMAT(r.maxtime,'%Y-%m-%d %H:%i:%S') maxtime,r.alerts,r.alerttime,r.powerfres,r.powertime,r.faults,r.faulttime,r.feeabnums,r.feedtime 
+		FROM t_sensor_report r
+		INNER  JOIN
+		(SELECT a.id,c.ipaddr,a.sensorId,a.sensor_type,a.sensor_position,b1.v sensortype,b1.k unit,a.limit_alarm limit_alarms,a.floor_alarm floor_alarms,
+		a.limit_power limit_powers,a.floor_power floor_powers,a.limit_repower limit_repowers,a.floor_repower floor_repowers,b.v position,a.alais FROM t_sensor a
+		LEFT JOIN t_static b ON a.sensor_position=b.id
+		LEFT JOIN t_substation c ON a.station=c.id
+		LEFT JOIN t_static b1 ON a.sensor_type=b1.id)f ON r.ip=f.ipaddr AND r.sensorId=f.sensorId AND r.type=f.sensor_type
+		<where>
+			 r.remark=1 AND TO_DAYS(r.filltime)=TO_DAYS(#{starttime})
+			<if test="id>0">
+			 	AND	f.id=#{id}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND f.ipaddr=#{ip}
+			</if>
+			<if test="sensor_position>0">
+				AND f.sensor_position=#{sensor_position}
+			</if>
+		</where>
+	</select>
+	<select id="getAlerts" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.AnaloginfoQuery">
+		SELECT b.sensor_id,b.alais,b.position,b.sensor_type,b.sensortype,b.unit,b.limit_alarm,b.floor_alarm,a.maxvalues,a.maxtime,a.avgvalue,a.times,a.status,
+		DATE_FORMAT(a.starttime,'%Y-%m-%d %H:%i:%S') starttime,DATE_FORMAT(a.endtime,'%Y-%m-%d %H:%i:%S') endtime,a.measures,a.measurestime FROM 
+		(SELECT ip,sensorId,sensor_type,position,maxvalues,maxtime,avgvalue,times,status,starttime,endtime,measures,measurestime FROM t_sensor_alarmreport 
+		<where>
+			status=2
+			and debug=0
+			<if test="starttime!=null and endtime!=null"> 
+				and starttime <![CDATA[>=]]> #{starttime}
+				and starttime <![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="endtime=='' or endtime==null">
+				and TO_DAYS(starttime)=TO_DAYS(#{starttime})
+			</if>
+		</where> )a
+		INNER JOIN
+		(SELECT a.id sensor_id,a.sensorId,a.sensor_position,d.v position,a.sensor_type,b.k unit,b.v sensortype,c.ipaddr,a.alais,a.limit_alarm,a.floor_alarm FROM t_sensor a
+		LEFT JOIN t_static b ON a.sensor_type=b.id
+		LEFT JOIN t_substation c ON a.station=c.id
+		LEFT JOIN t_static d ON a.sensor_position=d.id
+		)b ON a.ip=b.ipaddr AND a.sensorId=b.sensorId AND a.sensor_type=b.sensor_type
+		<where>
+			<if test="id>0">
+				b.sensor_id=#{id}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND a.ip=#{ip}
+			</if>
+			<if test="sensor_position>0">
+				AND b.sensor_position=#{sensor_position}
+			</if>
+		</where>
+		ORDER BY b.sensorId,a.starttime
+	</select>
+	<select id="getHistory" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.Analoginfo">
+		SELECT id id,ip ipaddr,value avalue,DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') starttime FROM t_coalMine
+		<where>
+			<if test="id>0">
+				dev_id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and type=#{sensor_type}
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				and responsetime <![CDATA[>=]]> #{starttime}
+				and responsetime <![CDATA[<=]]> #{endtime}
+			</if>
+		</where>
+		GROUP BY filltime order by filltime limit #{cur_page},#{page_rows}
+	</select>
+	<select id="getHistorys" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.HistoryData">
+		SELECT DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') starttime,ip ipaddr,value avalue
+		FROM t_coalMine
+		<where>
+			<if test="id>0">
+				dev_id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and type=#{sensor_type}
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				and responsetime <![CDATA[>=]]> #{starttime}
+				and responsetime <![CDATA[<=]]> #{endtime}
+			</if>
+		</where>
+		GROUP BY responsetime order by filltime limit 0,5000
+	</select>
+	<select id="getcountHis" parameterType="com.cm.entity.vo.NameTime" resultType="int">
+		select count(tc.id)
+		from
+		(SELECT id FROM t_coalMine
+		<where>
+			<if test="id>0">
+				dev_id=#{id}
+			</if>
+			<if test="sensor_type>0">
+				and type=#{sensor_type}
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				and responsetime <![CDATA[>=]]> #{starttime}
+				and responsetime <![CDATA[<=]]> #{endtime}
+			</if>
+		</where>
+		GROUP BY responsetime) tc
+	</select>
+	<select id="getTime" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.AnaloginfoQuery">
+		SELECT a.id id,DATE_FORMAT(b1.starttime,'%Y-%m-%d %H:%i:%S') starttime,DATE_FORMAT(b2.starttime,'%Y-%m-%d %H:%i:%S') endtime FROM t_analoginfo_query a
+		LEFT JOIN t_analoginfo b1 ON a.startId = b1.id
+		LEFT JOIN t_analoginfo b2 ON a.endId = b2.id
+		INNER JOIN 
+		(SELECT c.id sensor_id,d.ipaddr ip,c.sensorId,c.sensor_type,c.limit_alarm,c.alais FROM t_sensor c
+		LEFT JOIN t_substation d ON c.station=d.id
+		)f ON a.ip=f.ip AND a.sensor_id=f.sensorId AND a.type=f.sensor_type
+		<where>
+			f.sensor_id=#{id} 
+			AND a.status=#{atype}  
+			<if test="starttime!=null and endtime!=null"> 
+				and b1.starttime <![CDATA[>=]]> #{starttime}
+				and b1.starttime <![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="endtime=='' or endtime==null">
+				and TO_DAYS(b1.starttime)=TO_DAYS(#{starttime})
+			</if>
+		</where>
+	</select>
+	
+	<select id="getPowers" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.AnaloginfoQuery">
+		SELECT b.sensor_id,b.alais,b.position,b.sensor_type,b.sensortype,b.unit,b.limit_power,b.floor_power,b.limit_repower,b.floor_repower,a.maxvalues,a.maxtime, a.avgvalue,a.times,a.status,
+		DATE_FORMAT(a.starttime,'%Y-%m-%d %H:%i:%S') starttime,DATE_FORMAT(a.endtime,'%Y-%m-%d %H:%i:%S') endtime,a.powercom,a.powerposition,a.feedstatus,a.measures,a.measurestime FROM 
+		(SELECT ip,sensorId,sensor_type,position,maxvalues,maxtime,avgvalue,times,status,starttime,endtime,powercom,powerposition,feedstatus,measures,measurestime
+		FROM t_sensor_alarmreport 
+		<where>
+			status=3
+			and debug=0
+			<if test="starttime!=null and endtime!=null"> 
+				and starttime <![CDATA[>=]]> #{starttime}
+				and starttime <![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="endtime=='' or endtime==null">
+				and TO_DAYS(starttime)=TO_DAYS(#{starttime})
+			</if>
+		</where>  )a
+		INNER JOIN
+		(SELECT a.id sensor_id,a.sensorId,a.sensor_type,a.sensor_position,d.v position,b.k unit,b.v sensortype,c.ipaddr,a.alais,a.limit_power,a.floor_power,
+		a.limit_repower,a.floor_repower FROM t_sensor a
+		LEFT JOIN t_static b ON a.sensor_type=b.id
+		LEFT JOIN t_substation c ON a.station=c.id
+		LEFT JOIN t_static d ON a.sensor_position=d.id
+		)b ON a.ip=b.ipaddr AND a.sensorId=b.sensorId AND a.sensor_type=b.sensor_type
+		<where>
+			<if test="id>0">
+				b.sensor_id=#{id}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND a.ip=#{ip}
+			</if>
+			<if test="sensor_position>0">
+				AND b.sensor_position=#{sensor_position}
+			</if>
+		</where>
+		ORDER BY b.sensorId,a.starttime
+	</select>
+	
+	<select id="getfeeds" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.AnaloginfoQuery">
+		SELECT b.sensor_id,b.alais,b.position,b.sensor_type,b.sensortype,a.times,a.status,DATE_FORMAT(a.starttime,'%Y-%m-%d %H:%i:%S') starttime,
+		DATE_FORMAT(a.endtime,'%Y-%m-%d %H:%i:%S') endtime,a.powercom,a.powerposition,a.feedstatus,a.measures,a.measurestime FROM 
+		(SELECT ip,sensorId,sensor_type,position,maxvalues,maxtime,avgvalue,times,status,starttime,endtime,powercom,powerposition,feedstatus,measures,measurestime
+		FROM t_sensor_alarmreport 
+		<where>
+			status=1
+			and debug=0
+			<if test="starttime!=null and endtime!=null"> 
+				and starttime <![CDATA[>=]]> #{starttime}
+				and starttime <![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="endtime=='' or endtime==null">
+				and TO_DAYS(starttime)=TO_DAYS(#{starttime})
+			</if>
+		</where> )a
+		INNER JOIN
+		(SELECT a.id sensor_id,a.sensorId,a.sensor_type,a.sensor_position,d.v position,b.k unit,b.v sensortype,c.ipaddr,a.alais FROM t_sensor a
+		LEFT JOIN t_static b ON a.sensor_type=b.id
+		LEFT JOIN t_substation c ON a.station=c.id
+		LEFT JOIN t_static d ON a.sensor_position=d.id
+		)b ON a.ip=b.ipaddr AND a.sensorId=b.sensorId AND a.sensor_type=b.sensor_type
+		<where>
+			<if test="id>0">
+				b.sensor_id=#{id}
+			</if>
+			<if test="ip!=null and ip!=''">
+				AND a.ip=#{ip}
+			</if>
+			<if test="sensor_position>0">
+				AND b.sensor_position=#{sensor_position}
+			</if>
+		</where>
+		ORDER BY b.sensorId,a.starttime
+	</select>
+</mapper>

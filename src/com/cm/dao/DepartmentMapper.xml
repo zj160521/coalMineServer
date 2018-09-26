@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.DepartmentDao">
+		
+		<!-- 添加 -->
+		<insert id="addDepartment" parameterType="com.cm.entity.Department">
+			insert into t_department(pid,name) values (#{pid},#{name})
+		</insert>
+		<!-- 查询 -->
+		<select id="getAllDepartment" resultType="com.cm.entity.Department">
+			select * from t_department where pid=0
+		</select>
+		<select id="getDepartmentByname" parameterType="java.lang.String" resultType="java.lang.Integer">
+			select count(*) from t_department where name=#{name}
+		</select>
+		<!-- 更新 -->
+		<update id="updateDepartment" parameterType="com.cm.entity.Department">
+			update t_department set pid=#{pid},name=#{name} where id=#{id}
+		</update>
+		<!-- 删除 -->
+		<delete id="deleteDepartment">
+			delete from t_department where id in
+			<foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+			#{id}
+			</foreach>
+		</delete>
+		<select id="getAllDepartmentByid" parameterType="java.lang.Integer" resultType="com.cm.entity.Department">
+			select * from t_department where pid=#{id}
+		</select>
+		<select id="getDepartList" resultType="com.cm.entity.Department">
+			select id,name from t_department
+		</select>
+</mapper>

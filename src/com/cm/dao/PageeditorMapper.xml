@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.PagaeeditorDao">
+
+    <insert id="add" useGeneratedKeys="true" keyProperty="id" parameterType="com.cm.entity.Pageeditor">
+        insert into t_pageeditor (str,type,times) values (#{str},#{type},#{times})
+    </insert>
+
+    <select id="getAll" resultType="com.cm.entity.Pageeditor">
+        select * from t_pageeditor
+    </select>
+
+    <update id="update">
+        update t_pageeditor
+        <set>
+            <if test="null!=str and ''!=str">
+                str = #{str},
+            </if>
+            <if test="null!=type and ''!=type">
+                type=#{type},
+            </if>
+            <if test="null!=times">
+                times=#{times}
+            </if>
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+
+    <select id="getByTypeAndName" resultType="com.cm.entity.Pageeditor">
+        select * from t_pageeditor where type=#{type}
+    </select>
+
+    <delete id="delelte">
+        delete from t_pageeditor where id=#{id}
+    </delete>
+
+</mapper>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.ActivityRouteDao">
+
+	<select id="getRouteByCard" parameterType="com.cm.entity.Coalmine_route" resultType="com.cm.entity.Coalmine_route">
+		SELECT cr.id,cr.ip,cr.dev_id,cr.devid,cr.type,cr.card,cr.area_id,cr.status,cr.battary,DATE_FORMAT(cr.filltime,'%Y-%m-%d %H:%i:%S') filltime,
+		DATE_FORMAT(cr.responsetime,'%Y-%m-%d %H:%i:%S') responsetime,cr.response,cr.desp,cr.personNum,cr.debug,cr.default_allow,cr.emphasis,
+		cr.worker_id,cr.can1,cr.can2,cr.totalPN,ca.n_point,ca.e_point,s.v as positionName,a.default_allow,a.emphasis,a.areaname
+        FROM t_coalMine_route cr
+        left join t_cardreder ca on ca.id=cr.dev_id
+        left join t_static s on s.id=ca.position_id
+        left join t_area a on a.id=cr.area_id
+				WHERE cr.card=#{card} AND (cr.responsetime&lt;#{endtime} AND cr.responsetime>#{starttime})
+        order by cr.responsetime desc;
+	</select>
+	
+	<select id="cardroute" parameterType="com.cm.entity.Coalmine_route" resultType="com.cm.entity.Coalmine_route">
+	    SELECT cr.*,w.depart_id,w.`name` AS workerName,r.areaid,s.areaname AS positionName,
+        (SELECT d.`name` FROM t_department d WHERE d.id=w.depart_id) AS departName
+        FROM t_coalMine_route cr
+        LEFT JOIN t_worker w ON w.rfcard_id=cr.card
+        LEFT JOIN t_cardreder r ON cr.dev_id=r.id
+        LEFT JOIN t_area s ON s.id=r.areaid
+        <where>
+          <if test="cards!=null">
+             card in 
+             <foreach collection="cards" item="cards" index="index" open="(" close=")" separator=",">
+			#{cards}
+		    </foreach>
+          </if>
+          <if test="starttime!=null">
+             AND cr.filltime>#{starttime}
+          </if>
+        </where>
+        ORDER BY cr.filltime DESC
+        LIMIT 50
+	</select>
+	
+	<select id="getAllArea" resultType="com.cm.entity.Area2">
+	    SELECT * FROM t_area where id>1
+	</select>
+	
+	<select id="getAllWorker" resultType="com.cm.entity.Worker">
+	    select id,num,name,rfcard_id,gender,proplesid,
+		(select name from t_work_basic where id=tw.proplesid) 'propname',
+		posta,depart_id,(select name from t_department where id=tw.depart_id) 'departname',
+		worktype_id,(select name from t_worktype where id=tw.worktype_id) 'worktypename',
+		job_id,(select name from t_work_basic where id=tw.job_id) 'jobname',
+		shifts,work_time,work_hour_cal,birthday,idnumber,grad_sch,phone,address,
+		duty_id,(select name from t_work_basic where id=tw.duty_id) 'dutyname',
+		shift,num_month,entry_time,contract_way,(select name from t_work_basic where id=tw.contract_way) 'contname',
+		height,weight,edu_back,(select name from t_work_basic where id=tw.edu_back) 'eduname',
+		majors,lamp_brand,isuse,grade,(select name from t_work_basic where id=tw.grade) 'gradename'
+		from t_worker tw
+	</select>
+	
+	<select id="getbyCard" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.WorkerInAreaRec">
+		SELECT a.card_id,b.name,a.area_id,a.dev_id,DATE_FORMAT(a.starTime,'%Y-%m-%d') theDate,DATE_FORMAT(a.starTime,'%Y-%m-%d %H:%i:%S') startTime,DATE_FORMAT(a.responsetime,'%Y-%m-%d %H:%i:%S') responsetime,a.status 
+		FROM t_workerInAreaRec a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		WHERE a.card_id=#{card_id}
+	</select>
+	
+	<select id="getCountByCard" parameterType="com.cm.entity.vo.NameTime" resultType="int">
+		SELECT count(id) FROM t_workerTrackRecord where card_id=#{card_id}
+	</select>
+	
+	<select id="getTrajectory" parameterType="com.cm.entity.WorkerTrackRecord" resultType="com.cm.entity.vo.WorkerInAreaRecVo">
+		SELECT a.card card_id,a.area_id area_id,a.dev_id dev_id,DATE_FORMAT(a.responsetime,'%Y-%m-%d %H:%i:%S') startTime,
+		a.status status,b.n_point n_point,b.e_point e_point,c.v position,b.alais,d.areaname,e.name workername FROM t_coalMine_route a
+		LEFT JOIN t_cardreder b ON a.dev_id=b.id 
+		LEFT JOIN t_static c ON b.position_id=c.id
+		LEFT JOIN t_area d ON a.area_id=d.id
+		LEFT JOIN t_worker e ON a.worker_id=e.id
+		<where>
+			a.card=#{card_id}
+			<if test="intoTime!=null and intoTime!=''">
+			AND (a.responsetime<![CDATA[>=]]>#{intoTime} AND a.responsetime<![CDATA[<=]]>#{outTime})
+			</if>
+		</where>
+		ORDER BY a.responsetime
+	</select>
+</mapper>

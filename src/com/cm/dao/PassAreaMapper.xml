@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.PassAreaDao">
+	
+	<select id="getCardReaderRecord" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.Coalmine_routeVo">
+	SELECT w.rfcard_id,cr.card,cr.dev_id,cr.responsetime,cr.response,w.`name`,c.addr AS cardReaderName,s.v AS position,
+	  dpt.`name` as departname,wt.`name` as worktypename
+		FROM t_coalMine_route cr
+		LEFT JOIN t_worker w
+	  ON cr.card = w.rfcard_id
+		LEFT JOIN t_cardreder c
+	  ON cr.dev_id = c.id
+	  LEFT JOIN t_static s
+	  ON c.position_id = s.id
+	  LEFT JOIN t_department dpt
+	  ON w.depart_id = dpt.id
+	  LEFT JOIN t_worktype wt
+	  ON w.worktype_id = wt.id
+	  <where>
+		<if test="devid > 0">
+			cr.dev_id=#{devid}
+		</if>
+		AND cr.filltime BETWEEN #{starttime} AND #{endtime}
+	  </where>
+		ORDER BY cr.card,cr.responsetime
+	</select>
+</mapper>

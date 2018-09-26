@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.IAreaCacheDao">
+	
+	<select id="getAreaTable" resultType="com.cm.entity.vo.AreaVo">
+	    SELECT IFNULL(a.id,-2) AS areaId,c.cid AS readerId,IFNULL(a.is_exit,0) AS is_exit,c.substation_id 
+	    FROM t_cardreder c 
+	    LEFT JOIN t_area a ON a.id=c.areaid
+	</select>
+	
+	<select id="getAllCard" resultType="String">
+	    SELECT w.rfcard_id FROM t_worker w
+	</select>
+	
+	<select id="getAllArea" resultType="com.cm.entity.Area">
+	    SELECT * FROM t_area a
+	</select>
+	
+	<select id="getAreaWorker" resultType="com.cm.entity.AreaWorker2">
+	    SELECT s.id,s.area_id,s.card_id FROM t_area_worker s
+	</select>
+	
+	<select id="getExitCardreader" resultType="com.cm.entity.Cardreder">
+	    SELECT s.cid,s.substation_id FROM t_cardreder s where s.is_exit=1
+	</select>
+	
+	<select id="getCardreaderName" resultType="com.cm.entity.Cardreder">
+	    SELECT s.substation_id,s.cid,CONCAT(c.v,'/',s.addr) AS addr FROM t_cardreder s LEFT JOIN t_static c ON s.position_id=c.id WHERE s.cstate!=3 and addr is not null;
+	</select>
+	
+	<select id="getSubstation" resultType="com.cm.entity.Substation2">
+	    select s.id,s.ipaddr from t_substation s
+	</select>
+	
+	<select id="getEntranceCard" resultType="com.cm.entity.Worker">
+	    SELECT w.entranceGuardNum,w.rfcard_id FROM t_worker w WHERE w.entranceGuardNum>0
+	</select>
+	
+	<select id="getAttendance" resultType="com.cm.entity.AttendanceMap">
+	    SELECT w.rfcard_id as card,CONCAT(w.workplace_id,';',w.classes_id,';',c.`week`,';',c.dayrange) classes FROM t_worker w LEFT JOIN t_classes c ON w.classes_id=c.id WHERE w.rfcard_id>0 AND w.classes_id>0 AND w.workplace_id>0
+	</select>
+</mapper>

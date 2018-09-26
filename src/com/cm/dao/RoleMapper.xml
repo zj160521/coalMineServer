@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.IRoleDao">
+	
+	<insert id="addRole" parameterType="com.cm.entity.Role">
+	    INSERT INTO t_role (name) VALUES (#{name})
+	</insert>
+	
+	<update id="update" parameterType="com.cm.entity.Role">
+	    UPDATE t_role SET name=#{name} WHERE id=#{id}
+	</update>
+	
+	<select id="getAllRole" resultType="com.cm.entity.Role">
+	    SELECT * FROM t_role
+	</select>
+	
+	<delete id="delRole" parameterType="int">
+	    DELETE FROM t_role WHERE id=#{id};
+	    DELETE FROM t_mid_permission WHERE role_id=#{id};
+	</delete>
+</mapper>

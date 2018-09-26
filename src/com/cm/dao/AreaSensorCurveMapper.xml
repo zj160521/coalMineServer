@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.AreaSensorCurveDao">
+	
+	<select id="getAllSensorByArea" resultType="com.cm.entity.vo.AreaSensorVo">
+		SELECT ars.sensor_id,ars.sensor_type_id,s.alais,ars.uid,s.sensorId,sub.ipaddr ip
+		FROM t_area_sensor ars
+		LEFT JOIN t_sensor s ON ars.sensor_id = s.id
+		LEFT JOIN t_substation sub ON s.station = sub.id
+		WHERE ars.area_id = #{areaId} AND sensor_type_id = 100
+		UNION ALL
+		SELECT ars.sensor_id,ars.sensor_type_id,ss.alais,ars.uid,ss.sensorId,sub.ipaddr ip
+		FROM t_area_sensor ars
+		LEFT JOIN t_switch_sensor ss ON ars.sensor_id = ss.id
+		LEFT JOIN t_substation sub ON ss.station = sub.id
+		WHERE ars.area_id = #{areaId} AND sensor_type_id = 25
+	</select>
+	
+	<select id="getSensorRecs" resultType="com.cm.entity.vo.SensorRecsVo">
+		SELECT ip,devid,type,`value`,`status`,responsetime FROM t_coalMine 
+		WHERE responsetime >= #{startTime} and
+		<foreach collection="list" item="obj" open="(" close=")" separator="or">  
+			ip =# {obj.ip} AND devid = #{obj.sensorId}
+		</foreach>
+	</select>
+	
+	<select id="getAnalogQry" resultType="com.cm.entity.vo.AnalogQueryVo">
+		SELECT sensor_id,startId,endId,type,`status`,ip,DATE_FORMAT(startTime,'%Y-%m-%d %H:%i:%S') startTime,DATE_FORMAT(IFNULL(endTime,NOW()),'%Y-%m-%d %H:%i:%S') endTime,measure 
+		FROM t_analoginfo_query
+		WHERE IFNULL(endTime,NOW()) >= #{startTime} AND startTime &lt;= #{endTime} AND
+		<foreach collection="list" item="obj" open="(" close=")" separator="or">  
+			ip =# {obj.ip} AND devid = #{obj.sensorId}
+			sensor_id = #{obj.sensorId} AND ip = #{obj.ip}
+		</foreach>
+	</select>
+	
+	<select id="getDailySensorRecs" resultType="com.cm.entity.vo.SensorRecsVo">
+		
+	</select>
+	
+</mapper>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.IUserDao">
+
+	<!-- 添加 -->
+	<insert id="add" parameterType="com.cm.entity.User" useGeneratedKeys="true" keyProperty="id">
+		insert into t_user(name,password,province,city,town,role_id)
+		values(#{name},#{password},#{province},#{city},#{town},#{role_id})
+	</insert>
+	<!-- 删除 -->
+	<delete id="delete" parameterType="int">
+		delete from t_user where id=#{id};
+	</delete>
+	<delete id="delByWorker" parameterType="int">
+	    DELETE FROM t_user WHERE worker_id=#{id};
+	</delete>
+	<!--修改 -->
+	<update id="update" parameterType="com.cm.entity.User">
+		update t_user 
+		<set>
+		<if test="name != null and name != ''">
+			name=#{name},
+		</if>
+		<if test="password != null and password != ''">
+			password=#{password},
+		</if>
+		<if test="province > 0">
+			province=#{province},
+		</if>
+		<if test="city > 0">
+			city=#{city},
+		</if>
+		<if test="town > 0">
+			town=#{town},
+		</if>
+		<if test="role_id > 0">
+			role_id=#{role_id}
+		</if>
+		</set>
+		where id=#{id}
+	</update>
+	<!--根据id查询全部 -->
+	<select id="getById" parameterType="int" resultType="com.cm.entity.User">
+		select u.* 
+		from t_user u
+		where u.id=#{id}
+	</select>
+
+	<select id="getByName" parameterType="String" resultType="com.cm.entity.User">
+		select u.*
+		from t_user u
+		where u.name=#{name}
+	</select>
+
+	<select id="getAll" resultType="com.cm.entity.User">
+		select u.*, (select r.name from t_role r where r.id = u.role_id) roleName
+		from t_user u
+		<!-- where u.worker_id=0 -->
+	</select>
+	
+	<select id="getPermission" parameterType="int" resultType="com.cm.entity.Permission">
+	     SELECT u.id AS userid,u.`name` AS username,r.id AS roleid,r.`name` AS rolename,p.id,p.pid,p.`name` AS pname  
+        FROM t_user u
+        LEFT JOIN t_role r
+        ON u.role_id=r.id
+        LEFT JOIN t_mid_permission m
+        ON r.id=m.role_id
+        LEFT JOIN t_permission p
+        ON m.permission_id=p.id
+        WHERE u.id=#{id}
+	</select>
+	
+	<insert id="addLog" parameterType="com.cm.entity.User_log">
+		insert into t_user_log
+		<set>
+		<if test="user_id > 0">
+		    user_id=#{user_id},
+		</if>
+		<if test="permission_id > 0">
+		    permission_id=#{permission_id},
+		</if>
+		<if test="ip != null">
+		    ip=#{ip},
+		</if>
+		<if test="operation2 != null">
+		    operation2=#{operation2},
+		</if>
+		<if test="remark != null">
+		    remark=#{remark}
+		</if>
+		</set>
+	</insert>
+	
+	<select id="getAllLog" resultType="com.cm.entity.User_log" parameterType="com.cm.entity.vo.NameTime">
+	    SELECT l.*,u.`name` as userName,p.`name` AS operation
+        FROM t_user_log l
+        LEFT JOIN t_user u
+        ON u.id=l.user_id
+        LEFT JOIN t_permission p
+        ON p.id=l.permission_id
+        <where>
+           <if test="name != null and name != ''">
+               u.`name` = #{name}
+           </if>
+           <if test="starttime!=null">
+               AND l.log_time>#{starttime}
+           </if>
+           <if test="endtime!=null">
+               AND l.log_time&lt;#{endtime}
+           </if>
+           <if test="pid>0">
+               and l.permission_id=#{pid}
+           </if>
+        </where>
+        order by l.log_time desc
+        LIMIT #{cur_page},#{page_rows};
+	</select>
+	
+	<select id="getAllPage" resultType="int" parameterType="com.cm.entity.vo.NameTime">
+	   SELECT count(*)
+        FROM t_user_log l
+        LEFT JOIN t_user u
+        ON u.id=l.user_id
+        LEFT JOIN t_permission p
+        ON p.id=l.permission_id
+        LEFT JOIN t_permission p1
+        ON p.pid=p1.id
+        <where>
+           <if test="name != null and name != ''">
+               u.`name` = #{name}
+           </if>
+           <if test="starttime!=null">
+               AND l.log_time>#{starttime}
+           </if>
+           <if test="endtime!=null">
+               AND l.log_time&lt;#{endtime}
+           </if>
+           <if test="pid>0">
+               and l.permission_id=#{pid}
+           </if>
+        </where>
+	</select>
+	
+	<select id="getLogtype" resultType="com.cm.entity.Permission">
+	   SELECT *,name as pname 
+       FROM t_permission
+       WHERE ctrlpath is not null
+	</select>
+</mapper>

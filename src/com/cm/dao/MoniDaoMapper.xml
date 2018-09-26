@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.IMoniDao">
+
+	<select id="getAllNvr" resultType="com.cm.entity.Moni">
+		select * from t_moni where
+		type = 0
+	</select>
+
+	<select id="getAllByPid" resultType="com.cm.entity.Moni">
+		select * from t_moni where
+		type = 1
+	</select>
+
+	<insert id="add" parameterType="com.cm.entity.Moni"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into
+		t_moni(pid,dip,port,username,password,position,isuse,name,type,e_point,n_point)values
+		(#{pid},#{dip},#{port},#{username},#{password},#{position},#{isuse},#{name},#{type},#{e_point},#{n_point})
+	</insert>
+
+	<update id="update" parameterType="com.cm.entity.Moni">
+		update t_moni
+		<set>
+			<if test="pid > 0">
+				pid=#{pid},
+			</if>
+			<if test="dip != null">
+				dip=#{dip},
+			</if>
+			<if test="port != null">
+				port=#{port},
+			</if>
+			<if test="username != null ">
+				username=#{username},
+			</if>
+			<if test="password != null">
+				password=#{password},
+			</if>
+			<if test="position != null">
+				position=#{position},
+			</if>
+			<if test="isuse > 0">
+				isuse = #{isuse},
+			</if>
+			<if test="name != null">
+				name = #{name},
+			</if>
+			<if test="type > 0">
+				type = #{type},
+			</if>
+			<if test="n_point > 0">
+				n_point = #{n_point},
+			</if>
+			<if test="e_point > 0">
+				e_point = #{e_point}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<select id="getMoni" parameterType="int" resultType="com.cm.entity.Moni">
+		select *
+		from t_moni where id = #{id}
+	</select>
+
+	<select id="getMoniByDip" parameterType="String" resultType="com.cm.entity.Moni">
+		select *
+		from t_moni where dip = #{dip}
+	</select>
+
+	<delete id="delete" parameterType="int">
+		delete from t_moni where id =#{id}
+	</delete>
+
+	<delete id="deleteByPid" parameterType="int">
+		delete from t_moni
+		where
+		pid = #{pid}
+	</delete>
+
+	<select id="getMoniDipByDip" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		select count(*)
+		from t_moni where dip =#{dip}
+	</select>
+
+</mapper>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.UnattendanceDao">
+
+	<select id="getAllUnattendanceById" resultType="com.cm.entity.Unattendance">
+		SELECT t1.id,t1.classes_id,t3.`week`,t3.dayrange,t1.card,t1.worker_id,t2.`name`,t6.id depart_id,
+		t6.`name` department,t7.id worktype_id,t7.`name` worktype,t8.id duty_id,t8.v duty,t1.work_area,t4.areaname,
+		t1.responsearea responsearea_id,t5.areaname responsearea,t1.responsetime,t1.endtime,t1.status
+		FROM t_unattendance t1
+		LEFT JOIN t_worker t2 ON t1.worker_id=t2.id
+		LEFT JOIN t_classes t3 ON t1.classes_id=t3.id
+		LEFT JOIN t_area t4 ON t1.work_area=t4.id
+		LEFT JOIN t_area t5 ON t1.responsearea=t5.id
+		LEFT JOIN t_department t6 ON t2.depart_id=t6.id
+		LEFT JOIN t_worktype t7 ON t2.worktype_id=t7.id
+		LEFT JOIN t_static t8 ON t2.duty_id=t8.id
+		WHERE DATE_FORMAT(t1.responsetime,'%Y-%m-%d')=#{responsetime} AND worker_id=#{worker_id}
+		<if test="depart_id>0">
+			AND t2.depart_id=#{depart_id}
+		</if>
+		<if test="worktype_id>0">
+			AND t2.worktype_id=#{worktype_id}
+		</if>
+		<if test="work_area>0">
+		 	AND t1.work_area=#{work_area}
+		</if>
+		<if test="duty_id>0">
+			AND t2.duty_id=#{duty_id}
+		</if>
+		<if test="special>0">
+			AND t7.special=#{special}
+		</if>
+		<if test="classes_id>0">
+			AND t1.classes_id=#{classes_id}
+		</if>
+	</select>
+	
+	<select id="getAllWorkerUnattendanceCount" resultType="com.cm.entity.Worker">
+		SELECT t2.id,t2.`name`,t2.classes_id,t3.`week`,t3.dayrange,t2.depart_id,t4.`name` departname,
+		t2.duty_id,t5.v duty,t2.rfcard_id,t2.workplace_id,t6.areaname workplace,t2.worktype_id,
+		t7.`name` worktypename,t7.special,COUNT(worker_id) counts
+		FROM t_unattendance t1
+		LEFT JOIN t_worker t2 ON t2.id=t1.worker_id
+		LEFT JOIN t_classes t3 ON t2.classes_id=t3.id
+		LEFT JOIN t_department t4 ON t2.depart_id=t4.id
+		LEFT JOIN t_static t5 ON t2.duty_id=t5.id
+		LEFT JOIN t_area t6 ON t2.workplace_id=t6.id
+		LEFT JOIN t_worktype t7 ON t2.worktype_id=t7.id
+		WHERE DATE_FORMAT(t1.responsetime,'%Y-%m-%d')=#{responsetime}
+		<if test="depart_id>0">
+			AND t2.depart_id=#{depart_id}
+		</if>
+		<if test="worktype_id>0">
+			AND t2.worktype_id=#{worktype_id}
+		</if>
+		<if test="work_area>0">
+		 	AND t1.work_area=#{work_area}
+		</if>
+		<if test="duty_id>0">
+			AND t2.duty_id=#{duty_id}
+		</if>
+		<if test="special>0">
+			AND t7.special=#{special}
+		</if>
+		<if test="classes_id>0">
+			AND t1.classes_id=#{classes_id}
+		</if>
+		GROUP BY t1.worker_id
+	</select>
+
+</mapper>

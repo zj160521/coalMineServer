@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.ICardReaderPassQryDao">
+
+	<select id="getStepInRecs" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.CardReaderREC">
+		SELECT wi.worker_id workerID,w.`name`,wi.card_id cardId,wi.area_id areaId,a.areaname,wi.dev_id devId,DATE_FORMAT(wi.responsetime,'%Y-%m-%d %H:%i:%S') AS responsetime
+		,wi.`status`,CONCAT(sub.station_name,':',addr) addr,sub.ipaddr,sta.v duty,cla.dayrange,wt.`name` workTypeName,dpt.`name` departName
+			FROM t_workerInAreaRec wi
+			LEFT JOIN t_worker w
+			ON wi.worker_id = w.id
+			LEFT JOIN t_area a
+			ON wi.area_id = a.id
+			LEFT JOIN t_cardreder cr
+			ON cr.cid = wi.dev_id AND wi.sub_id = cr.substation_id
+			LEFT JOIN t_substation sub
+			ON sub.id = wi.sub_id 
+			LEFT JOIN t_static sta
+			ON sta.id = w.duty_id
+			LEFT JOIN t_classes cla
+			ON w.classes_id = cla.id
+			LEFT JOIN t_worktype wt
+			ON w.worktype_id = wt.id
+			LEFT JOIN t_department dpt
+			ON dpt.id = w.depart_id
+		<where>
+			<if test="area_ids != null">
+				<foreach collection="area_ids" item="area_id" open="and (" close=")" separator="or">  
+                    wi.area_id=#{area_id}
+                </foreach> 
+			</if>
+			<if test="devid > 0">
+				and wi.dev_id = #{devid}
+			</if>
+			<if test="substation > 0">
+				and wi.sub_id = #{substation}
+			</if>
+			
+			<if test="depart_id > 0">
+				and w.depart_id=#{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				and w.worktype_id=#{worktype_id}
+			</if>
+			<if test="workerPlaceId > 0">
+				and w.workplace_id=#{workerPlaceId}
+			</if>
+			<if test="dutyId > 0">
+				and w.duty_id=#{dutyId}
+			</if>
+			and wi.`status` = 2 AND wi.dev_id > 0 AND responsetime BETWEEN #{starttime} AND #{endtime}
+			ORDER BY wi.dev_id,wi.responsetime,worker_id
+		</where>
+			
+
+	</select>
+</mapper>

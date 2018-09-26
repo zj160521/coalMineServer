@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.ICommunicationDao">
+
+	<select id="getAll" parameterType="com.cm.entity.Communication"
+		resultType="com.cm.entity.Communication">
+		
+		select ce.cardreder_id,(select s.v from t_static s where s.id =
+		cd.position_id) as position,(select sb.ipaddr from t_substation sb
+		where sb.id = cd.substation_id) as
+		station,cd.addr,ce.starttime,ce.status,ce.remark
+		from t_communication_exception ce,t_cardreder cd
+		<where>
+			ce.cardreder_id = cd.id
+			<if test="cardreder_id > 0">
+				and ce.cardreder_id = #{cardreder_id}
+			</if>
+			<if test="starttime != null">
+				and ce.starttime <![CDATA[>=]]> #{starttime}
+			</if>
+			<if test="endtime != null">
+				and ce.starttime <![CDATA[<=]]> #{endtime}
+			</if>
+		</where>
+	</select>
+</mapper>

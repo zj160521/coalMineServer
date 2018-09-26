@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.AreaOfflimitsQueryDao">
+	
+	<select id="getData" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.AreaOfflimitsVo">
+		
+	SELECT cr.card AS rfcard_id,w.`name`,cr.area_id,cr.responsetime,a.areaname,dpt.`name` AS departname,wt.`name` AS worktypename
+	FROM t_coalMine_route cr
+	LEFT JOIN t_area a
+	ON cr.area_id = a.id
+	LEFT JOIN t_worker w
+	ON cr.card = w.rfcard_id
+	LEFT JOIN t_department dpt
+	ON w.depart_id = dpt.id
+	LEFT JOIN t_worktype wt
+	ON w.worktype_id = wt.id
+	<where>
+		a.default_allow = 2
+		<if test="rfcard_id > 0">
+			AND cr.card = #{rfcard_id}
+		</if>
+		<if test="area_id > 0">
+			AND cr.area_id = #{area_id}
+		</if>
+		AND cr.responsetime BETWEEN #{starttime} AND #{endtime}
+		ORDER BY cr.card,cr.responsetime
+	 </where>
+		
+	</select>
+	
+	<select id="getAllAreaWorker"  resultType="com.cm.entity.AreaWorker">
+		SELECT aw.id,aw.area_id,aw.worker_id,w.rfcard_id FROM t_area_worker aw
+		LEFT JOIN t_worker w
+		ON aw.worker_id = w.id
+		
+	</select>
+</mapper>

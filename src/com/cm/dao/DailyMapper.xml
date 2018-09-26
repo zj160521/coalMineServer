@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.DailyDao">
+	
+	<insert id="addRecs" parameterType="java.util.List">
+	    INSERT INTO t_daily(worker_id,rfcard_id,name,depart_id,depart_name,worktype_id,worktype_name,wellduration,start_time,end_time,work_day,fill_time,special,duty_id,duty_name,workplace_id,workplace,remark)
+	    values 
+	    <foreach collection="list" item="it" index="index" separator=","> 
+			(#{it.workerId},#{it.rfcard_id},#{it.name},#{it.departId},#{it.departName},#{it.worktypeId},#{it.worktypeName},#{it.wellduration},#{it.startTime},#{it.endTime},#{it.workday},NOW(),
+			#{it.special},#{it.duty_id},#{it.dutyname},#{it.workplace_id},#{it.workplace},#{it.remark})
+	    </foreach>
+	    on duplicate key update rfcard_id=VALUES(rfcard_id),name=VALUES(name),depart_id=VALUES(depart_id),depart_name=VALUES(depart_name),worktype_id=VALUES(worktype_id),worktype_name=VALUES(worktype_name),
+	    wellduration=VALUES(wellduration),work_day=VALUES(work_day),fill_time=VALUES(fill_time),special=VALUES(special),duty_id=VALUES(duty_id),duty_name=VALUES(duty_name),
+	    workplace_id=VALUES(workplace_id),workplace=VALUES(workplace),remark=VALUES(remark)
+	</insert>
+	
+	<select id="getRecs" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.DailyRecVo">
+		SELECT id,worker_id workerId,rfcard_id,`name`,depart_id as departId,depart_name as departName,worktype_id as worktypeId,worktype_name as worktypeName,wellduration,
+		start_time as startTime,end_time as endTime,work_day workday,special,duty_id,duty_name dutyname,workplace_id,workplace,remark
+		FROM t_daily
+		<where>
+			<if test="depart_id > 0">
+				depart_id=#{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				and worktype_id=#{worktype_id}
+			</if>
+			<if test="starttime != null">
+				and work_day=#{starttime}
+			</if>
+			<if test="workerPlaceId > 0">
+				and workplace_id=#{workerPlaceId}
+			</if>
+			<if test="dutyId > 0">
+				and duty_id=#{dutyId}
+			</if>
+			<if test="special > 0">
+				and special=#{special}
+			</if>
+		</where>
+		ORDER BY start_time
+	</select>
+	
+	<select id="getMonthlyData" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.DailyRecVo">
+		SELECT id,worker_id workerId,rfcard_id,`name`,depart_id as departId,depart_name as departName,worktype_id as worktypeId,worktype_name as worktypeName,wellduration,
+		start_time as startTime,end_time as endTime,work_day workday,special,duty_id,duty_name dutyname,workplace_id,workplace,remark
+		FROM t_daily
+		<where>
+			<if test="depart_id > 0">
+				depart_id=#{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				and worktype_id=#{worktype_id}
+			</if>
+			<if test="workerPlaceId > 0">
+				and workplace_id=#{workerPlaceId}
+			</if>
+			<if test="dutyId > 0">
+				and duty_id=#{dutyId}
+			</if>
+			<if test="special > 0">
+				and special=#{special}
+			</if>
+			and work_day BETWEEN #{starttime} AND #{endtime}
+		</where>
+		ORDER BY start_time
+	</select>
+	
+</mapper>

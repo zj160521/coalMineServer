@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.AreaQueryDao">
+
+	<!-- 查询重点区域 -->
+	<select id="EmphasisArea" resultType="com.cm.entity.Area">
+		select * from t_area where emphasis=#{emphasis}
+	</select>
+	
+	<!-- 查询普通区域 -->
+	<select id="GeneralArea" resultType="com.cm.entity.Area">
+		select * from t_area where emphasis=#{emphasis}
+	</select>
+	
+	<!-- 查询限制区域 -->
+	<select id="AstrictArea" resultType="com.cm.entity.Area">
+		select * from t_area where default_allow=#{default_allow}
+	</select>
+
+</mapper>

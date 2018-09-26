@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.ILocalizeDao">
+
+	<select id="getAll" parameterType="com.cm.entity.vo.Searchform"
+		resultType="com.cm.entity.Localize">
+		select
+		wa.id,wa.card_id as rfcard_id,w.name,w.depart_id,
+		(select d.name from t_department d where d.id = w.depart_id) as departname,w.worktype_id,
+		(select wt.name from t_worktype wt where wt.id = w.worktype_id) as worktypename,wa.dev_id,wa.area_id,
+		(select ar.areaname from t_area ar where ar.id = wa.area_id) as areaname,wa.starTime as starttime,wa.status
+		from
+		t_workerInAreaRec wa
+		left join t_worker w 
+		on wa.card_id = w.rfcard_id
+		
+		<where>
+			<if test="depart_id > 0">
+				and w.depart_id = #{depart_id}
+			</if>
+
+			<if test="worktype_id > 0">
+				and w.worktype_id = #{worktype_id}
+			</if>
+
+			<if test="starttime != null">
+				and wa.starTime <![CDATA[>=]]>
+				#{starttime}
+			</if>
+
+			<if test="endtime != null">
+				and wa.starTime <![CDATA[<=]]>
+				#{endtime}
+			</if>
+ 			<if test="status > 0">
+				and wa.status = #{status}
+			</if>
+ 			<if test="cur_page >= 0 and page_rows > 0">
+				limit #{cur_page},#{page_rows}
+			</if>
+			<!-- limit #{cur_page},#{page_rows} -->
+		</where>
+		
+	</select>
+	
+	<select id="getAreaAll" parameterType="com.cm.entity.vo.Searchform"
+		resultType="com.cm.entity.Localize">
+
+		select wa.id,wa.card_id as rfcard_id,w.name,w.depart_id,
+		dpt.`name` as departname,w.worktype_id,
+		wt.`name` as worktypename,wa.dev_id,wa.area_id,
+		a.areaname as areaname,wa.starTime as starttime,wa.status
+		from t_workerInAreaRec wa
+		left join t_worker w
+		on wa.card_id = w.rfcard_id
+		LEFT JOIN t_department dpt
+		ON w.depart_id = dpt.id
+		LEFT JOIN t_worktype wt
+		ON w.worktype_id = wt.id
+		LEFT JOIN t_area a
+		ON wa.area_id = a.id
+		<where>
+			<if test="rfcard_id > 0">
+				wa.card_id = #{rfcard_id}
+			</if>
+
+			<if test="area_id > 0">
+				and wa.area_id = #{area_id}
+			</if>
+				and wa.starTime <![CDATA[>=]]>
+				#{starttime}
+				and wa.starTime <![CDATA[<=]]>
+				#{endtime}
+<!--  			<if test="cur_page >= 0 and page_rows > 0">
+				limit #{cur_page},#{page_rows}
+			</if> -->
+			<!-- limit #{cur_page},#{page_rows} -->
+		</where>
+		
+	</select>
+	
+	<select id="getWorkerInOutRecord" resultType="com.cm.entity.WorkerInAreaRec">
+		SELECT id,card_id,area_id,dev_id,MAX(starTime) as startTime,status FROM t_workerInAreaRec 
+		WHERE card_id = #{0} AND area_id = -1 AND status = 1 AND starTime &lt; #{1}
+		UNION ALL
+		SELECT id,card_id,area_id,dev_id,MAX(starTime) as startTime,status FROM t_workerInAreaRec 
+		WHERE card_id = #{0} AND area_id = -1 AND status = 2 AND starTime &lt; #{1}
+	</select>
+	
+	<select id="getStarttimeInOutRecord" resultType="com.cm.entity.WorkerInAreaRec">
+		SELECT id,card_id,area_id,dev_id,MAX(starTime) as startTime,status FROM t_workerInAreaRec 
+		WHERE card_id = #{0} AND area_id = -1 AND starTime &lt;= #{1}
+		UNION ALL
+		SELECT id,card_id,area_id,dev_id,MIN(starTime) as startTime,status FROM t_workerInAreaRec 
+		WHERE card_id = #{0} AND area_id = -1 AND starTime &gt; #{1}
+	</select>
+	
+	<select id="getRecordsBTWStartAndEnd" resultType="com.cm.entity.WorkerInAreaRec">
+		SELECT id,card_id,area_id,dev_id,starTime as startTime,status FROM t_workerInAreaRec 
+		WHERE card_id = #{0} AND area_id = -1 AND starTime BETWEEN #{1} AND #{2}
+		ORDER BY starTime
+	</select>
+	
+	<select id="getOutRecord" resultType="com.cm.entity.WorkerInAreaRec">
+		SELECT id,card_id,area_id,dev_id,MIN(starTime) as startTime,status FROM t_workerInAreaRec 
+		WHERE card_id = #{0} AND area_id = -1 AND status = 2 AND starTime &gt; #{1}
+	</select>
+	
+	<select id="getAllWorkerInOutRecord" parameterType="String" resultType="com.cm.entity.WorkerInAreaRec">
+		SELECT id,card_id,area_id,dev_id,starTime as startTime,status FROM t_workerInAreaRec 
+		where card_id = #{0}
+	</select>
+	
+	<select id="getAllworkerInAreaRec" resultType="com.cm.entity.WorkerInAreaRec">
+		SELECT id,card_id,area_id,dev_id,starTime as startTime,status FROM t_workerInAreaRec 
+	</select>
+
+	<select id="getOutWorker" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.Localize">
+		select wa.id,wa.card_id as rfcard_id,w.name,w.depart_id,
+		dpt.`name` as departname,w.worktype_id,
+		wt.`name` as worktypename,wa.dev_id,wa.area_id,
+		a.areaname as areaname,wa.starTime as endtime,wa.status
+		from t_workerInAreaRec wa
+		left join t_worker w 
+		on wa.card_id = w.rfcard_id
+		LEFT JOIN t_department dpt
+		ON w.depart_id = dpt.id
+		LEFT JOIN t_worktype wt
+		ON w.worktype_id = wt.id
+		LEFT JOIN t_area a
+		ON wa.area_id = a.id
+		<where>
+				wa.area_id = 0 AND wa.`status` = 2
+
+			<if test="depart_id > 0">
+				AND w.depart_id=#{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				AND w.worktype_id=#{worktype_id}
+			</if>
+ 				AND wa.starTime BETWEEN #{starttime} AND #{endtime}
+		</where>
+
+       
+	</select>
+	<select id="getAllAtGate" resultType="com.cm.entity.Localize"
+		parameterType="com.cm.entity.Localize">
+
+		select wa.id,wa.card_id rfcard_id,w.name,
+		(select d.name from
+		t_department d
+		where d.id = w.depart_id) as departname,
+		(select wt.name
+		from t_worktype wt
+		where wt.id= w.worktype_id) as worktypename,
+		wa.dev_id,wa.area_id,
+		(select
+		ar.areaname from t_area ar where ar.id =
+		wa.area_id) as areaname,
+		wa.starTime as starttime
+		from t_workerInAreaRec
+		wa
+		left join t_worker w on wa.card_id
+		= w.rfcard_id
+		<where>
+			wa.area_id=#{area_id}
+			<if test="dev_id>0">
+				and wa.dev_id=#{dev_id}
+			</if>
+		</where>
+		order by starttime desc
+	</select>
+
+	<select id="getAllCount" resultType="com.cm.entity.Localize">
+
+		select
+		wa.card_id,a.areaname,wa.area_id,cd.id,cd.addr,cd.e_point,cd.n_point,count(wa.card_id)
+		from t_workerInAreaRec wa,t_area a,t_cardreder cd,t_worker w
+		where
+		wa.area_id = a.id and wa.dev_id = cd.id and wa.card_id = w.rfcard_id
+		group by a.id
+
+	</select>
+
+	<select id="getAllandCardreder" parameterType="com.cm.entity.Localize" resultType="com.cm.entity.Localize">
+		select
+		w.rfcard_id,(select a.areaname from t_area a where a.id = wa.area_id) as areaname,
+		wa.starTime as starttime,wa.area_id,w.name,(select d.name from t_department d where
+		d.id = w.depart_id) as departname,
+		(select wt.name from t_worktype wt where wt.id = w.worktype_id) as
+		worktypename,cd.addr
+		,(select s.v from t_static s where cd.position_id = s.id) as
+		position
+
+		from t_workerInAreaRec wa
+		left join t_worker w on wa.card_id = w.rfcard_id
+		left join t_cardreder cd on cd.id = wa.dev_id
+		<where>
+			wa.status = 1 and wa.area_id != 0
+			<if test="addr != null">
+				and cd.addr = #{addr}
+			</if>
+			<if test="starttime != null">
+				and wa.starTime <![CDATA[>=]]> #{starttime}
+			</if>
+			<if test="endtime != null">
+				and wa.starTime <![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="area_id > 0">
+				and wa.area_id = #{area_id}
+			</if>
+			<if test="rfcard_id > 0">
+				and wa.card_id = #{rfcard_id}
+			</if>
+		</where>
+
+	</select>
+
+</mapper>

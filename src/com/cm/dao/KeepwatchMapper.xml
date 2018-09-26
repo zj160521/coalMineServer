@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.IKeepwatchDao">
+
+	<resultMap type="com.cm.entity.vo.Keepwatch" id="KeepwatchMap">
+		<id column="id" property="id"/>
+		<result column="position" property="position"/>
+		<result column="addr" property="addr"/>
+		<result column="count" property="count"/>
+	</resultMap>
+
+	<select id="getAllKeepwatchRecord" resultMap="KeepwatchMap">
+		SELECT t1.id,t1.addr,t4.v position,
+		(SELECT COUNT(t2.id) FROM t_workerInAreaRec t2,t_worker t3 
+		WHERE t1.cid=t2.dev_id AND t1.substation_id=t2.sub_id AND t2.card_id=t3.rfcard_id AND t2.starTime BETWEEN #{starttime} AND #{endtime} 
+		<if test="worktype_id>0">
+			AND t3.worktype_id=#{worktype_id}
+		</if>
+		<if test="rfcard_id>0">
+			AND t3.rfcard_id=#{rfcard_id}
+		</if>
+		) count
+		FROM t_cardreder t1
+		LEFT JOIN t_static t4 ON t1.position_id=t4.id
+		WHERE t1.cstate!=3 
+	</select>
+
+</mapper>

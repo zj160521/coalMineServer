@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.LineDao">
+
+    <insert id="add">
+        insert into t_line (lineString,type) values (#{lineString},#{type})
+    </insert>
+
+    <update id="update">
+        update t_line
+        <set>
+            <if test="null!=lineString">
+                lineString=#{lineString},
+            </if>
+            type=#{type}
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+
+    <select id="getAll" resultType="com.cm.entity.Line">
+        select * from t_line
+    </select>
+
+    <delete id="delete">
+        delete from t_line where id=#{id}
+    </delete>
+
+    <select id="getByType" resultType="com.cm.entity.Line">
+        select * from t_line where type=#{type}
+    </select>
+
+</mapper>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.CallinfoDao">
+		
+		<insert id="addCallinfo" parameterType="com.cm.entity.Callinfo">
+			insert into t_callinfo
+			<set>
+			   <if test="calltype>0">
+				calltype=#{calltype},
+			   </if>
+			   <if test="callrange>0">
+				callrange=#{callrange},
+			   </if>
+			   <if test="callcard!=null and callcard!=''">
+				callcard=#{callcard},
+			   </if>
+			   <if test="callthat!=null and callthat!=''">
+				callthat=#{callthat},
+			   </if>
+			   <if test="creattime!=null and creattime!=''">
+				creattime=#{creattime},
+			   </if>
+			   <if test="creatname!=null and creatname!=''">
+				creatname=#{creatname},
+			   </if>
+			   <if test="endtime!=null and endtime!=''">
+				endtime=#{endtime},
+			   </if>
+			   <if test="calltime!=null and calltime!=''">
+				calltime=#{calltime},
+			   </if>
+			   <if test="ip!=null and ip!=''">
+				ip=#{ip},
+			   </if>
+			   <if test="devid>0">
+				devid=#{devid}
+			   </if>  
+			</set>
+		</insert>
+		
+		<select id="getallCallinfo" parameterType="com.cm.entity.Callinfo" resultType="com.cm.entity.Callinfo">
+			select id,calltype,callrange,callcard,callthat,creattime,creatname,endtime,calltime
+			from t_callinfo where 
+			<if test="sle==0">
+				to_days(creattime)=to_days(now())
+			</if>
+			<if test="sle==1">
+				to_days(now())-to_days(creattime) <![CDATA[<=]]> 1
+			</if>
+			<if test="sle==2">
+				to_days(now())-to_days(creattime) <![CDATA[<=]]> 2 and to_days(now())-to_days(creattime) <![CDATA[>=]]>1 
+			</if>
+			<if test="sle==3">
+				creattime &gt; DATE_SUB(NOW(),INTERVAL 8 HOUR)
+			</if>
+			<if test="sle==4">
+				creattime &gt; DATE_SUB(NOW(),INTERVAL 1 day)
+			</if>
+			<if test="sle==5">
+				creattime &gt; DATE_SUB(NOW(),INTERVAL 2 day)
+			</if>
+			<if test="sle==6">
+				creattime &gt; DATE_SUB(NOW(),INTERVAL 3 day)
+			</if>
+			<if test="sle==7">
+				1=1
+			</if>
+			<if test="sle==8">
+				creattime<![CDATA[<=]]>#{endtime} and creattime<![CDATA[>=]]>#{creattime} 
+			</if>
+			order by creattime desc limit #{pagenum},15
+		</select>
+		
+		<select id="getnewCallinfo" resultType="com.cm.entity.Callinfo" parameterType="com.cm.entity.vo.NameTime">
+			select id,calltype,callrange,callcard,callthat,creattime,creatname,endtime,calltime
+			from t_callinfo 
+			<where>
+			  <if test="starttime!=null">
+                 creattime>#{starttime}
+              </if>
+              <if test="endtime!=null">
+                 AND creattime&lt;#{endtime}
+              </if>
+			</where> 
+			order by creattime desc
+			LIMIT #{cur_page},#{page_rows};
+		</select>
+		
+		<select id="getHelp" resultType="com.cm.entity.Helpme" parameterType="com.cm.entity.vo.NameTime">
+			SELECT c.*,a.areaname AS areaName,w.`name` AS workerName,s.v AS cardreaderName,d.`name` AS departname,wt.`name` AS worktypename,st.v AS duty
+            FROM t_callhelp c
+            LEFT JOIN t_area a ON a.id=c.areaid
+            LEFT JOIN t_worker w ON w.id=c.workerid
+            LEFT JOIN t_cardreder ca ON ca.cid=c.cardreader AND ca.substation_id=c.subid
+            LEFT JOIN t_static s ON ca.position_id=s.id
+            LEFT JOIN t_department d ON d.id=w.depart_id
+            LEFT JOIN t_worktype wt ON wt.id=w.worktype_id 
+            LEFT JOIN t_static st ON st.id=w.duty_id
+			<where>
+			  <if test="starttime!=null">
+                 responsetime>#{starttime}
+              </if>
+              <if test="endtime!=null">
+                 AND responsetime&lt;#{endtime}
+              </if>
+			</where> 
+			order by responsetime desc
+			LIMIT #{cur_page},#{page_rows};
+		</select>
+		
+		<select id="getAllPage2" resultType="int" parameterType="com.cm.entity.vo.NameTime">
+		    select COUNT(*) from t_callhelp
+		    <where>
+			  <if test="starttime!=null">
+                 responsetime>#{starttime}
+              </if>
+              <if test="endtime!=null">
+                 AND responsetime&lt;#{endtime}
+              </if>
+			</where>
+		</select>
+		
+		<select id="getUnfinish" resultType="com.cm.entity.Callinfo">
+			select id,calltype,callrange,callcard,callthat,DATE_FORMAT(creattime,'%Y-%m-%d %H:%i:%S') creattime,creatname,DATE_FORMAT(endtime,'%Y-%m-%d %H:%i:%S') endtime,DATE_FORMAT(calltime,'%Y-%m-%d %H:%i:%S') calltime
+			from t_callinfo 
+			where endtime > now() 
+			order by creattime desc;
+		</select>
+		
+		<select id="getAllPage" resultType="int" parameterType="com.cm.entity.vo.NameTime">
+		    select COUNT(*) from t_callinfo
+		    <where>
+			  <if test="starttime!=null">
+                 creattime>#{starttime}
+              </if>
+              <if test="endtime!=null">
+                 AND creattime&lt;#{endtime}
+              </if>
+			</where>
+		</select>
+		
+		<update id="stopCallinfo" parameterType="int">
+		    UPDATE t_callinfo SET endtime=NOW() WHERE id=#{id};
+		</update>
+		
+		<update id="helpRemark" parameterType="int">
+		    UPDATE t_callhelp SET remark=#{remark} WHERE card=#{id} and responsetime=#{starttime};
+		</update>
+</mapper>

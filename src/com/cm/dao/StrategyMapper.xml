@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.StrategyDao">
+
+    <resultMap type="Area_sen" id="Area_sen">
+        <result column="sensor_id" property="sensor_id" />
+        <result column="uid" property="uid" />
+        <result column="sensor_type" property="sensor_type" />
+        <result column="position" property="position" />
+        <result column="alais" property="alais" />
+        <result column="is_area_alarm" property="is_area_alarm" />
+        <result column="sensor_type_id" property="sensor_type_id" />
+    </resultMap>
+
+    <resultMap type="Area_pos" id="Area_pos">
+        <id column="area_pos_id" property="area_pos_id" />
+        <result column="attrib_name" property="attrib_name" />
+        <result column="pos_type_id" property="pos_type_id" />
+        <result column="pos_type" property="pos_type" />
+        <collection property="list" resultMap="Area_sen" />
+    </resultMap>
+
+    <resultMap type="AreaSensor2" id="AreaSensor2">
+        <id column="area_id" property="area_id" />
+        <result column="areaname" property="areaname" />
+        <result column="area_type_id" property="area_type_id" />
+        <result column="area_type" property="area_type" />
+        <collection property="list" resultMap="Area_pos" />
+    </resultMap>
+
+	<select id="getStrategy" parameterType="com.cm.entity.PositionStrategy2" resultType="com.cm.entity.PositionStrategy2">
+		SELECT a.type_id AS type_id,a.id AS area_type_id,a.name AS area_type,a.path,ap.id as area_pos_id,ap.pos_type_id,ap.attrib_name,p.*
+		FROM t_area_type a
+		LEFT JOIN t_area_pos ap
+		ON a.id=ap.area_type_id
+		LEFT JOIN t_position_type p
+		ON ap.pos_type_id=p.id
+		<where>
+		 <if test="type_id!=0">
+		   a.type_id=#{type_id}
+		 </if>
+		 <if test="area_type_id!=0">
+		   and a.id=#{area_type_id}
+		 </if>
+		</where>
+	</select>
+	
+	<insert id="addAreaPos" parameterType="java.util.List">
+		insert into t_area_pos (area_type_id,pos_type_id)values
+	    <foreach collection="list" item="fuel" index="index" separator=",">  
+	       (#{fuel.area_type_id},#{fuel.pos_type_id})
+	    </foreach>
+	</insert>
+	
+	<insert id="addAreaSen" parameterType="java.util.List">
+		insert into t_area_sensor (area_id,area_pos_id,attrib_enable,sensor_id,uid,is_area_alarm,sensor_type_id)values
+	    <foreach collection="list" item="AreaSensor" index="index" separator=",">  
+	       (#{AreaSensor.area_id},#{AreaSensor.area_pos_id},1,#{AreaSensor.sensor_id},#{AreaSensor.uid},#{AreaSensor.is_area_alarm},#{AreaSensor.sensor_type_id})
+	    </foreach>
+	</insert>
+	
+	<insert id="addAreaSenOne" parameterType="com.cm.entity.AreaSensor">
+		insert into t_area_sensor (area_id,area_pos_id,attrib_enable,sensor_id,uid,is_area_alarm,sensor_type_id)values
+	     (#{area_id},#{area_pos_id},#{attrib_enable},#{sensor_id},#{uid},#{is_area_alarm},#{sensor_type_id})
+	</insert>
+	
+	<delete id="delStrategy" parameterType="com.cm.entity.PositionStrategy2">
+	    delete from t_area_type where id=#{id} and type_id=0;
+	</delete>
+	
+	<delete id="delStrategy2" parameterType="com.cm.entity.PositionStrategy2">
+		delete from t_area_pos where area_type_id=#{id};
+	</delete>
+	
+	<select id="getAreaSensor" parameterType="com.cm.entity.AreaSensor" resultMap="AreaSensor2">
+	    SELECT ar.area_id,a.areaname,a.area_type_id,`at`.`name` as area_type,ar.area_pos_id,pt.attrib_name,p.id AS pos_type_id,p.`name` AS pos_type,IFNULL(s.id,ss.id) AS sensor_id,IFNULL(s.uid,ss.uid) AS uid,IFNULL(s.alais,ss.alais) AS alais,IFNULL(sc.v ,sc2.v) AS sensor_type,IFNULL(IFNULL(scc.v ,scc2.v),'未配置位置') AS position,ar.is_area_alarm
+		FROM t_env_area a
+		JOIN t_area_type at
+		ON a.area_type_id=`at`.id
+		LEFT JOIN t_area_sensor ar
+		ON ar.area_id=a.id
+		JOIN t_area_pos pt
+		ON pt.id=ar.area_pos_id
+		LEFT JOIN t_position_type p
+		ON p.id=pt.pos_type_id
+		LEFT JOIN t_sensor s
+		ON s.uid=ar.uid
+		LEFT JOIN t_static sc
+		ON sc.id=s.sensor_type
+		LEFT JOIN t_static scc
+		ON scc.id=s.sensor_position
+		LEFT JOIN t_switch_sensor ss
+		ON ss.uid=ar.uid
+		LEFT JOIN t_static sc2
+		ON sc2.id=ss.sensor_type
+		LEFT JOIN t_static scc2
+		ON scc2.id=ss.sensor_position
+		<where>
+		   a.area_type_id>0
+		   <if test="area_id!=0">
+		     and ar.area_id=#{area_id}
+		   </if>
+		</where>
+	</select>
+	
+	<select id="getAllAreaSensor" parameterType="com.cm.entity.AreaSensor" resultMap="AreaSensor2">
+	    SELECT a.id AS area_id,a.areaname,a.area_type_id,`at`.`name` as area_type,ap.id as area_pos_id,ap.attrib_name,p.id AS pos_type_id,p.`name` AS pos_type,IFNULL(s.id,ss.id) AS sensor_id,IFNULL(s.uid,ss.uid) AS uid,IFNULL(s.alais,ss.alais) AS alais,IFNULL(sc.v ,sc2.v) AS sensor_type,IF(ar.sensor_id>0,IFNULL(IFNULL(scc.v ,scc2.v),'未配置位置'),NULL) AS position,ar.is_area_alarm,ar.sensor_type_id
+		FROM t_env_area a
+		JOIN t_area_type at
+		ON a.area_type_id=`at`.id
+		LEFT JOIN t_area_pos ap
+		ON `at`.id=ap.area_type_id
+		LEFT JOIN t_position_type p
+		ON ap.pos_type_id=p.id
+		LEFT JOIN t_area_sensor ar
+		ON ar.area_id=a.id AND ar.area_pos_id=ap.id
+		LEFT JOIN t_sensor s
+		ON s.uid=ar.uid
+		LEFT JOIN t_static sc
+		ON sc.id=s.sensor_type
+		LEFT JOIN t_static scc
+		ON scc.id=s.sensor_position
+		LEFT JOIN t_switch_sensor ss
+		ON ss.uid=ar.uid
+		LEFT JOIN t_static sc2
+		ON sc2.id=ss.sensor_type
+		LEFT JOIN t_static scc2
+		ON scc2.id=ss.sensor_position
+		<where>
+		   <if test="area_id!=0">
+		     a.id=#{area_id}
+		   </if>
+		</where>
+		ORDER BY a.id,ap.attrib_name
+	</select>
+	
+	<delete id="delAreaSensor" parameterType="com.cm.entity.AreaSensor">
+	   delete from t_area_sensor where area_id=#{area_id} and area_pos_id=#{area_pos_id}
+	</delete>
+	
+	<select id="getAreaAttrib" parameterType="com.cm.entity.AreaAttrib" resultType="com.cm.entity.AreaAttrib">
+	   select * from t_area_sensor
+	   where area_id=#{area_id} and attrib_enable=1
+	   group by area_id,area_pos_id
+	</select>
+	
+	<insert id="addAreaAttrib" parameterType="java.util.List">
+		insert into t_area_sensor (area_id,area_pos_id,attrib_enable)values
+	    <foreach collection="list" item="AreaAttrib" index="index" separator=",">  
+	       (#{AreaAttrib.area_id},#{AreaAttrib.area_pos_id},#{AreaAttrib.attrib_enable})
+	    </foreach>
+	</insert>
+	
+	<delete id="delAreaAttrib" parameterType="com.cm.entity.AreaAttrib">
+	   delete from t_area_sensor where area_id=#{area_id}
+	</delete>
+	
+	<select id="getAS" parameterType="com.cm.entity.AreaSensor" resultType="com.cm.entity.AreaSensor">
+	   select * from t_area_sensor where area_id=#{area_id} and area_pos_id=#{area_pos_id}
+	</select>
+	
+	<select id="getTAreaSensor" resultType="com.cm.entity.AreaSensor">
+	   select * from t_area_sensor where sensor_id>0;
+	</select>
+</mapper>

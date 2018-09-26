@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.EquipmentErrorDao">
+
+	<select id="getSensor" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.CommunicationVo">
+		SELECT a.id,f.id sensor_id,a.ip,a.sensor_id sensorId,f.alais,a.status,a.type,f.sensortype,f.position position,a.startTime starttime,a.endTime endtime,f.uid FROM t_analoginfo_query a
+		INNER JOIN 
+		(SELECT a.id,c.ipaddr,a.sensorId,a.sensor_type,b.v position,a.alais,a.uid,d.v sensortype,d.pid,a.isDrainage FROM t_sensor a
+		LEFT JOIN t_static b ON a.sensor_position=b.id
+		LEFT JOIN t_static d ON a.sensor_type=d.id
+		LEFT JOIN t_substation c ON a.station=c.id)f ON a.ip=f.ipaddr AND a.sensor_id=f.sensorId AND a.type=f.sensor_type
+		<where>
+			(a.status=5 
+			<if test="starttime!=null and endtime!=null">
+			AND	a.startTime<![CDATA[>=]]> #{starttime}
+			AND a.startTime<![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="uid!=null and uid!=''">
+				and f.uid=#{uid}
+			</if>
+			<if test="pid>0">
+				and f.pid in (#{pid},#{pid2})
+			</if>
+			<if test="isDrainage>-1">
+				and f.isDrainage=#{isDrainage}
+			</if>
+			<if test="sensor_type>0">
+				and f.sensor_type=#{sensor_type}
+			</if>
+			AND a.endId>0) 
+				OR 
+			(a.status=5
+			<if test="starttime!=null and endtime!=null">
+			AND a.startTime<![CDATA[<]]> #{endtime}
+			</if>
+			<if test="uid!=null and uid!=''">
+				and f.uid=#{uid}
+			</if>
+			<if test="pid>0">
+				<if test="pid>0">
+				and f.pid in (#{pid},#{pid2})
+			</if>
+			</if>
+			<if test="isDrainage>-1">
+				and f.isDrainage=#{isDrainage}
+			</if>
+			<if test="sensor_type>0">
+				and f.sensor_type=#{sensor_type}
+			</if>
+			AND a.endId=0)
+		</where> 
+	</select>
+	
+	<select id="getSwitchSensor" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.CommunicationVo">
+		SELECT a.id,f.id sensor_id,a.ip,a.sensor_id sensorId,f.alais,a.status,a.type,f.sensortype,f.position position,a.startTime starttime,a.endTime endtime,f.uid FROM t_analoginfo_query a
+		INNER JOIN
+		(SELECT a.id,c.ipaddr,a.sensorId,a.sensor_type,b.v position,a.alais,a.uid,d.v sensortype,d.pid,a.isDrainage FROM t_switch_sensor a
+		LEFT JOIN t_static b ON a.sensor_position=b.id
+		LEFT JOIN t_static d ON a.sensor_type=d.id
+		LEFT JOIN t_substation c ON a.station=c.id)f ON a.ip=f.ipaddr AND a.sensor_id=f.sensorId AND a.type=f.sensor_type
+		<where>
+			(a.status=5 
+			<if test="starttime!=null and endtime!=null">
+			AND	a.startTime<![CDATA[>=]]> #{starttime}
+			AND a.startTime<![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="uid!=null and uid!=''">
+				and f.uid=#{uid}
+			</if>
+			<if test="pid>0">
+				and f.pid in (#{pid},#{pid2})
+			</if>
+			<if test="isDrainage>-1">
+				and f.isDrainage=#{isDrainage}
+			</if>
+			<if test="sensor_type>0">
+				and f.sensor_type=#{sensor_type}
+			</if>
+			AND a.endId>0) 
+				OR 
+			(a.status=5
+			<if test="starttime!=null and endtime!=null">
+			AND a.startTime<![CDATA[<]]> #{endtime}
+			</if>
+			<if test="uid!=null and uid!=''">
+				and f.uid=#{uid}
+			</if>
+			<if test="pid>0">
+				and f.pid in (#{pid},#{pid2})
+			</if>
+			<if test="isDrainage>-1">
+				and f.isDrainage=#{isDrainage}
+			</if>
+			<if test="sensor_type>0">
+				and f.sensor_type=#{sensor_type}
+			</if>
+			AND a.endId=0)
+		</where> 
+	</select>
+	
+	<select id="getCardreder" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.CommunicationVo">
+		SELECT a.id,f.id sensor_id,a.ip,a.sensor_id sensorId,f.alais,a.status,a.type,f.sensortype,f.position position,a.startTime starttime,a.endTime endtime,f.uid FROM t_analoginfo_query a 
+		INNER JOIN 
+		(SELECT a.id,b.ipaddr,a.typeid,a.alais,a.cid,c.v sensortype,d.v position,a.uid,c.pid FROM t_cardreder a
+		LEFT JOIN t_substation b ON a.substation_id=b.id
+		LEFT JOIN t_static c ON a.typeid=c.id
+		LEFT JOIN t_static d ON a.position_id=d.id)f ON a.ip=f.ipaddr AND a.sensor_id=f.cid AND a.type=f.typeid
+		<where>
+			(a.status=5 
+			<if test="starttime!=null and endtime!=null">
+			AND	a.startTime<![CDATA[>=]]> #{starttime}
+			AND a.startTime<![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="uid!=null and uid!=''">
+				and f.uid=#{uid}
+			</if>
+			<if test="pid>0">
+				and f.pid in (#{pid},#{pid2})
+			</if>
+			<if test="sensor_type>0">
+				and f.typeid=#{sensor_type}
+			</if>
+			AND a.endId>0) 
+				OR 
+			(a.status=5
+			<if test="starttime!=null and endtime!=null">
+			AND a.startTime<![CDATA[<]]> #{endtime}
+			</if>
+			<if test="uid!=null and uid!=''">
+				and f.uid=#{uid}
+			</if>
+			<if test="pid>0">
+				and f.pid in (#{pid},#{pid2})
+			</if>
+			<if test="sensor_type>0">
+				and f.typeid=#{sensor_type}
+			</if>
+			AND a.endId=0)
+		</where> 
+	</select>
+	
+	
+	<select id="getSubstation" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.CommunicationVo">
+		SELECT a.id,f.id sensor_id,a.ip,f.alais,a.status,a.type,f.sensortype,f.position position,a.startTime starttime,a.endTime endtime,f.uid FROM t_analoginfo_query a
+		INNER JOIN 
+		(SELECT a.id,a.ipaddr,a.type,b.v position,a.alais,a.uid,d.v sensortype,d.pid FROM t_substation a
+		LEFT JOIN t_static b ON a.positionId=b.id
+		LEFT JOIN t_static d ON a.type=d.id
+		)f ON a.ip=f.ipaddr AND a.type=f.type
+		<where>
+			(a.status=5 
+			<if test="starttime!=null and endtime!=null">
+			AND	a.startTime<![CDATA[>=]]> #{starttime}
+			AND a.startTime<![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="uid!=null and uid!=''">
+				and f.uid=#{uid}
+			</if>
+			<if test="pid>0">
+				and f.pid in (#{pid},#{pid2})
+			</if>
+			<if test="sensor_type>0">
+				and f.type=#{sensor_type}
+			</if>
+			AND a.endId>0) 
+				OR 
+			(a.status=5
+			<if test="starttime!=null and endtime!=null">
+			AND a.startTime<![CDATA[<]]> #{endtime}
+			</if>
+			<if test="uid!=null and uid!=''">
+				and f.uid=#{uid}
+			</if>
+			<if test="pid>0">
+				and f.pid in (#{pid},#{pid2})
+			</if>
+			<if test="sensor_type>0">
+				and f.type=#{sensor_type}
+			</if>
+			AND a.endId=0)
+		</where> 
+	</select>
+	
+	<select id="getEquipment" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.CommunicationVo">
+		SELECT a.id,f.id sensor_id,a.ip,a.sensor_id sensorId,f.alais,a.status,a.type,f.sensortype,f.position position,a.startTime starttime,a.endTime endtime,f.uid FROM t_analoginfo_query a 
+		INNER JOIN 
+		(SELECT a.id,b.ipaddr,a.type,a.alais,a.devid,c.v sensortype,d.v position,a.uid,c.pid FROM t_equipment a
+		LEFT JOIN t_substation b ON a.stationId=b.id
+		LEFT JOIN t_static c ON a.type=c.id
+		LEFT JOIN t_static d ON a.positionId=d.id)f ON a.ip=f.ipaddr AND a.sensor_id=f.devid AND a.type=f.type
+		<where>
+			(a.status=5 
+			<if test="starttime!=null and endtime!=null">
+			AND	a.startTime<![CDATA[>=]]> #{starttime}
+			AND a.startTime<![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="uid!=null and uid!=''">
+				and f.uid=#{uid}
+			</if>
+			<if test="pid>0">
+				and f.pid in (#{pid},#{pid2})
+			</if>
+			<if test="sensor_type>0">
+				and f.type=#{sensor_type}
+			</if>
+			AND a.endId>0) 
+				OR 
+			(a.status=5
+			<if test="starttime!=null and endtime!=null">
+			AND a.startTime<![CDATA[<]]> #{endtime}
+			</if>
+			<if test="uid!=null and uid!=''">
+				and f.uid=#{uid}
+			</if>
+			<if test="pid>0">
+				and f.pid in (#{pid},#{pid2})
+			</if>
+			<if test="sensor_type>0">
+				and f.type=#{sensor_type}
+			</if>
+			AND a.endId=0)
+		</where> 
+	</select>
+	
+	<select id="getRadio" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.CommunicationVo">
+		SELECT a.id,f.id sensor_id,a.ip,a.sensor_id sensorId,f.alais,a.status,a.type,f.sensortype,f.position position,a.startTime starttime,a.endTime endtime,f.uid FROM t_analoginfo_query a 
+		INNER JOIN 
+		(SELECT a.id,b.ipaddr,a.type,a.alais,a.radioId,c.v sensortype,d.v position,a.uid,c.pid FROM t_radio a
+		LEFT JOIN t_substation b ON a.stationId=b.id
+		LEFT JOIN t_static c ON a.type=c.id
+		LEFT JOIN t_static d ON a.positionId=d.id)f ON a.ip=f.ipaddr AND a.sensor_id=f.radioId AND a.type=f.type
+		<where>
+			(a.status=5 
+			<if test="starttime!=null and endtime!=null">
+			AND	a.startTime<![CDATA[>=]]> #{starttime}
+			AND a.startTime<![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="uid!=null and uid!=''">
+				and f.uid=#{uid}
+			</if>
+			<if test="pid>0">
+				and f.pid in (#{pid},#{pid2})
+			</if>
+			<if test="sensor_type>0">
+				and f.type=#{sensor_type}
+			</if>
+			AND a.endId>0) 
+				OR 
+			(a.status=5
+			<if test="starttime!=null and endtime!=null">
+			AND a.startTime<![CDATA[<]]> #{endtime}
+			</if>
+			<if test="uid!=null and uid!=''">
+				and f.uid=#{uid}
+			</if>
+			<if test="pid>0">
+				and f.pid in (#{pid},#{pid2})
+			</if>
+			<if test="sensor_type>0">
+				and f.type=#{sensor_type}
+			</if>
+			AND a.endId=0)
+		</where> 
+	</select>
+	
+</mapper>

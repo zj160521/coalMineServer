@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.IGD5Dao">
+
+	<select id="getAll" resultType="com.cm.entity.GD5">
+		SELECT ip,devid,DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') responsetime,temperature,pressure,wasi,co,flow_work 
+		from t_gd5
+		<where>
+			responsetime >= #{starttime}
+			<if test="endtime != null and endtime != ''">
+				and responsetime &lt;= #{endtime}
+			</if>
+			and devid=#{devid} and ip=#{ip}
+			ORDER BY responsetime
+		</where>
+	</select>
+	
+</mapper>

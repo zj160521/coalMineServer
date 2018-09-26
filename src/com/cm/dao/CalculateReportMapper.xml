@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.CalculateReportDao">
+	
+	<select id="getallbyday" resultType="com.cm.entity.vo.SensorReportVo">
+		SELECT f.id dev_id,s.ip,s.devid,s.type,s.maxvalues,s.minvalue,CONVERT(s.avgvalue,DECIMAL) avgvalue,s.responsetime maxtime,r.status,r.cnt,DATE_FORMAT(s.responsetime,'%Y-%m-%d 00:00:00') filltime FROM
+		(SELECT a.ip,a.devid,a.type,a.maxvalues,a.minvalue,a.avgvalue,b.responsetime maxtime,b.status,b.debug,b.responsetime FROM 
+		(SELECT ip,devid,type,MAX(value) maxvalues,MIN(value) minvalue,AVG(value) avgvalue FROM ${tablename} WHERE TO_DAYS(responsetime)= (TO_DAYS(NOW())-1) GROUP BY devid,ip,type)a
+		INNER JOIN
+		(SELECT ip,devid,type,value,responsetime,status,debug FROM ${tablename} WHERE TO_DAYS(responsetime)= (TO_DAYS(NOW())-1) GROUP BY devid,ip,type,value)b
+		ON a.ip=b.ip AND a.devid=b.devid AND a.type=b.type and a.maxvalues=b.value
+		)s
+		LEFT JOIN
+		(SELECT a.sensorId,a.ip,a.sensor_type,a.status,COUNT(a.id) cnt FROM t_sensor_alarmreport  a
+		WHERE TO_DAYS(a.starttime)=(TO_DAYS(NOW())-1)
+		GROUP BY a.sensorId,a.ip,a.sensor_type,a.status) r ON r.ip=s.ip AND r.sensorId=s.devid AND r.sensor_type=s.type
+		INNER JOIN 
+		(SELECT a.id,c.ipaddr,a.sensorId,a.sensor_type FROM t_sensor a
+		LEFT JOIN t_substation c ON a.station=c.id)f 
+		ON s.ip=f.ipaddr AND s.devid=f.sensorId AND s.type=f.sensor_type
+	</select>
+
+	<insert id="addReportbyday">
+		insert into t_sensor_report(ip,sensorId,type,maxvalues,minvalue,avgvalue,maxtime,alerts,powerfres,faults,feeabnums,remark,filltime,alerttime,powertime,faulttime,feedtime)
+		values
+		<foreach collection="list" item="s" index="index" separator=",">
+		(#{s.ip},#{s.sensorId},#{s.type},#{s.maxvalues},#{s.minvalue},#{s.avgvalue},#{s.maxtime},#{s.alerts},#{s.powerfres},#{s.faults},#{s.feeabnums},#{s.remark},#{s.filltime},#{s.alerttime},#{s.powertime},#{s.faulttime},#{s.feedtime})
+		</foreach>
+		on duplicate key update maxvalues=values(maxvalues),minvalue=values(minvalue),avgvalue=values(avgvalue),maxtime=values(maxtime),alerts=values(alerts),powerfres=values(powerfres),faults=values(faults),feeabnums=values(feeabnums),
+		alerttime=values(alerttime),powertime=values(powertime),faulttime=values(faulttime),feedtime=values(feedtime)
+	</insert>
+	
+	
+	<select id="isexisting" parameterType="com.cm.entity.SensorReport" resultType="int">
+		SELECT COUNT(id) FROM t_sensor_report WHERE filltime=#{filltime}
+	</select>
+</mapper>

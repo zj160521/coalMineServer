@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.EnvAreaDao">
+
+    <resultMap type="com.cm.entity.EnvArea" id="AreaMap">
+        <id column="aid" property="id"/>
+        <result column="areaname" property="areaname"/>
+        <result column="max_allow" property="max_allow"/>
+        <result column="max_time" property="max_time"/>
+        <result column="is_exit" property="is_exit"/>
+        <result column="emphasis" property="emphasis"/>
+        <result column="default_allow" property="default_allow"/>
+        <result column="remark" property="remark"/>
+        <result column="adjoin" property="adjoin"/>
+        <result column="lineString" property="lineString"/>
+        <result column="e_point" property="e_point"/>
+        <result column="n_point" property="n_point"/>
+        <result column="area_type_id" property="area_type_id"/>
+        <result column="area_type_name" property="area_type_name"/>
+        <result column="path" property="path"/>
+        <result column="e_point" property="e_point"/>
+        <result column="n_point" property="n_point"/>
+        <collection property="areas" ofType="com.cm.entity.Area">
+            <id column="s_id" property="id"/>
+            <result column="s_areaname" property="areaname"/>
+            <result column="s_max_allow" property="max_allow"/>
+            <result column="s_max_time" property="max_time"/>
+            <result column="s_default_allow" property="default_allow" />
+            <result column="s_emphasis" property="emphasis" />
+            <result column="s_is_exit" property="is_exit" />
+            <result column="s_worker_timeout" property="worker_timeout" />
+            <result column="s_remark" property="remark" />
+            <collection property="areaSensors" ofType="com.cm.entity.AreaSensor">
+                <id column="area_sensor_id" property="id" />
+            </collection>
+        </collection>
+    </resultMap>
+
+    <!-- 查询所有区域有关信息 -->
+    <select id="getAll" resultMap="AreaMap">
+		SELECT ta.id aid,ta.areaname,ta.max_allow,ta.max_time,ta.default_allow,ta.remark,
+        ta.is_exit,ta.emphasis,ta.adjoin,ta.lineString,ta.area_type_id,IFNULL(tt.`name`,'未配置区域类型') area_type_name,
+        tt.path,ta1.id s_id,ta1.areaname s_areaname,ta1.max_allow s_max_allow,ta1.max_time s_max_time,ta1.default_allow s_default_allow,
+        ta1.emphasis s_emphasis,ta1.is_exit s_is_exit,ta1.worker_timeout s_worker_timeout,ta1.remark s_remark,ta.e_point,ta.n_point,tan.area_sensor_id
+        FROM t_env_area ta
+        LEFT JOIN t_area_type tt ON tt.id=ta.area_type_id
+        LEFT JOIN t_area_neighbor tan ON ta.id=tan.m_area_id
+        LEFT JOIN t_area ta1 ON tan.s_area_id=ta1.id
+	</select>
+
+    <insert id="add" useGeneratedKeys="true" keyProperty="id" parameterType="com.cm.entity.EnvArea">
+        insert into t_env_area (areaname,max_allow,max_time,default_allow,is_exit,emphasis,remark,adjoin,lineString,area_type_id,e_point,n_point)
+		values(#{areaname},#{max_allow},#{max_time},#{default_allow},#{is_exit},#{emphasis},#{remark},#{adjoin},#{lineString},#{area_type_id},#{e_point},#{n_point})
+    </insert>
+
+    <update id="updateArea">
+        update t_env_area
+        <set>
+            <if test="areaname!=null and areaname!=''">
+                areaname=#{areaname},
+            </if>
+            max_allow=#{max_allow},
+            max_time=#{max_time},
+            default_allow=#{default_allow},
+            <if test="is_exit!=null">
+                is_exit=#{is_exit},
+            </if>
+            emphasis=#{emphasis},
+            worker_timeout=#{worker_timeout},
+            <if test="remark!=null and remark!=''">
+                remark=#{remark},
+            </if>
+            adjoin=#{adjoin},
+            <if test="null!=lineString">
+                lineString=#{lineString},
+            </if>
+            n_point=#{n_point},
+            e_point=#{e_point},
+            <if test="area_type_id>0">
+                area_type_id=#{area_type_id}
+            </if>
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+
+    <delete id="deleteArea">
+		delete from t_env_area where id=#{areaid}
+	</delete>
+
+    <select id="getSensorByAreaid" resultType="com.cm.entity.Sensor">
+		SELECT t1.id,t1.station,t2.ipaddr,t1.sensorId,t1.sensor_type,t3.v type,t3.pid,t1.uid,t1.alais,
+		t1.sensor_position,IFNULL(t4.v,'未配置位置') position,t1.area_id,t11.areaname
+		FROM t_sensor t1
+		LEFT JOIN t_substation t2 ON t1.station=t2.id
+		LEFT JOIN t_static t3 ON t1.sensor_type=t3.id
+		LEFT JOIN t_static t4 ON t1.sensor_position=t4.id
+		LEFT JOIN t_env_area t11 ON t1.area_id=t11.id
+		WHERE t1.control!=3 AND t1.area_id=#{area_id}
+		UNION
+		SELECT t5.id,t5.station,t6.ipaddr,t5.sensorId,t5.sensor_type,t7.v type,t7.pid,t5.uid,t5.alais,
+		t5.sensor_position,IFNULL(t8.v,'未配置位置') position,t5.area_id,t12.areaname
+		FROM t_switch_sensor t5
+		LEFT JOIN t_substation t6 ON t5.station=t6.id
+		LEFT JOIN t_static t7 ON t5.sensor_type=t7.id
+		LEFT JOIN t_static t8 ON t5.sensor_position=t8.id
+		LEFT JOIN t_env_area t12 ON t5.area_id=t12.id
+		WHERE t5.control!=3 AND t5.area_id=#{area_id}
+	</select>
+
+    <select id="getByid" resultType="com.cm.entity.Area">
+		select * from t_env_area where id=#{id}
+	</select>
+
+</mapper>

@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.IStaticDao">
+
+	<resultMap type="com.cm.entity.vo.SensorTypeVO" id="SensorTypeMap">
+		<id column="id" property="id"/>
+		<result column="pid" property="pid"/>
+		<result column="k" property="k"/>
+		<result column="v" property="v"/>
+		<result column="path" property="path"/>
+		<collection property="sensors" ofType="com.cm.entity.Sensor">
+			<id column="senid" property="id"/>
+			<result column="station" property="station"/>
+			<result column="ipaddr" property="ipaddr"/>
+			<result column="station_name" property="station_name"/>
+			<result column="sensorId" property="sensorId"/>
+			<result column="control" property="control"/>
+			<result column="sensor_type" property="sensor_type"/>
+			<result column="type0x" property="type0x"/>
+			<result column="type" property="type"/>
+			<result column="min_range" property="min_range"/>
+			<result column="max_range" property="max_range"/>
+			<result column="middle_rang" property="middle_rang"/>
+			<result column="min_frequency" property="min_frequency"/>
+			<result column="max_frequency" property="max_frequency"/>
+			<result column="sensor_position" property="sensor_position"/>
+			<result column="position" property="position"/>
+			<result column="unit" property="unit"/>
+			<result column="sensorUnit" property="sensorUnit"/>
+			<result column="n_point" property="n_point"/>
+			<result column="e_point" property="e_point"/>
+			<result column="error_band" property="error_band"/>
+			<result column="limit_warning" property="limit_warning"/>
+			<result column="floor_warning" property="floor_warning"/>
+			<result column="limit_alarm" property="limit_alarm"/>
+			<result column="floor_alarm" property="floor_alarm"/>
+			<result column="limit_power" property="limit_power"/>
+			<result column="floor_power" property="floor_power"/>
+			<result column="limit_repower" property="limit_repower"/>
+			<result column="floor_repower" property="floor_repower"/>
+			<result column="input_type" property="input_type"/>
+			<result column="iscalc" property="iscalc"/>
+			<result column="configsync" property="configsync"/>
+			<result column="drainageId" property="drainageId"/>
+			<result column="drainageName" property="drainageName"/>
+			<result column="isDrainage" property="isDrainage"/>
+		</collection>
+		<collection property="switches" ofType="com.cm.entity.SwitchSensor">
+			<id column="switchId" property="id"/>
+			<result column="pid" property="pid"/>
+			<result column="station" property="station"/>
+			<result column="station_name" property="station_name"/>
+			<result column="ipaddr" property="ipaddr"/>
+			<result column="sensorId" property="sensorId"/>
+			<result column="sensor_type" property="sensor_type"/>
+			<result column="type0x" property="type0x"/>
+			<result column="type" property="type"/>
+			<result column="control" property="control"/>
+			<result column="alarm_status" property="alarm_status"/>
+			<result column="power_status" property="power_status"/>
+			<result column="break_display" property="break_display"/>
+			<result column="break_d" property="break_d"/>
+			<result column="connect_display" property="connect_display"/>
+			<result column="connect_d" property="connect_d"/>
+			<result column="n_point" property="n_point"/>
+			<result column="e_point" property="e_point"/>
+			<result column="input_type" property="input_type"/>
+			<result column="sensor_position" property="sensor_position"/>
+			<result column="position" property="position"/>
+		</collection>
+	</resultMap>
+	
+	<resultMap type="com.cm.entity.Static" id="dataMap">
+		<id column="id" property="id"/>
+		<result column="pid" property="pid"/>
+		<result column="k" property="k"/>
+		<result column="v" property="v"/>
+		<collection property="lists" ofType="com.cm.entity.Static">
+			<id column="tid" property="id"/>
+			<result column="tpid" property="pid"/>
+			<result column="tk" property="k"/>
+			<result column="tv" property="v"/>
+			<collection property="lists" ofType="com.cm.entity.Static">
+				<id column="idt" property="id"/>
+				<result column="pidt" property="pid"/>
+				<result column="kt" property="k"/>
+				<result column="vt" property="v"/>
+			</collection>
+		</collection>
+	</resultMap>
+
+	<!-- 查询所有模拟量传感器类型 -->
+	<select id="getAllSensorType" resultType="com.cm.entity.Static">
+		SELECT * FROM t_static WHERE pid=100
+	</select>
+	
+	<!-- 查询所有开关量传感器类型 -->
+	<select id="getAllSwitchSensorType" resultType="com.cm.entity.Static">
+		SELECT * FROM t_static WHERE pid=25
+	</select>
+	
+	<!-- 查询所有传感器单位 -->
+	<select id="getAllSensorUnit" resultType="com.cm.entity.Static">
+		SELECT * FROM t_static WHERE pid=200
+	</select>
+	
+	<!-- 查询所有传感器位置信息 -->
+	<select id="getAllSensorPosition" resultType="com.cm.entity.Static">
+		SELECT * FROM t_static WHERE pid=300
+	</select>
+	
+	<!-- 查询所有显示信息 -->
+	<select id="getAlldisplay" resultType="com.cm.entity.Static">
+		select * from t_static where pid=400
+	</select>
+	
+	<!-- 查询所有工作地点 -->
+	<select id="getallWorkplace" resultType="com.cm.entity.Static">
+		select * from t_static where pid=500
+	</select>
+	
+	<!-- 查询所有职务 -->
+	<select id="getallduty" resultType="com.cm.entity.Static">
+		select * from t_static where pid=600
+	</select>
+	
+	<!-- 添加位置信息 -->
+	<insert id="addPosition">
+		insert into t_static (pid,v) values(300,#{position})
+	</insert>
+	
+	<!-- 查询位置信息是否存在 -->
+	<select id="getByV" resultType="com.cm.entity.Static">
+		select * from t_static where v=#{position} limit 0,1
+	</select>
+	
+	<!-- 根据id查询位置信息 -->
+	<select id="getPositionByid" resultType="com.cm.entity.Static">
+		select * from t_static where id=#{id}
+	</select>
+	
+	<!--  -->
+	<select id="getK" resultType="string">
+		select k from t_static where id=#{id}
+	</select>
+	
+	<!-- 查询所有传感器设备类型 -->
+	<select id="getAllType" resultType="com.cm.entity.Static">
+		SELECT * from t_static WHERE pid=100 OR pid=25 OR id=64 OR id=16 OR id=65 OR id=72 OR id=70 or id=900 OR id=104
+	</select>
+	
+	<!-- 查询所有传感器类型下具体模拟量传感器 -->
+	<select id="getAllSensorOfType" resultMap="SensorTypeMap">
+		SELECT t1.id,t1.pid,t1.k,t1.v,t1.path,t.id senid,t.station,t6.ipaddr,
+		t6.station_name,t.sensorId,t.control,t.sensor_type,t4.pid,t4.k sensorUnit,t4.v type,
+		t.min_range,t.max_range,t.middle_rang,t.min_frequency,t.max_frequency,
+		t.sensor_position,t5.v position,t.n_point,t.e_point,t.error_band,
+		t.limit_warning,t.floor_warning,t.limit_alarm,t.floor_alarm,
+		t.limit_power,t.floor_power,t.limit_repower,t.floor_repower,
+		t.input_type,t.iscalc,t.configsync,t.drainageId,t.drainageName,t.isDrainage,tds.drainageId menu,t.iscalc
+		FROM t_static t1
+		LEFT JOIN (SELECT t3.*,t7.id drainageId,t7.`name` drainageName
+		FROM t_drainage_sensor t2,t_sensor t3,t_drainage t7 WHERE t2.sensorId=t3.id AND t2.drainageId=t7.id) t 
+		ON t.sensor_type=t1.id
+		LEFT JOIN t_static t4 ON t.sensor_type=t4.id
+		LEFT JOIN t_static t5 ON t.sensor_position=t5.id
+		LEFT JOIN t_substation t6 ON t.station=t6.id
+		LEFT JOIN t_drainage_sensor tds ON t.id=tds.sensorId 
+		WHERE t1.pid=100
+	</select>
+	
+	<!-- 查询所有传感器类型下具体开关量传感器 -->
+	<select id="getAllSwitchSensorOfType" resultMap="SensorTypeMap">
+		SELECT tc.id,tc.pid,tc.k,tc.v,sr.id switchId,sr.station,sub.station_name,sub.ipaddr,
+		sr.sensorId,sr.sensor_type,tc.pid,tc.k type0x,tc.v type,sr.control,sr.alarm_status,sr.power_status,
+		sr.break_display,tb.v break_d,sr.connect_display,ts.v connect_d,sr.n_point,sr.e_point,
+		sr.input_type,sr.sensor_position,tp.v position
+		FROM t_static tc
+		LEFT JOIN t_switch_sensor sr ON tc.id=sr.sensor_type
+		LEFT JOIN t_static tp ON sr.sensor_position=tp.id
+		LEFT JOIN t_static tb ON sr.break_display=tb.id
+		LEFT JOIN t_static ts ON sr.connect_display=ts.id
+		LEFT JOIN t_substation sub ON sr.station=sub.id
+		WHERE sr.control!=3 and tc.pid=25
+	</select>   	
+	<!-- 数据字典 -->
+	<select id="getAllDataMap" resultMap="dataMap">
+		SELECT t1.id,t1.pid,t1.k,t1.v,t2.id tid,t2.pid tpid,t2.k tk,t2.v tv,t3.id idt,t3.pid pidt,t3.k kt,t3.v vt
+		FROM t_static t1
+		LEFT JOIN t_static t2 ON t1.id=t2.pid
+		LEFT JOIN t_static t3 ON t2.id=t3.pid
+		WHERE t1.pid=5
+	</select>
+	
+	<!-- 添加数据字典 -->
+	<insert id="addDataMap">
+		insert into t_static (pid,k,v) values(#{pid},#{k},#{v})
+	</insert>
+	
+	<!-- 按传感器类型查询瓦斯抽放系统的传感器 -->
+	<select id="getAllDrainageSensor" resultMap="SensorTypeMap">
+		SELECT t1.id,t1.pid,t1.k,t1.v,t1.path,t.id senid,t.station,t6.ipaddr,
+		t6.station_name,t.sensorId,t.control,t.sensor_type,t4.k sensorUnit,t4.v type,
+		t.min_range,t.max_range,t.middle_rang,t.min_frequency,t.max_frequency,
+		t.sensor_position,t5.v position,t.n_point,t.e_point,t.error_band,
+		t.limit_warning,t.floor_warning,t.limit_alarm,t.floor_alarm,
+		t.limit_power,t.floor_power,t.limit_repower,t.floor_repower,
+		t.input_type,t.iscalc,t.configsync,t.drainageId drainageId,t.drainageName drainageName,t.isDrainage
+		FROM t_static t1
+		LEFT JOIN (SELECT t3.*,t7.id drainageId,t7.`name` drainageName
+		FROM t_drainage_sensor t2,t_sensor t3,t_drainage t7 WHERE t2.sensorId=t3.id AND t2.drainageId=t7.id) t 
+		ON t.sensor_type=t1.id
+		LEFT JOIN t_static t4 ON t.sensor_type=t4.id
+		LEFT JOIN t_static t5 ON t.sensor_position=t5.id
+		LEFT JOIN t_substation t6 ON t.station=t6.id
+		WHERE t1.pid=100
+	</select>
+	
+	<!-- 根据id删除 -->
+	<delete id="delete">
+		delete from t_static where id=#{id}
+	</delete>
+	
+	<!-- 更新 -->
+	<update id="update" parameterType="com.cm.entity.Static">
+		update t_static
+		<set>
+			<if test="k!=null and k!=''">
+				k=#{k},
+			</if>
+			<if test="v!=null and v!=''">
+				v=#{v},
+			</if>
+			<if test="path!=null and path!=''">
+				path=#{path},
+			</if>
+			<if test="path2!=null and path2!=''">
+				path2=#{path2}
+			</if>
+		</set>
+		<where>
+			id=#{id}
+		</where>
+	</update>
+	
+	<select id="actionGetByK" resultType="com.cm.entity.Action">
+		SELECT * FROM t_action WHERE k = #{key}
+	</select>
+	
+	<select id="actionGetByid" resultType="com.cm.entity.Action">
+		SELECT * FROM t_action WHERE id = #{id}
+	</select>
+	
+	<select id="actionGetByGroupId" resultType="com.cm.entity.Action">
+		SELECT * FROM t_action WHERE group_id = #{gId}
+	</select>
+	
+	<select id="getV" resultType="string">
+		select v from t_static where id=#{id}
+	</select>
+	
+	<insert id="addWorkplace" parameterType="String">
+		insert into t_static (pid,v) values(500,#{workplace})
+	</insert>
+	
+	<insert id="addDuty" parameterType="String">
+		insert into t_static (pid,v) values(600,#{duty})
+	</insert>
+	
+	<select id="getWorkpalce" parameterType="String" resultType="com.cm.entity.Static">
+		select * from t_static where pid=500 and v=#{workplace}
+	</select>
+	
+	<select id="getDuty" parameterType="String" resultType="com.cm.entity.Static">
+		select * from t_static where pid=600 and v=#{duty}
+	</select>
+	
+	<select id="getByPid" resultType="java.lang.Integer">
+		select id from t_static where pid = #{0}
+	</select>
+    
+    <insert id="addK">
+        insert into t_static (id,pid,v) values (8,0,#{v})
+    </insert>
+
+    <select id="getAllAreaType" resultType="com.cm.entity.AreaType">
+        select * from t_area_type
+    </select>
+
+    <select id="getAllRadio" resultType="com.cm.entity.Static">
+        select * from t_static where pid=700
+    </select>
+</mapper>

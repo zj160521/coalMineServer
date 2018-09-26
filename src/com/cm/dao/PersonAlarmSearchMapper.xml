@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.PersonAlarmSearchDao">
+	
+	<!-- 查询区域限制报警人员 -->
+	<select id="getWorkerAreaWarn" parameterType="com.cm.entity.PersonAlarmSearch" resultType="com.cm.entity.vo.WorkerAreaWarnVo">
+		SELECT a.card_id,b.name,b.isuse,c.areaname,e.v position,DATE_FORMAT(a.responsetime,'%Y-%m-%d %H:%i:%S') responsetime,a.default_allow FROM t_worker_area_warn a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		LEFT JOIN t_area c ON a.area_id=c.id
+		INNER JOIN t_cardreder d ON a.cardreader_id=d.cid and a.sub_id=d.substation_id
+		LEFT JOIN t_static e ON d.position_id=e.id
+		<where>
+				1=1
+			<if test="card_id>0">
+				AND a.card_id=#{card_id}
+			</if>
+			<if test="name!=null and name!=''">
+				AND b.name like concat('%',#{name},'%')
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.responsetime <![CDATA[>=]]> #{starttime} 
+				AND a.responsetime <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="cardreader_id>0">
+				AND a.cardreader_id=#{cardreader_id}
+			</if>
+			<if test="area_id>0">
+				AND a.area_id=#{area_id}
+			</if>
+		</where>
+		LIMIT #{start_row},#{page_rows}
+	</select>
+	
+	<select id="getallWorkerAreaWarn" parameterType="com.cm.entity.PersonAlarmSearch" resultType="com.cm.entity.vo.WorkerAreaWarnVo">
+		SELECT a.card_id,b.name,b.isuse,c.areaname,e.v position,DATE_FORMAT(a.responsetime,'%Y-%m-%d %H:%i:%S') responsetime,a.default_allow FROM t_worker_area_warn a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		LEFT JOIN t_area c ON a.area_id=c.id
+		INNER JOIN t_cardreder d ON a.cardreader_id=d.cid and a.sub_id=d.substation_id
+		LEFT JOIN t_static e ON d.position_id=e.id
+		<where>
+				1=1
+			<if test="card_id>0">
+				AND a.card_id=#{card_id}
+			</if>
+			<if test="name!=null and name!=''">
+				AND b.name like concat('%',#{name},'%')
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.responsetime <![CDATA[>=]]> #{starttime} 
+				AND a.responsetime <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="cardreader_id>0">
+				AND a.cardreader_id=#{cardreader_id}
+			</if>
+			<if test="area_id>0">
+				AND a.area_id=#{area_id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getWorkerAreaWarnCount" parameterType="com.cm.entity.PersonAlarmSearch" resultType="int">
+		SELECT count(a.card_id) FROM t_worker_area_warn a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		LEFT JOIN t_area c ON a.area_id=c.id
+		INNER JOIN t_cardreder d ON a.cardreader_id=d.cid and a.sub_id=d.substation_id
+		LEFT JOIN t_static e ON d.position_id=e.id
+		<where>
+				1=1
+			<if test="card_id>0">
+				AND a.card_id=#{card_id}
+			</if>
+			<if test="name!=null and name!=''">
+				AND b.name like concat('%',#{name},'%')
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.responsetime <![CDATA[>=]]> #{starttime} 
+				AND a.responsetime <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="cardreader_id>0">
+				AND a.cardreader_id=#{cardreader_id}
+			</if>
+			<if test="area_id>0">
+				AND a.area_id=#{area_id}
+			</if>
+		</where>
+	</select>
+	
+	
+	<!-- 查询门禁异常报警人员 -->
+	<select id="getWorkerExitWarn" parameterType="com.cm.entity.PersonAlarmSearch" resultType="com.cm.entity.vo.WorkerExitWarnVo">
+		SELECT a.card_id,b.name,b.isuse,b.entranceGuardNum,e.v position,DATE_FORMAT(a.responsetime,'%Y-%m-%d %H:%i:%S') responsetime FROM t_worker_exit_warn a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		LEFT JOIN t_area c ON a.area_id=c.id
+		INNER JOIN t_cardreder d ON a.cardreader_id=d.cid and a.sub_id=d.substation_id
+		LEFT JOIN t_static e ON d.position_id=e.id
+		<where>
+				1=1
+			<if test="card_id>0">
+				and a.card_id=#{card_id}
+			</if>
+			<if test="name!=null and name!=''">
+				AND b.name like concat('%',#{name},'%')
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.responsetime <![CDATA[>=]]> #{starttime} 
+				AND a.responsetime <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="cardreader_id>0">
+				AND a.cardreader_id=#{cardreader_id}
+			</if>
+		</where>
+		LIMIT #{start_row},#{page_rows}
+	</select>
+	
+	<select id="getallWorkerExitWarn" parameterType="com.cm.entity.PersonAlarmSearch" resultType="com.cm.entity.vo.WorkerExitWarnVo">
+		SELECT a.card_id,b.name,b.isuse,b.entranceGuardNum,e.v position,DATE_FORMAT(a.responsetime,'%Y-%m-%d %H:%i:%S') responsetime FROM t_worker_exit_warn a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		LEFT JOIN t_area c ON a.area_id=c.id
+		INNER JOIN t_cardreder d ON a.cardreader_id=d.cid and a.sub_id=d.substation_id
+		LEFT JOIN t_static e ON d.position_id=e.id
+		<where>
+				1=1
+			<if test="card_id>0">
+				and a.card_id=#{card_id}
+			</if>
+			<if test="name!=null and name!=''">
+				AND b.name like concat('%',#{name},'%')
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.responsetime <![CDATA[>=]]> #{starttime} 
+				AND a.responsetime <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="cardreader_id>0">
+				AND a.cardreader_id=#{cardreader_id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getWorkerExitWarnCount" parameterType="com.cm.entity.PersonAlarmSearch" resultType="int">
+		SELECT count(a.card_id) FROM t_worker_exit_warn a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		LEFT JOIN t_area c ON a.area_id=c.id
+		INNER JOIN t_cardreder d ON a.cardreader_id=d.cid and a.sub_id=d.substation_id
+		LEFT JOIN t_static e ON d.position_id=e.id
+		<where>
+				1=1
+			<if test="card_id>0">
+				and a.card_id=#{card_id}
+			</if>
+			<if test="name!=null and name!=''">
+				AND b.name like concat('%',#{name},'%')
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.responsetime <![CDATA[>=]]> #{starttime} 
+				AND a.responsetime <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="cardreader_id>0">
+				AND a.cardreader_id=#{cardreader_id}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 查询失联报警人员 -->
+	<select id="getWorkerUnconnection" parameterType="com.cm.entity.PersonAlarmSearch" resultType="com.cm.entity.vo.WorkerUnconnectionVo">
+		SELECT a.card_id,b.name,b.isuse,c.areaname,e.v position,a.last_time responsetime,a.during  FROM t_worker_unconnection a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		LEFT JOIN t_area c ON a.area_id=c.id
+		INNER JOIN t_cardreder d ON a.last_cardreader=d.cid and a.sub_id=d.substation_id
+		LEFT JOIN t_static e ON d.position_id=e.id
+		<where>
+				1=1
+			<if test="card_id>0">
+				and a.card_id=#{card_id}
+			</if>
+			<if test="name!=null and name!=''">
+				AND b.name like concat('%',#{name},'%')
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.last_time <![CDATA[>=]]> #{starttime} 
+				AND a.last_time <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="cardreader_id>0">
+				AND a.last_cardreader=#{cardreader_id}
+			</if>
+			<if test="area_id>0">
+				AND a.area_id=#{area_id}
+			</if>
+		</where>
+		LIMIT #{start_row},#{page_rows}
+	</select>
+	
+	<select id="getallWorkerUnconnection" parameterType="com.cm.entity.PersonAlarmSearch" resultType="com.cm.entity.vo.WorkerUnconnectionVo">
+		SELECT a.card_id,b.name,b.isuse,c.areaname,e.v position,DATE_FORMAT(a.last_time,'%Y-%m-%d %H:%i:%S') responsetime,a.during  FROM t_worker_unconnection a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		LEFT JOIN t_area c ON a.area_id=c.id
+		INNER JOIN t_cardreder d ON a.last_cardreader=d.cid and a.sub_id=d.substation_id
+		LEFT JOIN t_static e ON d.position_id=e.id
+		<where>
+				1=1
+			<if test="card_id>0">
+				and a.card_id=#{card_id}
+			</if>
+			<if test="name!=null and name!=''">
+				AND b.name like concat('%',#{name},'%')
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.last_time <![CDATA[>=]]> #{starttime} 
+				AND a.last_time <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="cardreader_id>0">
+				AND a.last_cardreader=#{cardreader_id}
+			</if>
+			<if test="area_id>0">
+				AND a.area_id=#{area_id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getWorkerUnconnectionCount" parameterType="com.cm.entity.PersonAlarmSearch" resultType="int">
+		SELECT count(a.card_id)  FROM t_worker_unconnection a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		LEFT JOIN t_area c ON a.area_id=c.id
+		INNER JOIN t_cardreder d ON a.last_cardreader=d.cid and a.sub_id=d.substation_id
+		LEFT JOIN t_static e ON d.position_id=e.id
+		<where>
+				1=1
+			<if test="card_id>0">
+				and a.card_id=#{card_id}
+			</if>
+			<if test="name!=null and name!=''">
+				AND b.name like concat('%',#{name},'%')
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.last_time <![CDATA[>=]]> #{starttime} 
+				AND a.last_time <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="cardreader_id>0">
+				AND a.last_cardreader=#{cardreader_id}
+			</if>
+			<if test="area_id>0">
+				AND a.area_id=#{area_id}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 查询区域、井下超时报警人员 -->
+	<select id="getOvertimeAlarm" parameterType="com.cm.entity.PersonAlarmSearch" resultType="com.cm.entity.vo.OvertimeAlarmVo">
+		SELECT a.card_id,b.name,b.isuse,a.area_id,c.areaname,DATE_FORMAT(a.inarea_time,'%Y-%m-%d %H:%i:%S') inarea_time,DATE_FORMAT(DATE_ADD(a.inarea_time,INTERVAL a.max_time MINUTE),'%Y-%m-%d %H:%i:%S') alarm_time,
+		DATE_FORMAT(a.end_time,'%Y-%m-%d %H:%i:%S') endtime,a.max_time,a.stay_time,FLOOR((TO_SECONDS(a.end_time)-TO_SECONDS(a.inarea_time))/60-a.max_time) timeout_time FROM t_overtime_alarm a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		LEFT JOIN t_area c ON a.area_id=c.id
+		<where>
+			1=1
+			<if test="area_id==0">
+				AND a.area_id>1
+			</if>
+			<if test="card_id>0">
+				and a.card_id=#{card_id}
+			</if>
+			<if test="name!=null and name!=''">
+				AND b.name like concat('%',#{name},'%')
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.alarm_time <![CDATA[>=]]> #{starttime} 
+				AND a.alarm_time <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="area_id>0">
+				AND a.area_id=#{area_id}
+			</if>
+		</where>
+		LIMIT #{start_row},#{page_rows}
+	</select>
+	
+	<select id="getallOvertimeAlarm" parameterType="com.cm.entity.PersonAlarmSearch" resultType="com.cm.entity.vo.OvertimeAlarmVo">
+		SELECT a.card_id,b.name,b.isuse,a.area_id,c.areaname,DATE_FORMAT(a.inarea_time,'%Y-%m-%d %H:%i:%S') inarea_time,DATE_FORMAT(DATE_ADD(a.inarea_time,INTERVAL a.max_time MINUTE),'%Y-%m-%d %H:%i:%S') alarm_time,
+		DATE_FORMAT(a.end_time,'%Y-%m-%d %H:%i:%S') endtime,a.max_time,a.stay_time,FLOOR((TO_SECONDS(a.end_time)-TO_SECONDS(a.inarea_time))/60-a.max_time) timeout_time FROM t_overtime_alarm a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		LEFT JOIN t_area c ON a.area_id=c.id
+		<where>
+			1=1
+			<if test="area_id==0">
+				AND a.area_id>1
+			</if>
+			<if test="card_id>0">
+				and a.card_id=#{card_id}
+			</if>
+			<if test="name!=null and name!=''">
+				AND b.name like concat('%',#{name},'%')
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.alarm_time <![CDATA[>=]]> #{starttime} 
+				AND a.alarm_time <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="area_id>0">
+				AND a.area_id=#{area_id}
+			</if>
+		</where>
+		
+	</select>
+	
+	<select id="getOvertimeAlarmCount" parameterType="com.cm.entity.PersonAlarmSearch" resultType="int">
+		SELECT count(a.card_id) FROM t_overtime_alarm a
+		LEFT JOIN t_worker b ON a.worker_id=b.id
+		LEFT JOIN t_area c ON a.area_id=c.id
+		<where>
+			1=1
+			<if test="area_id==0">
+				AND a.area_id>1
+			</if>
+			<if test="card_id>0">
+				and a.card_id=#{card_id}
+			</if>
+			<if test="name!=null and name!=''">
+				AND b.name like concat('%',#{name},'%')
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.alarm_time <![CDATA[>=]]> #{starttime} 
+				AND a.alarm_time <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="area_id>0">
+				AND a.area_id=#{area_id}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 查询区域超员、井下超员报警人员 -->
+	<select id="getOverMan" parameterType="com.cm.entity.PersonAlarmSearch" resultType="com.cm.entity.vo.OverManVo">
+		SELECT a.area_id areaId,b.areaname areaName,a.personNum,(a.personNum-a.max_allow) overNum,a.max_allow maxAllow,a.default_allow defaultAllow,a.emphasis,DATE_FORMAT(a.filltime,'%Y-%m-%d %H:%i:%S') filltime,a.cards,
+		DATE_FORMAT(a.responsetime,'%Y-%m-%d %H:%i:%S') responsetime,DATE_FORMAT(a.end_time,'%Y-%m-%d %H:%i:%S') endtime,FLOOR((TO_SECONDS(a.end_time)-TO_SECONDS(a.responsetime))/60) times FROM t_overman a
+		LEFT JOIN t_area b ON a.area_id=b.id
+		<where>
+			1=1
+			<if test="area_id==0">
+				AND a.area_id>1
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.responsetime <![CDATA[>=]]> #{starttime} 
+				AND a.responsetime <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="area_id>0">
+				AND a.area_id=#{area_id}
+			</if>
+		</where>
+		GROUP BY a.area_id,a.filltime
+		LIMIT #{start_row},#{page_rows}
+	</select>
+	
+	<select id="getallOverMan" parameterType="com.cm.entity.PersonAlarmSearch" resultType="com.cm.entity.vo.OverManVo">
+		SELECT a.area_id areaId,b.areaname areaName,a.personNum,(a.personNum-a.max_allow) overNum,a.max_allow maxAllow,a.default_allow defaultAllow,a.emphasis,DATE_FORMAT(a.filltime,'%Y-%m-%d %H:%i:%S') filltime,a.cards,
+		DATE_FORMAT(a.responsetime,'%Y-%m-%d %H:%i:%S') responsetime,DATE_FORMAT(a.end_time,'%Y-%m-%d %H:%i:%S') endtime,FLOOR((TO_SECONDS(a.end_time)-TO_SECONDS(a.responsetime))/60) times FROM t_overman a
+		LEFT JOIN t_area b ON a.area_id=b.id
+		<where>
+			1=1
+			<if test="area_id==0">
+				AND a.area_id>1
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.responsetime <![CDATA[>=]]> #{starttime} 
+				AND a.responsetime <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="area_id>0">
+				AND a.area_id=#{area_id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getOverManCount" parameterType="com.cm.entity.PersonAlarmSearch" resultType="int">
+	SELECT count(a.id)  FROM t_overman a
+		LEFT JOIN t_area b ON a.area_id=b.id
+		<where>
+			1=1
+			<if test="area_id==0">
+				AND a.area_id>1
+			</if>
+			<if test="starttime!=null and starttime!=''">
+				AND	a.responsetime <![CDATA[>=]]> #{starttime} 
+				AND a.responsetime <![CDATA[<=]]> #{endtime} 
+			</if>
+			<if test="area_id>0">
+				AND a.area_id=#{area_id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getWorkerName" parameterType="java.util.List" resultType="com.cm.entity.Person">
+		SELECT rfcard_id card_id,name FROM t_worker WHERE rfcard_id IN
+		<foreach collection="array" item="card" index="index" open="(" close=")" separator=",">
+			#{card}
+		</foreach>
+	</select>
+</mapper>

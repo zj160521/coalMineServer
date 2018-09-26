@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.EquipmentDao">
+
+	<insert id="add" parameterType="com.cm.entity.Equipments" useGeneratedKeys="true" keyProperty="id">
+		insert into t_equipment (pid,name,positionId,path,n_point,e_point,lineString,sensorname,type,devid,alais,stationId,x_point,y_point,ip) values(#{pid},#{name},#{positionId},#{path},#{n_point},#{e_point},#{lineString},#{sensorname},#{type},#{devid},#{alais},#{stationId},#{x_point},#{y_point},#{ip})
+	</insert>
+	
+	<update id="update">
+		update t_equipment 
+		<set>
+			<if test="pid>0">
+				pid=#{pid},
+			</if>
+			<if test="null!=name and name!=''">
+				name=#{name},
+			</if>
+			<if test="positionId>0">
+				positionId=#{positionId},
+			</if>
+			<if test="null!=path and path!=''">
+				path=#{path},
+			</if>
+				n_point=#{n_point},
+				e_point=#{e_point},
+                x_point=#{x_point},
+                y_point=#{y_point},
+			<if test="null!=lineString and lineString!=''">
+				lineString=#{lineString},
+			</if>
+			<if test="null!=sensorname and sensorname!=''">
+				sensorname=#{sensorname},
+			</if>
+			<if test="type>0">
+				type=#{type},
+			</if>
+			<if test="devid>-1">
+				devid=#{devid},
+			</if>
+			<if test="alais!=null">
+				alais=#{alais},
+			</if>
+			<if test="stationId>0">
+				stationId=#{stationId}
+			</if>
+			<if test="ip!=null and ip!=''">
+				ip=#{ip}
+			</if>
+		</set>
+		<where>
+			id=#{id}
+		</where>
+	</update>
+	
+	<update id="updatePoint">
+		update t_equipment set
+				n_point=#{n_point},
+				e_point=#{e_point},
+                x_point=#{x_point},
+                y_point=#{y_point}
+		where id=#{id}
+	</update>
+	
+	<delete id="delete">
+		delete from t_equipment where id=#{id}
+	</delete>
+	
+	<select id="getAllEquipments" resultType="com.cm.entity.Equipments">
+		SELECT t1.id,t1.pid,t1.`name`,t1.path,t1.positionId,t2.v position,t1.n_point,t1.e_point,t1.lineString,t1.sensorname,t1.devid,t1.type,t1.stationId,t3.ipaddr,t1.uid,t1.alais,t1.x_point,t1.y_point,t1.ip
+		FROM t_equipment t1
+		LEFT JOIN t_static t2 ON t1.positionId=t2.id
+		LEFT JOIN t_substation t3 ON t1.stationId=t3.id
+	</select>
+	
+	<select id="getAllElec" resultType="com.cm.entity.Equipments">
+		SELECT t1.id,t1.pid,t1.`name`,t1.path,t1.positionId,t2.v position,t1.n_point,t1.e_point,t1.lineString,t1.sensorname,t1.devid,t1.type,t1.stationId,t3.ipaddr,t1.uid,t1.alais,t1.x_point,t1.y_point,t1.ip
+		FROM t_equipment t1
+		LEFT JOIN t_static t2 ON t1.positionId=t2.id
+		LEFT JOIN t_substation t3 ON t1.stationId=t3.id
+		WHERE t1.type=72 OR t1.type=104
+	</select>
+	
+	<update id="updateUid">
+		update t_equipment
+		<set>
+			<if test="null!=uid">
+				uid=#{uid}
+			</if>
+		</set>
+		<where>
+			id=#{id}
+		</where>
+	</update>
+	
+	<select id="getById" resultType="com.cm.entity.Equipments">
+		select * from t_equipment where id=#{id}
+	</select>
+
+    <update id="batchUpdate">
+        <foreach collection="list" index="index" item="e" separator=",">
+            update t_equipment
+            <set>
+                path=#{e.path},
+                sensorname=#{e.sensorname}
+            </set>
+            <where>
+                id=#{e.id}
+            </where>
+        </foreach>
+    </update>
+	
+	<select id="getIp" resultType="String">
+		SELECT ip from t_equipment WHERE ip IS NOT NULL
+	</select>
+	<select id="getsubIp" resultType="String">
+		SELECT ipaddr ip FROM t_substation 
+	</select>
+	
+	<select id="getIpbyId" resultType="String">
+		SELECT ip from t_equipment where id=#{id}
+	</select>
+</mapper>

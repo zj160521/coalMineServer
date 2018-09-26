@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.CardReaderErrorQueryDao">
+	
+	<select id="cardReaderErrorQuery" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.CommunicationVo">
+		SELECT c.card_id sensor_id,c.addr alais,DATE_FORMAT( a.startTime,'%Y-%m-%d %H:%i:%S') starttime,DATE_FORMAT( a.endTime,'%Y-%m-%d %H:%i:%S') endtime,c.sensortype,c.position FROM t_analoginfo_query a 
+			INNER JOIN 
+			(SELECT a.id card_id,b.ipaddr,a.typeid,a.addr,a.cid,c.v sensortype,d.v position FROM t_cardreder a
+			LEFT JOIN t_substation b ON a.substation_id=b.id
+			LEFT JOIN t_static c ON a.typeid=c.id
+			LEFT JOIN t_static d ON a.position_id=d.id)c ON a.ip=c.ipaddr AND a.sensor_id=c.cid AND a.type=c.typeid
+			WHERE 
+				(a.status=5
+				AND a.type=64
+				AND	a.startTime <![CDATA[>=]]> #{starttime} 
+				AND a.startTime <![CDATA[<=]]> #{endtime} 
+				<if test="id>0">
+					and c.card_id=#{id}
+				</if>
+				<if test="ip!=null and ip!=''">
+					AND a.ip=#{ip}
+				</if>
+				AND a.endId>0) 
+				OR 
+				(a.status=5
+				AND a.type=64
+				<if test="id>0">
+					and c.card_id=#{id}
+				</if>
+				<if test="ip!=null and ip!=''">
+					AND a.ip=#{ip}
+				</if>
+				AND a.endId=0)
+	</select>
+</mapper>

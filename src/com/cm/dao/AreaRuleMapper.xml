@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.IAreaRuleDao">
+	
+	<select id="getAllAreaRules" resultType="com.cm.entity.AreaRule">
+		SELECT a.id areaId,a.areaname,ar.id,rule_dev ruleDev,rule_dev_id ruleDevId,ar.dev_type,ar.dev_name,
+		ar.alais,ar.position,ar.ip,ar.dev_id,a.default_allow,a.emphasis
+		FROM  t_env_area a
+		LEFT JOIN t_area_rule ar ON a.id = ar.area_id
+		where a.id > 1
+	</select>
+	
+	<select id="getAreaRuleByAreaId" parameterType="int" resultType="com.cm.entity.AreaRule">
+		SELECT ar.id,ar.area_id areaId,ar.rule_dev ruleDev,ar.rule_dev_id ruleDevId,a.areaname,ar.dev_type,ar.dev_name,
+		ar.alais,ar.position,ar.ip,ar.dev_id,a.default_allow,a.emphasis
+		FROM t_area_rule ar
+		LEFT JOIN  t_env_area a ON ar.area_id = a.id
+		WHERE area_id = #{areaId}
+	</select>
+	
+	<insert id="addAreaRules" parameterType="java.util.List">
+		INSERT INTO t_area_rule(area_id,rule_dev,rule_dev_id,dev_type,dev_name,alais,position,ip,dev_id) VALUES
+		<foreach collection="list" item="it" index="index" separator=","> 
+			(#{it.areaId},#{it.ruleDev},#{it.ruleDevId},#{it.dev_type},#{it.dev_name},#{it.alais},#{it.position},#{it.ip},#{it.dev_id})
+	    </foreach>
+	</insert>
+	
+	<update id="updateAreaRules" parameterType="java.util.List">
+		 <foreach collection="list" item="obj" index="index" separator=";"> 
+			update t_area_rule 
+		    <set>
+			   <if test="obj.ruleDev != null">
+			   		rule_dev = #{obj.ruleDev},
+			   </if>
+			   <if test="obj.ruleDevId != null">
+			   		rule_dev_id = #{obj.ruleDevId},
+			   </if>
+			   <if test="obj.dev_type > 0">
+			   		dev_type = #{obj.dev_type},
+			   </if>
+			   <if test="obj.dev_name != null">
+			   		dev_name = #{obj.dev_name},
+			   </if>
+			   <if test="obj.alais != null">
+			   		alais = #{obj.alais},
+			   </if>
+			   <if test="obj.position != null">
+			   		position = #{obj.position},
+			   </if>
+			   <if test="obj.ip != null">
+			   		ip = #{obj.ip},
+			   </if>
+			   <if test="obj.dev_id > 0">
+			   		dev_id = #{obj.dev_id},
+			   </if>
+		    </set> 
+		   where id = #{obj.id}
+		</foreach>
+	</update>
+		
+	<delete id="deleteAreaRules" parameterType="java.util.List">
+		DELETE FROM t_area_rule WHERE 
+		<if test="list != null">
+			<foreach collection="list" item="id" separator="or">
+				id=#{id}
+			</foreach>
+		</if>
+	</delete>
+	
+</mapper>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.AreaDailyDao">
+	
+	<insert id="addRecs" parameterType="java.util.List">
+	    INSERT INTO t_area_daily(area_id,area_name,worker_id,rfcard_id,card,name,depart_id,depart_name,worktype_id,worktype_name,wellduration,start_time,end_time,work_day,fill_time,
+	    special,duty_id,duty_name,workplace_id,workplace,default_allow,emphasis)
+	    values 
+	    <foreach collection="list" item="it" index="index" separator=","> 
+			(#{it.areaId},#{it.areaName},#{it.workerId},#{it.cardId},#{it.card},#{it.name},#{it.departId},#{it.departName},#{it.worktypeId},#{it.worktypeName},#{it.wellduration},#{it.startTime},#{it.endTime},
+			#{it.workday},NOW(),#{it.special},#{it.dutyId},#{it.dutyName},#{it.workplaceId},#{it.workplace},#{it.defaultAllow},#{it.emphasis})
+	    </foreach>
+	    on duplicate key update area_name=VALUES(area_name),worker_id=VALUES(worker_id),card=VALUES(card),name=VALUES(name),depart_id=VALUES(depart_id),depart_name=VALUES(depart_name),worktype_id=VALUES(worktype_id),
+	    worktype_name=VALUES(worktype_name),wellduration=VALUES(wellduration),work_day=VALUES(work_day),fill_time=VALUES(fill_time),special=VALUES(special),duty_id=VALUES(duty_id),duty_name=VALUES(duty_name),
+	    workplace_id=VALUES(workplace_id),workplace=VALUES(workplace),default_allow=VALUES(default_allow),emphasis=VALUES(emphasis)
+	</insert>
+	
+	<select id="getRecs" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.AreaPass">
+		SELECT id,area_id areaId,area_name areaName,card,rfcard_id cardId,worker_id workerId,`name`,depart_id as departId,depart_name as departName,worktype_id as worktypeId,worktype_name as worktypeName,wellduration,
+		start_time as startTime,end_time as endTime,work_day workday,special,duty_id dutyId,duty_name dutyName,workplace_id workplaceId,workplace,default_allow defaultAllow
+		FROM t_area_daily
+		<where>
+			<if test="area_ids != null">
+				<foreach collection="area_ids" item="area_id" open="and (" close=")" separator="or">  
+                    area_id=#{area_id}
+                </foreach> 
+			</if>
+			<if test="depart_id > 0">
+				and depart_id=#{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				and worktype_id=#{worktype_id}
+			</if>
+			<if test="starttime != null">
+				and work_day=#{starttime}
+			</if>
+			<if test="workerPlaceId > 0">
+				and workplace_id=#{workerPlaceId}
+			</if>
+			<if test="dutyId > 0">
+				and duty_id=#{dutyId}
+			</if>
+			<if test="special > 0">
+				and special=#{special}
+			</if>
+			<if test="rfcard_id > 0">
+				and rfcard_id=#{rfcard_id}
+			</if>
+		</where>
+		ORDER BY rfcard_id,start_time,area_id
+	</select>
+	
+	<select id="getMonthlyData" parameterType="com.cm.entity.vo.Searchform" resultType="com.cm.entity.vo.AreaPass">
+		SELECT id,area_id areaId,area_name areaName,rfcard_id cardId,worker_id workerId,`name`,depart_id as departId,depart_name as departName,worktype_id as worktypeId,worktype_name as worktypeName,wellduration,
+		start_time as startTime,end_time as endTime,work_day workday,special,duty_id dutyId,duty_name dutyName,workplace_id workplaceId,workplace
+		FROM t_area_daily
+		<where>
+			<if test="area_ids != null">
+				<foreach collection="area_ids" item="area_id" open="and (" close=")" separator="or">  
+                    area_id=#{area_id}
+                </foreach> 
+			</if>
+			<if test="depart_id > 0">
+				and depart_id=#{depart_id}
+			</if>
+			<if test="worktype_id > 0">
+				and worktype_id=#{worktype_id}
+			</if>
+			<if test="workerPlaceId > 0">
+				and workplace_id=#{workerPlaceId}
+			</if>
+			<if test="dutyId > 0">
+				and duty_id=#{dutyId}
+			</if>
+			and work_day BETWEEN #{starttime} AND #{endtime}
+		</where>
+		ORDER BY area_id,start_time,rfcard_id
+	</select>
+	
+	<select id="getAreaWarnData" resultType="com.cm.entity.vo.AreaPass">
+		SELECT waw.worker_id workId,waw.card_id cardId,ad.`name`,ad.depart_name departName,ad.worktype_name worktypeName
+			,ad.start_time startTime,ad.end_time endTime,ad.wellduration,ad.work_day workday
+			FROM t_worker_area_warn waw
+			INNER JOIN t_area_daily ad
+			ON waw.worker_id = ad.worker_id AND waw.responsetime = ad.start_time AND waw.area_id = ad.area_id
+			WHERE waw.responsetime BETWEEN #{0} and #{1}
+			ORDER BY waw.worker_id,responsetime
+	</select>
+	
+</mapper>

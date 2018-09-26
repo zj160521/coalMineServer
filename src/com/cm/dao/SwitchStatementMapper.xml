@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.cm.dao.SwitchStatementDao">
+	<select id="getAna" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.SwitchVo">
+		SELECT t.sensor_id,t.status,t.alerts,CONCAT_WS('.',t.ip,t.sensorId) pid,t.avalue,t.typename,t.position from
+		(select a.sensor_id sensor_id, a.status status, count(*) as alerts, t1.ip ip, t1.sensorId sensorId,t1.avalue avalue, 
+		st1.v as typename, st2.v as position from t_analoginfo_query a 
+		join t_switch_sensor s on a.sensor_id = s.id and a.type = s.sensor_type 
+		left join t_static st1 on st1.id = a.type
+		left join t_static st2 on st2.id = s.sensor_position
+		LEFT JOIN t_analoginfo t1 ON t1.id = a.startId
+		WHERE a.status=#{atype}
+		AND t1.starttime <![CDATA[>=]]> #{starttime}
+		AND t1.starttime <![CDATA[<=]]> #{endtime}
+		group by sensor_id) t
+	</select>
+	<select id="getTime" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.vo.AnaloginfoQuery">
+		SELECT a.id id,DATE_FORMAT(b1.starttime,'%Y-%m-%d %H:%i:%S') starttime,DATE_FORMAT(b2.starttime,'%Y-%m-%d %H:%i:%S') endtime FROM t_analoginfo_query a
+		LEFT JOIN t_analoginfo b1 ON a.startId = b1.id
+		LEFT JOIN t_analoginfo b2 ON a.endId = b2.id
+		INNER JOIN t_switch_sensor c on a.sensor_id=c.id and a.type=c.sensor_type
+		<where>
+			a.sensor_id=#{id} 
+			<if test="starttime!=null and endtime!=null">
+				and b1.starttime <![CDATA[>=]]> #{starttime}
+				and b1.starttime <![CDATA[<=]]> #{endtime}
+			</if>
+			<if test="endtime==null">
+				and TO_DAYS(b1.starttime)=TO_DAYS(#{starttime})
+			</if>
+			AND a.status=#{atype} 
+		</where>
+	</select>
+</mapper>

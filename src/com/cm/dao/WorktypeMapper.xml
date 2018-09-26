@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.WorktypeDao">
+		
+		<!-- 添加 -->
+		<insert id="addWorktype" parameterType="com.cm.entity.Worktype">
+			insert into t_worktype(name,special) values (#{name},#{specia})
+		</insert>
+		<!-- 查询 -->
+		<select id="getAllWorktype" resultType="com.cm.entity.Worktype">
+			select id,name,special specia  from t_worktype
+		</select>
+		<select id="getWorktypeByname" parameterType="com.cm.entity.Worktype" resultType="java.lang.Integer">
+			select count(id) from t_worktype where name=#{name} and id!=#{id}
+		</select>
+		<!-- 更新 -->
+		<update id="updateWorktype" parameterType="com.cm.entity.Worktype">
+			update t_worktype 
+			<set>
+				<if test="name!=null and name!=''">
+					name=#{name}
+				</if>
+				<if test="specia>0">
+					,special=#{specia}
+				</if>
+			</set>
+			where id=#{id}
+		</update>
+		<!-- 删除 -->
+		<delete id="deleteWorktype" parameterType="java.lang.Integer">
+			delete from t_worktype where id=#{id}
+		</delete>
+		
+</mapper>

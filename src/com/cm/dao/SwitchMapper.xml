@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cm.dao.ISwitchDao">
+
+	<!-- 查询所有开关量传感器 -->
+	<select id="getAllSwitchSensor" parameterType="int" resultType="com.cm.entity.SwitchSensor">
+		SELECT tss.id,tss.station station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tss.sensorId,tss.control,tss.input_type,tst.id sensor_type,tst.pid,tst.k type0x,tst.path,tst.path2,
+		tss.n_point,tss.e_point,tst.v type,tss.alarm_status,tss.sensor_position,tsp.v position,
+		tss.power_status,tss.break_display,tsb.v break_d,tss.connect_display,tsc.v connect_d,tss.alais,
+		tss.feedId,tss.isDrainage,tss.uid,tss.drainageId,tss.x_point,tss.y_point,
+        tss.position_type_id,tpt.`name` position_type,tst.islogical,tss.power_scope,tss.device_name,tss.x2_point,tss.y2_point,tss.x3_point,tss.y3_point,
+        tss.n2_point,tss.e2_point,tss.n3_point,tss.e3_point,tss.direction
+		FROM t_switch_sensor tss
+		LEFT JOIN t_substation sub ON tss.station=sub.id
+		LEFT JOIN t_static tsp ON tsp.id=tss.sensor_position
+		LEFT JOIN t_static tst ON tss.sensor_type=tst.id
+		LEFT JOIN t_static tsb ON tss.break_display=tsb.id
+		LEFT JOIN t_static tsc ON tss.connect_display=tsc.id
+        LEFT JOIN t_position_type tpt ON tss.position_type_id=tpt.id
+		where tss.control!=3
+		<if test="type!=null and type>0">
+			and sensor_type=#{type}
+		</if>
+		ORDER BY sub.ipaddr,tss.sensorId
+	</select>
+
+    <select id="AllSwitchSensor" resultType="com.cm.entity.SwitchSensor">
+        SELECT tss.id,tss.station station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tss.sensorId,tss.control,tss.input_type,tst.id sensor_type,tst.pid,tst.k type0x,tst.path,tst.path2,
+		tss.n_point,tss.e_point,tst.v type,tss.alarm_status,tss.sensor_position,tsp.v position,
+		tss.power_status,tss.break_display,tsb.v break_d,tss.connect_display,tsc.v connect_d,tss.alais,
+		tss.feedId,tss.isDrainage,tss.uid,tss.drainageId,tss.area_id,ta.areaname,tss.x_point,tss.y_point,
+        tss.position_type_id,tss.power_scope,tss.device_name,tss.x2_point,tss.y2_point,tss.x3_point,tss.y3_point,
+        tss.n2_point,tss.e2_point,tss.n3_point,tss.e3_point,tss.direction
+		FROM t_switch_sensor tss
+		LEFT JOIN t_substation sub ON tss.station=sub.id
+		LEFT JOIN t_static tsp ON tsp.id=tss.sensor_position
+		LEFT JOIN t_static tst ON tss.sensor_type=tst.id
+		LEFT JOIN t_static tsb ON tss.break_display=tsb.id
+		LEFT JOIN t_static tsc ON tss.connect_display=tsc.id
+		LEFT JOIN t_env_area ta ON tss.area_id=ta.id
+		where tss.control!=3
+		ORDER BY sub.ipaddr,tss.sensorId
+    </select>
+	
+	<!-- 查询分站下的所有传感器 -->
+	<select id="getbysubid" parameterType="int" resultType="com.cm.entity.SwitchSensor">
+		SELECT tss.id,tss.station station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tss.sensorId,tss.control,tss.input_type,tst.id sensor_type,tst.pid,tst.k type0x,
+		tss.n_point,tss.e_point,tst.v type,tss.alarm_status,tss.sensor_position,tsp.v position,
+		tss.power_status,tss.break_display,tsb.v break_d,tss.connect_display,tsc.v connect_d,
+		tss.feedId,tss.uid,tss.alais,tss.x2_point,tss.y2_point,tss.x3_point,tss.y3_point,
+		tss.n2_point,tss.e2_point,tss.n3_point,tss.e3_point,tss.direction
+		FROM t_switch_sensor tss
+		LEFT JOIN t_substation sub ON tss.station=sub.id
+		LEFT JOIN t_static tsp ON tsp.id=tss.sensor_position
+		LEFT JOIN t_static tst ON tss.sensor_type=tst.id
+		LEFT JOIN t_static tsb ON tss.break_display=tsb.id
+		LEFT JOIN t_static tsc ON tss.connect_display=tsc.id
+		where tss.control!=3  and tss.station=#{subid}
+		ORDER BY sub.ipaddr,tss.sensorId
+	</select>
+	
+	<select id="getbyareaid" parameterType="int" resultType="com.cm.entity.SwitchSensor">
+		SELECT tss.id,tss.station station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tss.sensorId,tss.control,tss.input_type,tst.id sensor_type,tst.pid,tst.k type0x,
+		tss.n_point,tss.e_point,tst.v type,tss.alarm_status,tss.sensor_position,tsp.v position,
+		tss.power_status,tss.break_display,tsb.v break_d,tss.connect_display,tsc.v connect_d,
+		,tss.feedId,tss.uid,tss.alais,tss.x2_point,tss.y2_point,tss.x3_point,tss.y3_point,
+		tss.n2_point,tss.e2_point,tss.n3_point,tss.e3_point,tss.direction
+		FROM t_switch_sensor tss
+		LEFT JOIN t_substation sub ON tss.station=sub.id
+		LEFT JOIN t_static tsp ON tsp.id=tss.sensor_position
+		LEFT JOIN t_static tst ON tss.sensor_type=tst.id
+		LEFT JOIN t_static tsb ON tss.break_display=tsb.id
+		LEFT JOIN t_static tsc ON tss.connect_display=tsc.id
+		LEFT JOIN t_position_type tpt ON tss.position_type_id=tpt.id
+		where tss.control!=3  and tss.area_id=#{areaid}
+		ORDER BY sub.ipaddr,tss.sensorId
+	</select>
+	
+	<select id="getbyuids" resultType="com.cm.entity.SwitchSensor">
+		SELECT tss.id,tss.station station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tss.sensorId,tss.control,tss.input_type,tst.id sensor_type,tst.pid,tst.k type0x,
+		tss.n_point,tss.e_point,tst.v type,tss.alarm_status,tss.sensor_position,tsp.v position,
+		tss.power_status,tss.break_display,tsb.v break_d,tss.connect_display,tsc.v connect_d,tss.uid,tss.alais,
+        tss.x2_point,tss.y2_point,tss.x3_point,tss.y3_point,
+        tss.n2_point,tss.e2_point,tss.n3_point,tss.e3_point,tss.direction
+		FROM t_switch_sensor tss
+		LEFT JOIN t_substation sub ON tss.station=sub.id
+		LEFT JOIN t_static tsp ON tsp.id=tss.sensor_position
+		LEFT JOIN t_static tst ON tss.sensor_type=tst.id
+		LEFT JOIN t_static tsb ON tss.break_display=tsb.id
+		LEFT JOIN t_static tsc ON tss.connect_display=tsc.id
+		where tss.control!=3  and tss.uid IN
+		<foreach collection="uids" item="uid" index="index" open="(" separator="," close=")">
+			#{uid}
+		</foreach>
+	</select>
+	
+	<!-- 根据id查询 -->
+	<select id="getById" resultType="com.cm.entity.SwitchSensor">
+		SELECT t1.id,t1.station,t2.ipaddr,t1.sensorId,t1.sensor_type,t3.v type,t1.feedId,t4.v position,t1.uid,t1.alais
+		FROM t_switch_sensor t1
+		LEFT JOIN t_substation t2 ON t1.station=t2.id
+		LEFT JOIN t_static t3 ON t1.sensor_type=t3.id
+		LEFT JOIN t_static t4 ON t1.sensor_position=t4.id
+		WHERE t1.id=#{id}
+	</select>
+	
+	<!-- 添加开关量传感器 -->
+	<insert id="addSwitchSensor" parameterType="com.cm.entity.SwitchSensor" useGeneratedKeys="true" keyProperty="id">
+		insert into t_switch_sensor (sensorId,station,sensor_type,control,sensor_position,n_point,e_point,alarm_status,power_status,
+		break_display,connect_display,area_id,devlinkId,feedId,alais,isDrainage,drainageId,x_point,y_point,position_type_id,power_scope,device_name,
+		x2_point,y2_point,x3_point,y3_point,n2_point,e2_point,n3_point,e3_point,direction)
+		values (#{sensorId},#{station},#{sensor_type},#{control},
+		#{sensor_position},#{n_point},#{e_point},#{alarm_status},#{power_status},#{break_display},#{connect_display},#{area_id},#{devlinkId},#{feedId},#{alais},
+		#{isDrainage},#{drainageId},#{x_point},#{y_point},#{position_type_id},#{power_scope},#{device_name},#{x2_point},#{y2_point},#{x3_point},#{y3_point},
+		#{n2_point},#{e2_point},#{n3_point},#{e3_point},#{direction})
+	</insert>
+	
+	<!-- 更新开关量传感器 -->
+	<update id="updateSwitchSensor" parameterType="com.cm.entity.SwitchSensor">
+		update t_switch_sensor
+		<set>
+			<if test="sensorId!=null and sensorId!=''">
+				sensorId=#{sensorId},
+			</if>
+			<if test="station!=null and station>0">
+				station=#{station},
+			</if>
+			<if test="sensor_type!=null and sensor_type>0">
+				sensor_type=#{sensor_type},
+			</if>
+			<if test="control!=null and control>-1">
+				control=#{control},
+			</if>
+			<if test="input_type>-1">
+				input_type=#{input_type},
+			</if>
+			<if test="sensor_position>0">
+				sensor_position=#{sensor_position},
+			</if>
+			n_point=#{n_point},
+			e_point=#{e_point},
+			alarm_status=#{alarm_status},
+			devlinkId=#{devlinkId},
+			break_display=#{break_display},
+            x_point=#{x_point},
+            y_point=#{y_point},
+			<if test="power_status!=null and power_status>0">
+				power_status=#{power_status},
+			</if>
+			<if test="connect_display!=null and connect_display>0">
+				connect_display=#{connect_display},
+			</if>
+			<if test="configsync>-1">
+				configsync=#{configsync},
+			</if>
+			<if test="feedId>0">
+				feedId=#{feedId},
+			</if>
+            <if test="area_id>0">
+                area_id=#{area_id},
+            </if>
+            <if test="isDrainage>-1">
+                isDrainage=#{isDrainage},
+            </if>
+            <if test="drainageId>0">
+                drainageId=#{drainageId},
+            </if>
+            position_type_id=#{position_type_id},
+            <if test="null!=power_scope">
+                power_scope=#{power_scope},
+            </if>
+            <if test="null!=device_name">
+                device_name=#{device_name},
+            </if>
+            x2_point=#{x2_point},
+            y2_point=#{y2_point},
+            x3_point=#{x3_point},
+            y3_point=#{y3_point},
+            n2_point=#{n2_point},
+            e2_point=#{e2_point},
+            n3_point=#{n3_point},
+            e3_point=#{e3_point},
+             direction=#{direction}
+		</set>
+		<where>
+            id=#{id}
+		</where> 
+	</update>
+	
+	<!-- 根据id删除某一个传感器 -->
+	<update id="delete" parameterType="int">
+		update t_switch_sensor set sensorId=0,control=3,devlinkId=0 where id=#{id}
+	</update>
+	
+	<!-- 查询新添加设备的id -->
+	<select id="getaddedId" resultType="int">
+		SELECT id FROM 
+		(SELECT tsr.id,sub.id stationId,sub.ipaddr ip,tsr.sensorId devid,tsc.id type,tsc.v typename
+		FROM t_sensor tsr
+		LEFT JOIN t_substation sub ON tsr.station=sub.id
+		LEFT JOIN t_static tsc ON tsr.sensor_type=tsc.id
+		UNION ALL
+		SELECT tsr.id,sub.id stationId,sub.ipaddr ip,tsr.sensorId devid,tsc.id type,tsc.v typename
+		FROM t_switch_sensor tsr
+		LEFT JOIN t_substation sub ON tsr.station=sub.id
+		LEFT JOIN t_static tsc ON tsr.sensor_type=tsc.id) s
+		WHERE s.stationId=#{stationId} AND s.devid=#{devid} AND s.type=#{type} AND s.devid!=0
+	</select>
+	
+	<!-- 查询未同步设备 -->
+	<select id="getNoSync" resultType="com.cm.entity.SwitchSensor">
+		SELECT tr.*,ts.ipaddr FROM t_switch_sensor tr
+		LEFT JOIN t_substation ts ON tr.station=ts.id
+		WHERE control != 3 AND configsync=1
+	</select>
+	
+	<!-- 根据id修改传感器同步情况 -->
+	<update id="updateConfigById">
+		update t_switch_sensor 
+		<set>
+			configsync=#{configsync}
+		</set>
+		<where>
+			id=#{id}
+		</where>
+	</update>
+	
+	<select id="getisuseFeedid" resultType="Integer">
+		SELECT id FROM t_switch_sensor WHERE id!=#{id} and feedId=#{feedId}
+	</select>
+	
+	<update id="updateFeedId" parameterType="com.cm.entity.SwitchSensor">
+		update t_switch_sensor set feedId=#{feedId} where id=#{id}
+	
+	</update>
+	
+	<update id="updateUid">
+		update t_switch_sensor
+		<set>
+			<if test="null!=uid">
+				uid=#{uid}
+			</if>
+		</set>
+		<where>
+			id=#{id}
+		</where>
+	</update>
+
+    <select id="getByStationAndSensorId" resultType="com.cm.entity.SwitchSensor">
+        select * from t_switch_sensor where station=#{station} and sensorId=#{sensorId}
+    </select>
+    
+    <select id="getbyUid" resultType="com.cm.entity.SwitchSensor">
+    	select a.*,b.ipaddr ipaddr from t_switch_sensor a
+		LEFT JOIN t_substation b ON a.station=b.id WHERE a.uid=#{uid}
+    </select>
+    
+    <select id="getSensorByAreaId" parameterType="int" resultType="com.cm.entity.SwitchSensor">
+    	SELECT tss.id,tss.station station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tss.sensorId,tss.control,tss.input_type,tst.id sensor_type,tst.pid,tst.k type0x,
+		tss.n_point,tss.e_point,tst.v type,tss.alarm_status,tss.sensor_position,tsp.v position,
+		tss.power_status,tss.break_display,tsb.v break_d,tss.connect_display,tsc.v connect_d,
+		tss.feedId,tss.uid,tss.alais
+		FROM t_switch_sensor tss
+		LEFT JOIN t_substation sub ON tss.station=sub.id
+		LEFT JOIN t_static tsp ON tsp.id=tss.sensor_position
+		LEFT JOIN t_static tst ON tss.sensor_type=tst.id
+		LEFT JOIN t_static tsb ON tss.break_display=tsb.id
+		LEFT JOIN t_static tsc ON tss.connect_display=tsc.id
+		LEFT JOIN t_position_type tpt ON tss.position_type_id=tpt.id
+		INNER JOIN (SELECT uid FROM t_area_sensor WHERE area_id=#{areaid} AND sensor_type_id=25) tud ON tss.uid=tud.uid
+		where tss.control!=3 ORDER BY tss.sensorId
+    </select>
+    
+    <select id="getControlSensor" resultType="com.cm.entity.SwitchSensor">
+    	SELECT tss.id,tss.station station,sub.station_name station_name,sub.ipaddr ipaddr,
+		tss.sensorId,tss.control,tss.input_type,tst.id sensor_type,tst.pid,tst.k type0x,
+		tss.n_point,tss.e_point,tst.v type,tss.alarm_status,tss.sensor_position,tsp.v position,
+		tss.power_status,tss.break_display,tsb.v break_d,tss.connect_display,tsc.v connect_d,
+		tss.feedId,tss.uid,tss.alais
+		FROM t_switch_sensor tss
+		LEFT JOIN t_substation sub ON tss.station=sub.id
+		LEFT JOIN t_static tsp ON tsp.id=tss.sensor_position
+		LEFT JOIN t_static tst ON tss.sensor_type=tst.id
+		LEFT JOIN t_static tsb ON tss.break_display=tsb.id
+		LEFT JOIN t_static tsc ON tss.connect_display=tsc.id
+		LEFT JOIN t_position_type tpt ON tss.position_type_id=tpt.id
+		where tss.control!=3 AND tst.islogical IS NULL ORDER BY sub.ipaddr,tss.sensorId
+    </select>
+    
+</mapper>
