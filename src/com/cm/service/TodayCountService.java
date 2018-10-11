@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.entity.WorkerInAreaRec;
 import com.cm.entity.vo.DailyRecVo;
@@ -106,7 +106,7 @@ public class TodayCountService extends DailyBaseService{
 			isSetVo(wi, worker);
 			count++;
 			
-			if(StaticUtilMethod.isLastRec(dailyRecByWorker, i+1))
+			if(UtilMethod.isLastRec(dailyRecByWorker, i+1))
 				dealWithLast(wi, worker);
 		}
 	}
@@ -127,7 +127,7 @@ public class TodayCountService extends DailyBaseService{
 			
 			isSetVo(wi, worker);
 			count++;
-			if(StaticUtilMethod.isLastRec(dailyRecByWorker, i+1))
+			if(UtilMethod.isLastRec(dailyRecByWorker, i+1))
 				dealWithLast(wi, worker);
 		}
 	}

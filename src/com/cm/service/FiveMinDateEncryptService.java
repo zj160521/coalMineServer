@@ -31,13 +31,13 @@ public class FiveMinDateEncryptService {
     private String endTime;
     private String nowTime;
     private HashMap<Integer, List<CoalmineVo>> map = new HashMap<>();
-    private final String lockKey = "FiveMinDateEncryptService";
-    private final String requestId = UUID.randomUUID().toString();
-    private long expireTime = 10000L;
 
     @Scheduled(cron = "0 0/5 * * * ?")
     public void EncryptFiveMinDate(){
         try{
+            String lockKey = "FiveMinDateEncryptService";
+            String requestId = UUID.randomUUID().toString();
+            long expireTime = 10000l;
             boolean b = RedisPool.tryGetDistributedLock(lockKey, requestId, expireTime);
             if (b){
                 String v = "";
@@ -51,7 +51,7 @@ public class FiveMinDateEncryptService {
                     String fileName = "/" + v + "_WFSJ_" + nowTime + ".TXT";
 
                     StringBuffer sb = new StringBuffer();
-                    sb.append(sdf.format(new Date()) + ";");
+                    sb.append(sdf.format(Calendar.getInstance().getTime()) + ";");
 
 
                     String tableName = "t_coalMine_" + sdf2.format(new Date());
@@ -120,15 +120,16 @@ public class FiveMinDateEncryptService {
             StringBuffer sb = new StringBuffer();
             StackTraceElement[] stackTrace = e.getStackTrace();
             for (int i = 0; i < stackTrace.length; i++) {
-                sb.append(stackTrace[i].toString());
+                StackTraceElement element = stackTrace[i];
+                sb.append(element.toString()+"\n");
             }
+            LogOut.log.error(e);
             LogOut.log.error(sb.toString());
         }
     }
 
     public void getStartEndTime(){
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.MINUTE,-5);
         endTime = sdf.format(cal.getTime());
         nowTime = sdf1.format(cal.getTime());
         String substring = nowTime.substring(0,nowTime.length()-1);

@@ -14,7 +14,7 @@ public class GroupLgc {
 	private int lgcDevId;
 	private String dev;
 	private String dev2;
-	private double value;
+	private Double value;
 	private String lgcOperator;
 	private int type;
 	private String lgcExps;
@@ -224,10 +224,10 @@ public class GroupLgc {
 	public void setDev(String dev) {
 		this.dev = dev;
 	}
-	public double getValue() {
+	public Double getValue() {
 		return value;
 	}
-	public void setValue(double value) {
+	public void setValue(Double value) {
 		this.value = value;
 	}
 	public String getLgcOperator() {

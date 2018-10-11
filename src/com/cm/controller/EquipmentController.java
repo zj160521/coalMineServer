@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import util.LogOut;
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -204,7 +204,7 @@ public class EquipmentController {
 			
 			equipment5.setId(4);
 			equipment5.setLabel("联动控制");
-			List<Windwatt> windwatts = windService.getallWindwatt();
+			List<Windwatt> windwatts = windService.getallWindwatt(0);
 			List<DevlinksVo> linkVos =  devService.getDevLinkVos();
 			for(Windwatt w:windwatts){
 				List<WindwattVo> vos = w.getList();
@@ -213,11 +213,12 @@ public class EquipmentController {
 					uids.add(s.getUid());
 				}
                 List<Sensor> sensors = new ArrayList<>();
-				if (StaticUtilMethod.notNullOrEmptyList(uids)){
+                List<SwitchSensor> switchSensors = new ArrayList<>();
+				if (UtilMethod.notEmptyList(uids)){
 
                     sensors = service2.getbyuids(uids);
+                    switchSensors = service3.getbyuids(uids);
                 }
-				List<SwitchSensor> switchSensors = service3.getbyuids(uids);
 				w.setLists(sensors);
 				for(SwitchSensor s:switchSensors){
 					w.getLists().add(s);
@@ -226,13 +227,15 @@ public class EquipmentController {
 			}
 			equipment5.setChildren(windwatts);
 			for(DevlinksVo d:linkVos){
-				List<Sensor> sensors = service2.getbyuids(d.getUids());
-				List<SwitchSensor> switchSensors = service3.getbyuids(d.getUids());
-				d.setLists(sensors);
-				for(SwitchSensor s:switchSensors){
-					d.getLists().add(s);
-				}
-				equipment5.getChildren().add(d);
+			    if (UtilMethod.notEmptyList(d.getUids())){
+                    List<Sensor> sensors = service2.getbyuids(d.getUids());
+                    List<SwitchSensor> switchSensors = service3.getbyuids(d.getUids());
+                    d.setLists(sensors);
+                    for(SwitchSensor s:switchSensors){
+                        d.getLists().add(s);
+                    }
+                    equipment5.getChildren().add(d);
+                }
 			}
 			
 			equipment6.setId(5);
@@ -376,6 +379,23 @@ public class EquipmentController {
 		}
 		try {
 			List<SwitchSensor> switchSensors = service3.getControlSensor();
+			List<WindwattVo> vos = windService.getallsensor();
+			Map<String, WindwattVo> map = new HashMap<String,WindwattVo>();
+			for(WindwattVo s:vos){
+				if(s.getSerialnumber().equals("C2")||s.getSerialnumber().equals("C6")){
+					WindwattVo a = map.get(s.getUid());
+					if(a==null){
+						map.put(s.getUid(), s);
+					}
+				}
+			}
+			for(SwitchSensor s:switchSensors){
+				if(map.get(s.getUid())!=null){
+					s.setIscontrol(1);
+					s.setControlexplain("此设备已被风瓦电闭锁配置C2/C6使用");
+				}
+			}
+			result.put("data", switchSensors);
 		} catch (Exception e) {
 		    StringBuffer sb = new StringBuffer();
 			e.printStackTrace();

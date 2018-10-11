@@ -35,12 +35,21 @@
 	</insert>
 	
 	<select id="getall" parameterType="com.cm.entity.vo.NameTime" resultType="com.cm.entity.AnalogStatistics">
-		SELECT f.alais,f.position,f.sensortype,f.unit,f.limit_alarms,f.limit_powers,f.floor_alarms,f.floor_powers,f.limit_repowers,f.floor_repowers,DATE_FORMAT(e.statistictime,'%Y-%m-%d %H:%i:00') statistictime,
+		SELECT e.ip,e.sensorId,e.sensor_type,f.alais,f.position,f.sensortype,f.unit,f.limit_alarms,f.limit_powers,f.floor_alarms,f.floor_powers,f.limit_repowers,f.floor_repowers,
+		CONCAT_WS('-',DATE_FORMAT(DATE_SUB(e.statistictime,INTERVAL 5 MINUTE),'%H:%i'),DATE_FORMAT(e.statistictime,'%H:%i')) statistictime,
 		e.maxvalues maxvalues,DATE_FORMAT(e.maxtime,'%Y-%m-%d %H:%i:%S') maxtime,e.minvalue,DATE_FORMAT(e.mintime,'%Y-%m-%d %H:%i:%S') mintime,CONVERT(e.avgvalue,DECIMAL(10,2)) avgvalue,e.status,e.debug FROM 
 		(SELECT ip,sensorId,sensor_type,statistictime,maxvalues,maxtime,minvalue,mintime,avgvalue,status,debug 
 		FROM t_analog_statistics 
-		WHERE statistictime<![CDATA[>=]]>#{starttime} AND statistictime<![CDATA[<=]]>#{endtime}
-		AND remark=#{itype})e
+		<where>
+			remark=1
+			<if test="starttime!=null and endtime!=null and endtime!=''">
+				AND statistictime<![CDATA[>=]]>#{starttime} 
+				AND statistictime<![CDATA[<=]]>#{endtime}
+			</if>
+			<if test="endtime=='' or endtime==null">
+				AND TO_DAYS(statistictime)=TO_DAYS(#{starttime})
+			</if>
+		</where>)e
 		INNER JOIN
 		(SELECT a.id,c.ipaddr,a.sensorId,a.sensor_type,d.k unit,d.v sensortype,a.limit_alarm limit_alarms,a.floor_alarm floor_alarms,
 		a.limit_power limit_powers,a.floor_power floor_powers,a.limit_repower limit_repowers,a.floor_repower floor_repowers,a.sensor_position,b.v position,a.alais FROM t_sensor a
@@ -58,7 +67,7 @@
 				AND f.sensor_position=#{sensor_position}
 			</if>
 		</where>
-		limit #{start_row},#{page_rows}
+		ORDER BY e.ip,e.sensorId,e.statistictime
 	</select>
 	
 	<select id="getcount" parameterType="com.cm.entity.vo.NameTime" resultType="int">
@@ -80,4 +89,13 @@
 			</if>
 		</where>
 	</select>
+	
+	<select id="getOneHourData"  resultType="com.cm.entity.vo.AnalogStatisticsVo">
+		SELECT ip,sensorId,sensor_type,statistictime,maxvalues,DATE_FORMAT(maxtime,'%Y-%m-%d %H:%i:%S') maxtime,minvalue,DATE_FORMAT(mintime,'%Y-%m-%d %H:%i:%S') mintime,ROUND(avgvalue,2) avgvalue
+		FROM t_analog_statistics 
+		WHERE ip = #{ip} and sensorId = #{sensorId} and statistictime > #{startTime} AND statistictime &lt;= #{endTime}
+		ORDER BY statistictime
+	</select>
+	
+	
 </mapper>

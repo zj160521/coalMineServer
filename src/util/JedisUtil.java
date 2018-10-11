@@ -8,6 +8,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;  
 
+import com.cm.security.ConfigUtil;
+
 import redis.clients.jedis.Jedis;  
 import redis.clients.jedis.JedisPool;  
 import redis.clients.jedis.JedisPoolConfig;  
@@ -147,13 +149,9 @@ public class JedisUtil {
      * @throws Exception 
      */
     public static void readProperties() throws Exception{
-    	String property = System.getProperty("os.name");
-    	InputStream inStream =  property.startsWith("Linux") ? new FileInputStream(new File("/etc/mineserver.cfg")) 
-    	: new FileInputStream(new File("D:\\etc\\mineserver.cfg"));
-		Properties prop = new Properties();  
-		prop.load(inStream);  
-		ADDR_ARRAY = prop.getProperty("redis.ip");
-		PORT = Integer.parseInt(prop.getProperty("redis.port"));
+		ConfigUtil cfg = ConfigUtil.getInstance();
+		ADDR_ARRAY = cfg.getRedis_ip();
+		PORT = cfg.getRedis_port() != null ? Integer.parseInt(cfg.getRedis_port()) : 0;
     }
     
 } 

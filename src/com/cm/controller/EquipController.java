@@ -6,6 +6,7 @@ import com.cm.security.LoginManage;
 import com.cm.service.SensorLogService;
 import com.cm.service.SubstationService;
 import com.cm.service.kafka.KafkaMsgQueue;
+import com.cm.service.kafka.MessageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -60,6 +61,7 @@ public class EquipController {
         msg.setId(sensorId);
         msg.setType(typeId);
         msg.setCmd(1);
+        msg.setCmd2(2);
         msg.setSendtime(System.currentTimeMillis());
         KafkaMsgQueue.getInstance().SendMessage(msg);
         result.clean();
@@ -83,26 +85,29 @@ public class EquipController {
         }
         KafkaMsgQueue msgQueue = KafkaMsgQueue.getInstance();
         String msgid = ipaddr + ":" + sensorId + "-" + 1;
+        String msgid2 = ipaddr + ":" + sensorId + "-" + 2;
+        KafkaMessage message1 = msgQueue.RecvMessage(msgid2);
         KafkaMessage message = msgQueue.RecvMessage(msgid);
-        if (null != message) {
+        if (null != message && null != message1) {
+            KafkaMessage kafkaMessage = (KafkaMessage) MessageUtil.combineSydwCore(message, message1);
             SensorLog log = new SensorLog();
             log.setTime(df.format(new Date()));
-            log.setResult(message.getStatus());
+            log.setResult(kafkaMessage.getStatus());
             log.setContent("读取设备运行参数");
-            log.setSensorId(message.getId());
-            log.setType(message.getType());
-            log.setUid(stationService.getUid(message.getId(),message.getIp()));
-            if (message.getStatus() == 0) {
+            log.setSensorId(kafkaMessage.getId());
+            log.setType(kafkaMessage.getType());
+            log.setUid(stationService.getUid(kafkaMessage.getId(),kafkaMessage.getIp()));
+            if (message.getStatus() == 0 && message1.getStatus() ==0) {
                 log.setFeedback("读取设备运行参数成功");
                 logService.addSensorLog(log);
                 result.clean();
-                result.put("data", message);
+                result.put("data", kafkaMessage);
                 return result.setStatus(0, "ok");
             } else {
-                log.setFeedback(message.getResponse());
+                log.setFeedback(kafkaMessage.getResponse());
                 logService.addSensorLog(log);
                 result.clean();
-                return result.setStatus(message.getStatus(), message.getResponse());
+                return result.setStatus(kafkaMessage.getStatus(), kafkaMessage.getResponse());
             }
         }
         return result.setStatus(-6, "暂时没有数据");
@@ -125,26 +130,29 @@ public class EquipController {
         }
         KafkaMsgQueue msgQueue = KafkaMsgQueue.getInstance();
         String msgid = ipaddr + ":" + sensorId + "-" + 3;
+        String msgid2 = ipaddr + ":" + sensorId + "-" +4;
+        KafkaMessage message1 = msgQueue.RecvMessage(msgid2);
         KafkaMessage message = msgQueue.RecvMessage(msgid);
-        if (null != message) {
+        if (null != message && null != message1) {
+            KafkaMessage kafkaMessage = (KafkaMessage) MessageUtil.combineSydwCore(message, message1);
             SensorLog log = new SensorLog();
-            log.setType(message.getType());
-            log.setSensorId(message.getId());
+            log.setType(kafkaMessage.getType());
+            log.setSensorId(kafkaMessage.getId());
             log.setContent("传感器写入配置信息");
-            log.setResult(message.getStatus());
+            log.setResult(kafkaMessage.getStatus());
             log.setTime(df.format(new Date()));
-            log.setUid(stationService.getUid(message.getId(),message.getIp()));
-            if (message.getStatus() == 0) {
+            log.setUid(stationService.getUid(kafkaMessage.getId(),kafkaMessage.getIp()));
+            if (message.getStatus() == 0 && message1.getStatus() == 0) {
                 log.setFeedback("传感器写入配置信息成功");
                 logService.addSensorLog(log);
                 result.clean();
-                result.put("data", message);
+                result.put("data", kafkaMessage);
                 return result.setStatus(0, "ok");
             } else {
-                log.setFeedback(message.getResponse());
+                log.setFeedback(kafkaMessage.getResponse());
                 logService.addSensorLog(log);
                 result.clean();
-                return result.setStatus(message.getStatus(), message.getResponse());
+                return result.setStatus(kafkaMessage.getStatus(), kafkaMessage.getResponse());
             }
         }
         return result.setStatus(-6, "暂时没有数据");

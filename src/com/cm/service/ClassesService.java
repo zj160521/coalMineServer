@@ -1,12 +1,11 @@
 package com.cm.service;
 
-import java.util.List;
-
+import com.cm.dao.ClassesDao;
+import com.cm.entity.Classes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.cm.dao.ClassesDao;
-import com.cm.entity.Classes;
+import java.util.List;
 
 @Service
 public class ClassesService {
@@ -25,4 +24,12 @@ public class ClassesService {
 	public void delete(int id){
 		dao.delete(id);
 	}
+
+	public void update(Classes classes){
+	    dao.update(classes);
+    }
+
+    public List<Classes> getAllEnv(){
+	    return dao.getAllEnv();
+    }
 }

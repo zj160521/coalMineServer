@@ -14,8 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
+import com.cm.dao.EnvclassesDao;
 import com.cm.dao.SwitchStateChangeDao;
 import com.cm.entity.Coalmine;
+import com.cm.entity.EnvClasses;
 import com.cm.entity.SwitchStateChange;
 import com.cm.entity.vo.NameTime;
 import com.cm.entity.vo.SwitchStateChangeVo;
@@ -26,9 +28,13 @@ public class SwitchStateChangeService {
 	@Autowired
 	private SwitchStateChangeDao dao;
 	
+	@Autowired
+	private EnvclassesDao envclassesDao;
+	
 	@SuppressWarnings("unchecked")
 	public List<SwitchStateChangeVo> getdata() throws ParseException{
-		
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		List<EnvClasses> classes = envclassesDao.getAll();
 		String tablename = "t_coalMine_"+getDay();
 		List<SwitchStateChangeVo> list = new ArrayList<SwitchStateChangeVo>();
 		List<Coalmine> list2 = dao.getBasicdata(tablename);
@@ -59,18 +65,32 @@ public class SwitchStateChangeService {
 							changeVo.setIp(a.getIp());
 							changeVo.setType(a.getType());
 							changeVo.setResponsetime(a.getResponsetime());
-							changeVo.setValue((int) a.getValue());
-							if(a.getValue()==1){
-								changeVo.setStatechange(powers.get(1));
-							}else if(a.getValue()==2){
-								changeVo.setStatechange(powers.get(2));
-							}else{
-								changeVo.setStatechange(powers.get(0));
+							if(classes!=null&&classes.size()>0){
+								long starttimelong = format.parse(changeVo.getResponsetime()).getTime();
+								String startday = changeVo.getResponsetime().split(" ")[0];
+								for(EnvClasses s:classes){
+									String start = startday+" "+s.getStart()+":00";
+									String end = startday+" "+s.getEnd()+":00";
+									long startlong = format.parse(start).getTime();
+									long endlong = format.parse(end).getTime();
+									if(s.getStatus()==1&&starttimelong>startlong&&starttimelong<=endlong){
+										changeVo.setClassname(s.getName());
+										changeVo.setClassstart(s.getStart()+":00");
+										changeVo.setClassend(s.getEnd()+":00");
+									}
+									if(s.getStatus()==2&&starttimelong<=startlong||s.getStatus()==2&&starttimelong>endlong){
+										changeVo.setClassname(s.getName());
+										changeVo.setClassstart(s.getStart()+":00");
+										changeVo.setClassend(s.getEnd()+":00");
+									}
+								}
 							}
+							changeVo.setValue((int) a.getValue());
+							changeVo.setStatechange(powers.get((int)a.getValue()));
 							list.add(changeVo);
 							count++;
 						}
-						if(c!=d&&c<2&&d<2){
+						if(c!=d){
 							SwitchStateChangeVo changeVo = new SwitchStateChangeVo();
 							changeVo.setDev_id(coalmine.getDev_id());
 							changeVo.setDevid(coalmine.getDevid());
@@ -78,15 +98,28 @@ public class SwitchStateChangeService {
 							changeVo.setIp(coalmine.getIp());
 							changeVo.setType(coalmine.getType());
 							changeVo.setResponsetime(coalmine.getResponsetime());
-							changeVo.setValue((int) coalmine.getValue());
-							if(coalmine.getValue()==1){
-								changeVo.setStatechange(powers.get(1));
-							}else if(coalmine.getValue()==2){
-								changeVo.setStatechange(powers.get(2));
-							}else{
-								changeVo.setStatechange(powers.get(0));
-								
+							if(classes!=null&&classes.size()>0){
+								long starttimelong = format.parse(changeVo.getResponsetime()).getTime();
+								String startday = changeVo.getResponsetime().split(" ")[0];
+								for(EnvClasses s:classes){
+									String start = startday+" "+s.getStart()+":00";
+									String end = startday+" "+s.getEnd()+":00";
+									long startlong = format.parse(start).getTime();
+									long endlong = format.parse(end).getTime();
+									if(s.getStatus()==1&&starttimelong>startlong&&starttimelong<=endlong){
+										changeVo.setClassname(s.getName());
+										changeVo.setClassstart(s.getStart()+":00");
+										changeVo.setClassend(s.getEnd()+":00");
+									}
+									if(s.getStatus()==2&&starttimelong<=startlong||s.getStatus()==2&&starttimelong>endlong){
+										changeVo.setClassname(s.getName());
+										changeVo.setClassstart(s.getStart()+":00");
+										changeVo.setClassend(s.getEnd()+":00");
+									}
+								}
 							}
+							changeVo.setValue((int) coalmine.getValue());
+							changeVo.setStatechange(powers.get((int)coalmine.getValue()));
 							list.add(changeVo);
 							count++;
 						}
@@ -98,15 +131,28 @@ public class SwitchStateChangeService {
 							changeVo.setIp(coalmine.getIp());
 							changeVo.setType(coalmine.getType());
 							changeVo.setResponsetime(coalmine.getResponsetime());
-							changeVo.setValue(1);
-							if(changeVo.getValue()==1){
-								changeVo.setStatechange(powers.get(1));
-							}else if(changeVo.getValue()==2){
-								changeVo.setStatechange(powers.get(2));
-							}else{
-								changeVo.setStatechange(powers.get(0));
-								
+							if(classes!=null&&classes.size()>0){
+								long starttimelong = format.parse(changeVo.getResponsetime()).getTime();
+								String startday = changeVo.getResponsetime().split(" ")[0];
+								for(EnvClasses s:classes){
+									String start = startday+" "+s.getStart()+":00";
+									String end = startday+" "+s.getEnd()+":00";
+									long startlong = format.parse(start).getTime();
+									long endlong = format.parse(end).getTime();
+									if(s.getStatus()==1&&starttimelong>startlong&&starttimelong<=endlong){
+										changeVo.setClassname(s.getName());
+										changeVo.setClassstart(s.getStart()+":00");
+										changeVo.setClassend(s.getEnd()+":00");
+									}
+									if(s.getStatus()==2&&starttimelong<=startlong||s.getStatus()==2&&starttimelong>endlong){
+										changeVo.setClassname(s.getName());
+										changeVo.setClassstart(s.getStart()+":00");
+										changeVo.setClassend(s.getEnd()+":00");
+									}
+								}
 							}
+							changeVo.setValue(1);
+							changeVo.setStatechange(powers.get(changeVo.getValue()));
 							list.add(changeVo);
 							count = 0;
 						}
@@ -119,18 +165,32 @@ public class SwitchStateChangeService {
 							changeVo.setIp(a.getIp());
 							changeVo.setType(a.getType());
 							changeVo.setResponsetime(a.getResponsetime());
-							changeVo.setValue((int) a.getValue());
-							if(a.getValue()==1){
-								changeVo.setStatechange(powers.get(1));
-							}else if(a.getValue()==2){
-								changeVo.setStatechange(powers.get(2));
-							}else{
-								changeVo.setStatechange(powers.get(0));
+							if(classes!=null&&classes.size()>0){
+								long starttimelong = format.parse(changeVo.getResponsetime()).getTime();
+								String startday = changeVo.getResponsetime().split(" ")[0];
+								for(EnvClasses s:classes){
+									String start = startday+" "+s.getStart()+":00";
+									String end = startday+" "+s.getEnd()+":00";
+									long startlong = format.parse(start).getTime();
+									long endlong = format.parse(end).getTime();
+									if(s.getStatus()==1&&starttimelong>startlong&&starttimelong<=endlong){
+										changeVo.setClassname(s.getName());
+										changeVo.setClassstart(s.getStart()+":00");
+										changeVo.setClassend(s.getEnd()+":00");
+									}
+									if(s.getStatus()==2&&starttimelong<=startlong||s.getStatus()==2&&starttimelong>endlong){
+										changeVo.setClassname(s.getName());
+										changeVo.setClassstart(s.getStart()+":00");
+										changeVo.setClassend(s.getEnd()+":00");
+									}
+								}
 							}
+							changeVo.setValue((int) a.getValue());
+							changeVo.setStatechange(powers.get((int)a.getValue()));
 							list.add(changeVo);
 							count++;
 						}
-						if(c!=d&&c<2&&d<2){
+						if(c!=d){
 							SwitchStateChangeVo changeVo = new SwitchStateChangeVo();
 							changeVo.setDev_id(coalmine.getDev_id());
 							changeVo.setDevid(coalmine.getDevid());
@@ -138,15 +198,28 @@ public class SwitchStateChangeService {
 							changeVo.setIp(coalmine.getIp());
 							changeVo.setType(coalmine.getType());
 							changeVo.setResponsetime(coalmine.getResponsetime());
-							changeVo.setValue((int) coalmine.getValue());
-							if(coalmine.getValue()==1){
-								changeVo.setStatechange(powers.get(1));
-							}else if(coalmine.getValue()==2){
-								changeVo.setStatechange(powers.get(2));
-							}else{
-								changeVo.setStatechange(powers.get(0));
-								
+							if(classes!=null&&classes.size()>0){
+								long starttimelong = format.parse(changeVo.getResponsetime()).getTime();
+								String startday = changeVo.getResponsetime().split(" ")[0];
+								for(EnvClasses s:classes){
+									String start = startday+" "+s.getStart()+":00";
+									String end = startday+" "+s.getEnd()+":00";
+									long startlong = format.parse(start).getTime();
+									long endlong = format.parse(end).getTime();
+									if(s.getStatus()==1&&starttimelong>startlong&&starttimelong<=endlong){
+										changeVo.setClassname(s.getName());
+										changeVo.setClassstart(s.getStart()+":00");
+										changeVo.setClassend(s.getEnd()+":00");
+									}
+									if(s.getStatus()==2&&starttimelong<=startlong||s.getStatus()==2&&starttimelong>endlong){
+										changeVo.setClassname(s.getName());
+										changeVo.setClassstart(s.getStart()+":00");
+										changeVo.setClassend(s.getEnd()+":00");
+									}
+								}
 							}
+							changeVo.setValue((int) coalmine.getValue());
+							changeVo.setStatechange(powers.get((int)coalmine.getValue()));
 							list.add(changeVo);
 							count++;
 						}
@@ -158,20 +231,33 @@ public class SwitchStateChangeService {
 							changeVo.setIp(coalmine.getIp());
 							changeVo.setType(coalmine.getType());
 							changeVo.setResponsetime(coalmine.getResponsetime());
-							changeVo.setValue(0);
-							if(changeVo.getValue()==1){
-								changeVo.setStatechange(powers.get(1));
-							}else if(changeVo.getValue()==2){
-								changeVo.setStatechange(powers.get(2));
-							}else{
-								changeVo.setStatechange(powers.get(0));
-								
+							if(classes!=null&&classes.size()>0){
+								long starttimelong = format.parse(changeVo.getResponsetime()).getTime();
+								String startday = changeVo.getResponsetime().split(" ")[0];
+								for(EnvClasses s:classes){
+									String start = startday+" "+s.getStart()+":00";
+									String end = startday+" "+s.getEnd()+":00";
+									long startlong = format.parse(start).getTime();
+									long endlong = format.parse(end).getTime();
+									if(s.getStatus()==1&&starttimelong>startlong&&starttimelong<=endlong){
+										changeVo.setClassname(s.getName());
+										changeVo.setClassstart(s.getStart()+":00");
+										changeVo.setClassend(s.getEnd()+":00");
+									}
+									if(s.getStatus()==2&&starttimelong<=startlong||s.getStatus()==2&&starttimelong>endlong){
+										changeVo.setClassname(s.getName());
+										changeVo.setClassstart(s.getStart()+":00");
+										changeVo.setClassend(s.getEnd()+":00");
+									}
+								}
 							}
+							changeVo.setValue(0);
+							changeVo.setStatechange(powers.get(changeVo.getValue()));
 							list.add(changeVo);
 							count = 0;
 						}
 					}
-					 }
+				}
 			}
 		}
 		return list;
@@ -195,6 +281,8 @@ public class SwitchStateChangeService {
 			if(l.getPosition()==null){
 				l.setPosition("未配置位置");
 			}
+			Map<Integer, String> powers = JSON.parseObject(l.getAlarmstatus(), Map.class);
+			l.setStatechange(powers.get(l.getValue()));
 			if(change==null){
 				change = new SwitchStateChange();
 				change.setSensor_id(l.getDev_id());
@@ -202,8 +290,8 @@ public class SwitchStateChangeService {
 				change.setSensortype(l.getSensortype());
 				change.setPosition(l.getPosition());
 				change.setSensor_type(l.getType());
-				Map<Integer, String> powers = JSON.parseObject(l.getAlarmstatus(), Map.class);
-				if(l.getType()==56||l.getType()==71||l.getAlarm_status()<0){
+				
+				if(l.getType()==56||l.getType()==53||l.getType()==71||l.getAlarm_status()<0){
 					change.setAlarmpower("--");
 				}else{
 					if(powers.get(l.getAlarm_status())!=null){

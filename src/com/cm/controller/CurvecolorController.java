@@ -1,5 +1,6 @@
 package com.cm.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cm.entity.CurveColor;
 import com.cm.security.LoginManage;
 import com.cm.service.CurvecolorService;
@@ -33,8 +34,14 @@ public class CurvecolorController {
         try{
             if(color.getId()>0){
                 service.update(color);
+                String remark = JSONObject.toJSONString(color);
+                String operation2 = "修改曲线颜色";
+                loginManage.addLog(request, remark, operation2, 168);
             } else {
                 service.add(color);
+                String remark = JSONObject.toJSONString(color);
+                String operation2 = "增加曲线颜色";
+                loginManage.addLog(request, remark, operation2, 168);
             }
         } catch (Exception e){
             e.printStackTrace();

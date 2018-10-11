@@ -1,6 +1,7 @@
 package com.cm.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.cm.entity.*;
 import com.cm.security.LoginManage;
 import com.cm.service.*;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import sun.misc.Request;
 import util.GetHostName;
 import util.LogOut;
 
@@ -89,11 +91,18 @@ public class FileListController {
             if (property.startsWith("Linux")){
                 String log_path = configService.get("log_path");
                 String fileName = file.getOriginalFilename();
-                String filePath = log_path + fileName;
+                String filePath = log_path + File.separator + fileName;
                 file.transferTo(new File(filePath));
             }
         } catch (Exception e){
             e.printStackTrace();
+            StringBuffer sb = new StringBuffer();
+            StackTraceElement[] stackTrace = e.getStackTrace();
+            for (int i = 0; i < stackTrace.length; i++) {
+                sb.append(stackTrace[i].toString() + "\n");
+            }
+            LogOut.log.error(e.getMessage());
+            LogOut.log.error(sb.toString());
             return result.setStatus(-4,"ok");
         }
 	    return result.setStatus(0, "ok");
@@ -155,6 +164,7 @@ public class FileListController {
                 StackTraceElement element = stackTrace[i];
                 sb.append(element.toString()+"\n");
             }
+            LogOut.log.error(e.getMessage());
             LogOut.log.error(sb.toString());
             result.put("error",sb.toString());
             return result.setStatus(-4,"exception");
@@ -182,6 +192,14 @@ public class FileListController {
             }
         } catch (Exception e){
             e.printStackTrace();
+            StringBuffer sb = new StringBuffer();
+            StackTraceElement[] stackTrace = e.getStackTrace();
+            for (int i = 0; i < stackTrace.length; i++) {
+                StackTraceElement element = stackTrace[i];
+                sb.append(element.toString()+"\n");
+            }
+            LogOut.log.error(e.getMessage());
+            LogOut.log.error(sb.toString());
             return null;
         }
     }
@@ -281,11 +299,21 @@ public class FileListController {
                 Filecontent content = new Filecontent();
                 content.setFilename(fileName);
                 content.setStr(sb.toString());
+                content.setStatus(1);
                 fcService.add(content);
             }
         } catch (Exception e){
             e.printStackTrace();
+            StringBuffer sb = new StringBuffer();
+            StackTraceElement[] stackTrace = e.getStackTrace();
+            for (int i = 0; i < stackTrace.length; i++) {
+                StackTraceElement element = stackTrace[i];
+                sb.append(element.toString()+"\n");
+            }
+            LogOut.log.error(e.getMessage());
+            LogOut.log.error(sb.toString());
         }
+        result.clean();
         return result.setStatus(0,"ok");
     }
 
@@ -305,12 +333,18 @@ public class FileListController {
             return result.setStatus(-1,"no login");
         }
         try{
-            if(!files.getEncryptpath().startsWith("/") || !files.getUncryptpath().startsWith("/")){
-                return result.setStatus(-3,"请输入正确的路劲");
+            String uncryptpath = files.getUncryptpath();
+            String encryptpath = files.getEncryptpath();
+            if (null != uncryptpath && null != encryptpath){
+                if(!files.getEncryptpath().startsWith("/") || !files.getUncryptpath().startsWith("/")){
+                    return result.setStatus(-3,"请输入正确的路劲");
+                }
             }
             Config unencrypt = configService.getConfig("unencrypt_file");
             Config encrypt = configService.getConfig("encrypt_file");
             Config logpath = configService.getConfig("log_path");
+            Config ftp_ip = configService.getConfig("ftp_ip");
+            Config ftp_port = configService.getConfig("ftp_port");
             if(null == unencrypt){
                 unencrypt = new Config();
                 unencrypt.setK("unencrypt_file");
@@ -341,9 +375,40 @@ public class FileListController {
                 logpath.setV(files.getLogpath());
                 configService.update(logpath);
             }
+            if (null == ftp_ip){
+                ftp_ip = new Config();
+                ftp_ip.setK("ftp_ip");
+                ftp_ip.setV(files.getFtp_ip());
+                configService.add(ftp_ip);
+            } else {
+                ftp_ip.setV(files.getFtp_ip());
+                ftp_ip.setK("ftp_ip");
+                configService.update(ftp_ip);
+            }
+            if (null == ftp_port){
+                ftp_port = new Config();
+                ftp_port.setK("ftp_port");
+                ftp_port.setV(files.getFtp_port()+"");
+                configService.add(ftp_port);
+            } else {
+                ftp_port.setK("ftp_port");
+                ftp_port.setV(files.getFtp_port()+"");
+                configService.update(ftp_port);
+            }
+            String remark = JSONObject.toJSONString(files);
+            String operation2 = "修改系统配置";
+            loginManage.addLog(request, remark, operation2, 1510);
             result.put("data",files);
         } catch (Exception e){
             e.printStackTrace();
+            StringBuffer sb = new StringBuffer();
+            StackTraceElement[] stackTrace = e.getStackTrace();
+            for (int i = 0; i < stackTrace.length; i++) {
+                StackTraceElement element = stackTrace[i];
+                sb.append(element.toString()+"\n");
+            }
+            LogOut.log.error(e.getMessage());
+            LogOut.log.error(sb.toString());
             return result.setStatus(-4,"exception");
         }
         return result.setStatus(0, "ok");
@@ -359,13 +424,25 @@ public class FileListController {
             String unencrypt_file = configService.get("unencrypt_file");
             String encrypt_file = configService.get("encrypt_file");
             String log_path = configService.get("log_path");
+            String ftp_ip = configService.get("ftp_ip");
+            String ftp_port = configService.get("ftp_port");
             HashMap<String, String> map = new HashMap<>();
             map.put("uncryptpath",unencrypt_file);
             map.put("encryptpath",encrypt_file);
             map.put("logpath", log_path);
+            map.put("ftp_ip", ftp_ip);
+            map.put("ftp_port", ftp_port);
             result.put("data",map);
         } catch (Exception e){
             e.printStackTrace();
+            StringBuffer sb = new StringBuffer();
+            StackTraceElement[] stackTrace = e.getStackTrace();
+            for (int i = 0; i < stackTrace.length; i++) {
+                StackTraceElement element = stackTrace[i];
+                sb.append(element.toString()+"\n");
+            }
+            LogOut.log.error(e.getMessage());
+            LogOut.log.error(sb.toString());
         }
         return result.setStatus(0,"ok");
     }

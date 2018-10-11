@@ -140,5 +140,42 @@
 			ORDER BY ip,devid,responsetime
 		</where> 
 	</select>
+
+    <select id="getSwitchStateChange" resultType="com.cm.entity.vo.AnaloginfoQuery">
+        SELECT b.sensor_id,a.ip,b.sensorId,b.sensor_type,a.status,a.value minvalue,a.debug,b.alais,b.position,b.sensortype,DATE_FORMAT(a.responsetime,'%Y-%m-%d %H:%i:%S') starttime,a.feedback,b.alarm_status,b.alarmstatus FROM
+        (SELECT ip,devid,type,value,status,responsetime,debug,feedback FROM ${tableName} WHERE responsetime&gt;DATE_SUB(NOW(),INTERVAL 1 MINUTE) AND status&lt;5)a
+        INNER JOIN
+        (SELECT b.ipaddr,a.sensorId,a.sensor_type,d.v sensortype,c.v position,a.alais,a.uid,a.alarm_status,d.k alarmstatus,a.id sensor_id FROM t_switch_sensor a
+        LEFT JOIN t_substation b ON a.station=b.id
+        LEFT JOIN t_static c ON a.sensor_position=c.id
+        LEFT JOIN t_static d ON a.sensor_type=d.id)b ON a.ip=b.ipaddr AND a.devid=b.sensorId AND a.type=b.sensor_type
+        ORDER BY a.devid,a.type,a.responsetime
+    </select>
+
+    <select id="getSensorAlarms" resultType="com.cm.entity.vo.AnaloginfoQuery" parameterType="com.cm.entity.vo.NameTime">
+        SELECT t1.ip,t3.sensor_id,t3.limit_alarm,t3.limit_power,t3.limit_repower,t1.type sensor_type,t1.`status`,
+        t1.startTime starttime,t1.endTime endtime,t1.startValue,MAX(t2.`value`) maxvalues,MIN(t2.`value`) minvalue,ROUND(AVG(t2.`value`),2) avgvalue,
+        t1.measure,t1.measuretime
+        FROM t_analoginfo_query t1
+        left join ${tableName} t2 ON t1.ip=t2.ip AND t1.sensor_id=t2.devid AND (t2.responsetime BETWEEN t1.startTime AND t1.endTime)
+        inner join
+        (select t1.id sensor_id,t1.sensorId,t2.ipaddr,t1.limit_alarm,t1.limit_power,t1.limit_repower
+        from t_sensor t1 left join t_substation t2 on t1.station=t2.id) t3
+        on t1.sensor_id=t3.sensorId and t1.ip=t3.ipaddr
+        WHERE t1.startTime BETWEEN #{starttime} AND #{endtime}
+        GROUP BY t1.ip,t3.sensor_id,t1.startTime
+    </select>
+
+    <select id="getSwitchSensorAlarms" resultType="com.cm.entity.vo.AnaloginfoQuery" parameterType="com.cm.entity.vo.NameTime">
+        SELECT t1.ip,t3.sensor_id,t1.type sensor_type,t1.`status`,t1.startTime starttime,t1.endTime endtime,t1.startValue,t1.measure,t1.measuretime
+        FROM t_analoginfo_query t1
+        left join ${tableName} t2 ON t1.ip=t2.ip AND t1.sensor_id=t2.devid AND (t2.responsetime BETWEEN t1.startTime AND t1.endTime)
+        inner join
+        (select t1.id sensor_id,t1.sensorId,t2.ipaddr
+        from t_switch_sensor t1 left join t_substation t2 on t1.station=t2.id) t3
+        on t1.sensor_id=t3.sensorId and t1.ip=t3.ipaddr
+        WHERE t1.startTime BETWEEN #{starttime} AND #{endtime}
+        GROUP BY t1.ip,t3.sensor_id,t1.startTime
+    </select>
 	
 </mapper>

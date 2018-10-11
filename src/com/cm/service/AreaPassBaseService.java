@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.AreaDailyDao;
 import com.cm.dao.IWorkerInAreaRecDao;
@@ -65,7 +65,7 @@ public class AreaPassBaseService {
 					if(cardId == rfId && areaId == wiar.getAreaId()){
 						status(wiar);
 						wiT = wiar;
-						if(StaticUtilMethod.isLastRec(dailyRecs, i+1))
+						if(UtilMethod.isLastRec(dailyRecs, i+1))
 							dealWithLast();
 					}else{
 						//如果当前记录与入区域记录的员工ID或区域ID不相同，将区域出入记录添加到结果列表
@@ -85,7 +85,7 @@ public class AreaPassBaseService {
 		setVariable(wiar);
 		setNewApT();
 		//处理最后一条记录
-		if(StaticUtilMethod.isLastRec(dailyRecs, i+1))
+		if(UtilMethod.isLastRec(dailyRecs, i+1))
 			dealWithLast();
 	}
 	
@@ -228,7 +228,7 @@ public class AreaPassBaseService {
 	}
 	
 	public void getWellduration(String starttime, String endtime) throws ParseException{
-		LongStringVo lsv = StaticUtilMethod.longToTimeFormat(starttime, endtime);
+		LongStringVo lsv = UtilMethod.longToTimeFormat(starttime, endtime);
 		wellduration = lsv.getTimCast();
 	}
 	

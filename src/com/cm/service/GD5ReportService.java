@@ -5,6 +5,7 @@ import com.cm.dao.ISubstationDao;
 import com.cm.entity.GD5Report;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import util.UtilMethod;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -59,32 +60,34 @@ public class GD5ReportService {
             Iterator<List<GD5Report>> iterator = reportList.iterator();
             while (iterator.hasNext()){
                 List<GD5Report> list1 = iterator.next();
-                GD5Report report = list1.get(0);
-                GD5Report report1 = new GD5Report();
-                report1.setPosition(report.getPosition());
-                report1.setResponsetime(report.getResponsetime());
-                report1.setIp(report.getIp());
-                report1.setType("GD多参数传感器");
-                report1.setDevid(report.getDevid());
-                report1.setFlow_standard(report.getFlow_standard());
-                report1.setFlow_pure(report.getFlow_pure());
-                report1.setFlow_work(report.getFlow_work());
-                double flow_work_sum = 0.0;
-                double flow_pure_sum = 0.0;
-                double flow_standard_sum = 0.0;
-                for (GD5Report gd5Report : list1) {
-                    flow_pure_sum += gd5Report.getFlow_pure_sum();
-                    flow_standard_sum += gd5Report.getFlow_standard_sum();
-                    flow_work_sum += gd5Report.getFlow_work_sum();
+                if (UtilMethod.notEmptyList(list1)){
+                    GD5Report report = list1.get(0);
+                    GD5Report report1 = new GD5Report();
+                    report1.setPosition(report.getPosition());
+                    report1.setResponsetime(report.getResponsetime());
+                    report1.setIp(report.getIp());
+                    report1.setType("GD多参数传感器");
+                    report1.setDevid(report.getDevid());
+                    report1.setFlow_standard(report.getFlow_standard());
+                    report1.setFlow_pure(report.getFlow_pure());
+                    report1.setFlow_work(report.getFlow_work());
+                    double flow_work_sum = 0.0;
+                    double flow_pure_sum = 0.0;
+                    double flow_standard_sum = 0.0;
+                    for (GD5Report gd5Report : list1) {
+                        flow_pure_sum += gd5Report.getFlow_pure_sum();
+                        flow_standard_sum += gd5Report.getFlow_standard_sum();
+                        flow_work_sum += gd5Report.getFlow_work_sum();
+                    }
+                    report1.setFlow_standard_sum(flow_standard_sum);
+                    report1.setFlow_pure_sum(flow_pure_sum);
+                    report1.setFlow_work_sum(flow_work_sum);
+                    report1.setTemperature(report.getTemperature());
+                    report1.setPressure(report.getPressure());
+                    report1.setWasi(report.getWasi());
+                    report1.setCo(report.getCo());
+                    gd5ReportList.add(report1);
                 }
-                report1.setFlow_standard_sum(flow_standard_sum);
-                report1.setFlow_pure_sum(flow_pure_sum);
-                report1.setFlow_work_sum(flow_work_sum);
-                report1.setTemperature(report.getTemperature());
-                report1.setPressure(report.getPressure());
-                report1.setWasi(report.getWasi());
-                report1.setCo(report.getCo());
-                gd5ReportList.add(report1);
             }
 
         } catch (Exception e){
@@ -129,32 +132,34 @@ public class GD5ReportService {
             Iterator<List<GD5Report>> iterator = reportList.iterator();
             while (iterator.hasNext()){
                 List<GD5Report> list1 = iterator.next();
-                GD5Report report = list1.get(0);
-                GD5Report report1 = new GD5Report();
-                report1.setPosition(report.getPosition());
-                report1.setResponsetime(report.getResponsetime());
-                report1.setIp(report.getIp());
-                report1.setType("GD多参数传感器");
-                report1.setDevid(report.getDevid());
-                report1.setFlow_standard(report.getFlow_standard());
-                report1.setFlow_pure(report.getFlow_pure());
-                report1.setFlow_work(report.getFlow_work());
-                double flow_work_sum = 0.0;
-                double flow_pure_sum = 0.0;
-                double flow_standard_sum = 0.0;
-                for (GD5Report gd5Report : list1) {
-                    flow_pure_sum += gd5Report.getFlow_pure_sum();
-                    flow_standard_sum += gd5Report.getFlow_standard_sum();
-                    flow_work_sum += gd5Report.getFlow_work_sum();
+                if (UtilMethod.notEmptyList(list1)){
+                    GD5Report report = list1.get(0);
+                    GD5Report report1 = new GD5Report();
+                    report1.setPosition(report.getPosition());
+                    report1.setResponsetime(report.getResponsetime());
+                    report1.setIp(report.getIp());
+                    report1.setType("GD多参数传感器");
+                    report1.setDevid(report.getDevid());
+                    report1.setFlow_standard(report.getFlow_standard());
+                    report1.setFlow_pure(report.getFlow_pure());
+                    report1.setFlow_work(report.getFlow_work());
+                    double flow_work_sum = 0.0;
+                    double flow_pure_sum = 0.0;
+                    double flow_standard_sum = 0.0;
+                    for (GD5Report gd5Report : list1) {
+                        flow_pure_sum += gd5Report.getFlow_pure_sum();
+                        flow_standard_sum += gd5Report.getFlow_standard_sum();
+                        flow_work_sum += gd5Report.getFlow_work_sum();
+                    }
+                    report1.setFlow_standard_sum(flow_standard_sum);
+                    report1.setFlow_pure_sum(flow_pure_sum);
+                    report1.setFlow_work_sum(flow_work_sum);
+                    report1.setTemperature(report.getTemperature());
+                    report1.setPressure(report.getPressure());
+                    report1.setWasi(report.getWasi());
+                    report1.setCo(report.getCo());
+                    gd5ReportList.add(report1);
                 }
-                report1.setFlow_standard_sum(flow_standard_sum);
-                report1.setFlow_pure_sum(flow_pure_sum);
-                report1.setFlow_work_sum(flow_work_sum);
-                report1.setTemperature(report.getTemperature());
-                report1.setPressure(report.getPressure());
-                report1.setWasi(report.getWasi());
-                report1.setCo(report.getCo());
-                gd5ReportList.add(report1);
             }
 
         } catch (Exception e){
@@ -199,32 +204,35 @@ public class GD5ReportService {
             Iterator<List<GD5Report>> iterator = reportList.iterator();
             while (iterator.hasNext()){
                 List<GD5Report> list1 = iterator.next();
-                GD5Report report = list1.get(0);
-                GD5Report report1 = new GD5Report();
-                report1.setPosition(report.getPosition());
-                report1.setResponsetime(report.getResponsetime());
-                report1.setIp(report.getIp());
-                report1.setType("GD多参数传感器");
-                report1.setDevid(report.getDevid());
-                report1.setFlow_standard(report.getFlow_standard());
-                report1.setFlow_pure(report.getFlow_pure());
-                report1.setFlow_work(report.getFlow_work());
-                double flow_work_sum = 0.0;
-                double flow_pure_sum = 0.0;
-                double flow_standard_sum = 0.0;
-                for (GD5Report gd5Report : list1) {
-                    flow_pure_sum += gd5Report.getFlow_pure_sum();
-                    flow_standard_sum += gd5Report.getFlow_standard_sum();
-                    flow_work_sum += gd5Report.getFlow_work_sum();
+                if (UtilMethod.notEmptyList(list1)){
+
+                    GD5Report report = list1.get(0);
+                    GD5Report report1 = new GD5Report();
+                    report1.setPosition(report.getPosition());
+                    report1.setResponsetime(report.getResponsetime());
+                    report1.setIp(report.getIp());
+                    report1.setType("GD多参数传感器");
+                    report1.setDevid(report.getDevid());
+                    report1.setFlow_standard(report.getFlow_standard());
+                    report1.setFlow_pure(report.getFlow_pure());
+                    report1.setFlow_work(report.getFlow_work());
+                    double flow_work_sum = 0.0;
+                    double flow_pure_sum = 0.0;
+                    double flow_standard_sum = 0.0;
+                    for (GD5Report gd5Report : list1) {
+                        flow_pure_sum += gd5Report.getFlow_pure_sum();
+                        flow_standard_sum += gd5Report.getFlow_standard_sum();
+                        flow_work_sum += gd5Report.getFlow_work_sum();
+                    }
+                    report1.setFlow_standard_sum(flow_standard_sum);
+                    report1.setFlow_pure_sum(flow_pure_sum);
+                    report1.setFlow_work_sum(flow_work_sum);
+                    report1.setTemperature(report.getTemperature());
+                    report1.setPressure(report.getPressure());
+                    report1.setWasi(report.getWasi());
+                    report1.setCo(report.getCo());
+                    gd5ReportList.add(report1);
                 }
-                report1.setFlow_standard_sum(flow_standard_sum);
-                report1.setFlow_pure_sum(flow_pure_sum);
-                report1.setFlow_work_sum(flow_work_sum);
-                report1.setTemperature(report.getTemperature());
-                report1.setPressure(report.getPressure());
-                report1.setWasi(report.getWasi());
-                report1.setCo(report.getCo());
-                gd5ReportList.add(report1);
             }
 
         } catch (Exception e){
@@ -249,7 +257,7 @@ public class GD5ReportService {
             Calendar next = Calendar.getInstance();
             Calendar center = Calendar.getInstance();
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM");
-            Map<Date, Date> map = getDate(startime, endtime, "yyyy-MM", Calendar.MONTH, 4);
+            Map<Date, Date> map = getDate(startime, endtime, "yyyy-MM", Calendar.MONTH, 3);
             for (Map.Entry<Date, Date> entry : map.entrySet()) {
                 previous.setTime(entry.getKey());
                 next.setTime(entry.getValue());
@@ -269,32 +277,34 @@ public class GD5ReportService {
             Iterator<List<GD5Report>> iterator = reportList.iterator();
             while (iterator.hasNext()){
                 List<GD5Report> list1 = iterator.next();
-                GD5Report report = list1.get(0);
-                GD5Report report1 = new GD5Report();
-                report1.setPosition(report.getPosition());
-                report1.setResponsetime(report.getResponsetime());
-                report1.setIp(report.getIp());
-                report1.setType("GD多参数传感器");
-                report1.setDevid(report.getDevid());
-                report1.setFlow_standard(report.getFlow_standard());
-                report1.setFlow_pure(report.getFlow_pure());
-                report1.setFlow_work(report.getFlow_work());
-                double flow_work_sum = 0.0;
-                double flow_pure_sum = 0.0;
-                double flow_standard_sum = 0.0;
-                for (GD5Report gd5Report : list1) {
-                    flow_pure_sum += gd5Report.getFlow_pure_sum();
-                    flow_standard_sum += gd5Report.getFlow_standard_sum();
-                    flow_work_sum += gd5Report.getFlow_work_sum();
+                if (UtilMethod.notEmptyList(list1)){
+                    GD5Report report = list1.get(0);
+                    GD5Report report1 = new GD5Report();
+                    report1.setPosition(report.getPosition());
+                    report1.setResponsetime(report.getResponsetime());
+                    report1.setIp(report.getIp());
+                    report1.setType("GD多参数传感器");
+                    report1.setDevid(report.getDevid());
+                    report1.setFlow_standard(report.getFlow_standard());
+                    report1.setFlow_pure(report.getFlow_pure());
+                    report1.setFlow_work(report.getFlow_work());
+                    double flow_work_sum = 0.0;
+                    double flow_pure_sum = 0.0;
+                    double flow_standard_sum = 0.0;
+                    for (GD5Report gd5Report : list1) {
+                        flow_pure_sum += gd5Report.getFlow_pure_sum();
+                        flow_standard_sum += gd5Report.getFlow_standard_sum();
+                        flow_work_sum += gd5Report.getFlow_work_sum();
+                    }
+                    report1.setFlow_standard_sum(flow_standard_sum);
+                    report1.setFlow_pure_sum(flow_pure_sum);
+                    report1.setFlow_work_sum(flow_work_sum);
+                    report1.setTemperature(report.getTemperature());
+                    report1.setPressure(report.getPressure());
+                    report1.setWasi(report.getWasi());
+                    report1.setCo(report.getCo());
+                    gd5ReportList.add(report1);
                 }
-                report1.setFlow_standard_sum(flow_standard_sum);
-                report1.setFlow_pure_sum(flow_pure_sum);
-                report1.setFlow_work_sum(flow_work_sum);
-                report1.setTemperature(report.getTemperature());
-                report1.setPressure(report.getPressure());
-                report1.setWasi(report.getWasi());
-                report1.setCo(report.getCo());
-                gd5ReportList.add(report1);
             }
 
         } catch (Exception e){
@@ -339,34 +349,35 @@ public class GD5ReportService {
             Iterator<List<GD5Report>> iterator = reportList.iterator();
             while (iterator.hasNext()){
                 List<GD5Report> list1 = iterator.next();
-                GD5Report report = list1.get(0);
-                GD5Report report1 = new GD5Report();
-                report1.setPosition(report.getPosition());
-                report1.setResponsetime(report.getResponsetime());
-                report1.setIp(report.getIp());
-                report1.setType("GD多参数传感器");
-                report1.setDevid(report.getDevid());
-                report1.setFlow_standard(report.getFlow_standard());
-                report1.setFlow_pure(report.getFlow_pure());
-                report1.setFlow_work(report.getFlow_work());
-                double flow_work_sum = 0.0;
-                double flow_pure_sum = 0.0;
-                double flow_standard_sum = 0.0;
-                for (GD5Report gd5Report : list1) {
-                    flow_pure_sum += gd5Report.getFlow_pure_sum();
-                    flow_standard_sum += gd5Report.getFlow_standard_sum();
-                    flow_work_sum += gd5Report.getFlow_work_sum();
+                if (UtilMethod.notEmptyList(list1)){
+                    GD5Report report = list1.get(0);
+                    GD5Report report1 = new GD5Report();
+                    report1.setPosition(report.getPosition());
+                    report1.setResponsetime(report.getResponsetime());
+                    report1.setIp(report.getIp());
+                    report1.setType("GD多参数传感器");
+                    report1.setDevid(report.getDevid());
+                    report1.setFlow_standard(report.getFlow_standard());
+                    report1.setFlow_pure(report.getFlow_pure());
+                    report1.setFlow_work(report.getFlow_work());
+                    double flow_work_sum = 0.0;
+                    double flow_pure_sum = 0.0;
+                    double flow_standard_sum = 0.0;
+                    for (GD5Report gd5Report : list1) {
+                        flow_pure_sum += gd5Report.getFlow_pure_sum();
+                        flow_standard_sum += gd5Report.getFlow_standard_sum();
+                        flow_work_sum += gd5Report.getFlow_work_sum();
+                    }
+                    report1.setFlow_standard_sum(flow_standard_sum);
+                    report1.setFlow_pure_sum(flow_pure_sum);
+                    report1.setFlow_work_sum(flow_work_sum);
+                    report1.setTemperature(report.getTemperature());
+                    report1.setPressure(report.getPressure());
+                    report1.setWasi(report.getWasi());
+                    report1.setCo(report.getCo());
+                    gd5ReportList.add(report1);
                 }
-                report1.setFlow_standard_sum(flow_standard_sum);
-                report1.setFlow_pure_sum(flow_pure_sum);
-                report1.setFlow_work_sum(flow_work_sum);
-                report1.setTemperature(report.getTemperature());
-                report1.setPressure(report.getPressure());
-                report1.setWasi(report.getWasi());
-                report1.setCo(report.getCo());
-                gd5ReportList.add(report1);
             }
-
         } catch (Exception e){
             e.printStackTrace();
             return null;

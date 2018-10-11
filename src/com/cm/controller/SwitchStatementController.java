@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
@@ -89,7 +89,7 @@ public class SwitchStatementController {
                         String nowtime = sdf.format(new Date());
                         warning.setEndtime(nowtime);
                     }
-                    LongStringVo longTime = StaticUtilMethod.longToTimeFormat(warning.getStarttime(), warning.getEndtime());
+                    LongStringVo longTime = UtilMethod.longToTimeFormat(warning.getStarttime(), warning.getEndtime());
                     warning.setWellduration(longTime.getTimCast());
                     if (null != time) {
                         time += longTime.getTime();
@@ -110,7 +110,7 @@ public class SwitchStatementController {
                     warningVo.setSensor_position(list2.get(0).getSensor_position());
                     warningVo.setTotalnum(list2.size());
                     Long totalTime = timeMap.get(list2.get(0).getIp() + ":" + list2.get(0).getSensorId());
-                    String timeCast = StaticUtilMethod.countTimeCast(totalTime);
+                    String timeCast = UtilMethod.countTimeCast(totalTime);
                     warningVo.setCountTime(timeCast);
                     warningVo.setMeasureId(list2.get(0).getMeasureId());
                     warningVo.setMeasure(list2.get(0).getMeasure());
@@ -240,7 +240,7 @@ public class SwitchStatementController {
 	    if(null == para.getStarttime()){
 	        return false;
         }
-	    if(null != para.getStarttime() && null == para.getEndtime()){
+	    if(null != para.getStarttime()){
             boolean start = valiDateTimeWithLongFormat(para.getStarttime());
             if(start)
                 return true;

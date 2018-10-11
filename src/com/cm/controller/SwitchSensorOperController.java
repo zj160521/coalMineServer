@@ -67,10 +67,16 @@ public class SwitchSensorOperController {
                     if(message.getStatus() == 0){
                         log.setFeedback("传感器手动控制成功");
                         logService.addSensorLog(log);
+                        String remark = JSONObject.toJSONString(log);
+                        String operation2 = "手动控制设备" + sensor.getAlais();
+                        loginManage.addLog(request, remark, operation2, 172);
                         return result.setStatus(0,"ok");
                     }else{
                         log.setFeedback(message.getResponse());
                         logService.addSensorLog(log);
+                        String remark = JSONObject.toJSONString(log);
+                        String operation2 = "手动控制设备" + sensor.getAlais();
+                        loginManage.addLog(request, remark, operation2, 172);
                         return result.setStatus(message.getStatus(),message.getResponse());
                     }
                 }
@@ -78,7 +84,7 @@ public class SwitchSensorOperController {
                 Thread.sleep(100);
             }
             String remark = JSONObject.toJSONString(log);
-            String operation2 = "手动控制设备" + log.getUid();
+            String operation2 = "手动控制设备" + sensor.getAlais();
             loginManage.addLog(request, remark, operation2, 172);
 		} catch (Exception e) {
 			e.printStackTrace();

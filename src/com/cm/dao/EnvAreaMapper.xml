@@ -111,7 +111,7 @@
 		WHERE t5.control!=3 AND t5.area_id=#{area_id}
 	</select>
 
-    <select id="getByid" resultType="com.cm.entity.Area">
+    <select id="getByid" resultType="com.cm.entity.EnvArea">
 		select * from t_env_area where id=#{id}
 	</select>
 

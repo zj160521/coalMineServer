@@ -25,7 +25,9 @@ public class SensorCall {
 	private String[] feedstastus;//馈电状态、时刻
 	private String measure;//措施
 	private String measuretime;//措施时间
-	private List<Integer> feedIds; 
+	private List<Integer> feedIds;
+	private String maxvaluestime;
+	private String minvaluetime;
 	public int getId() {
 		return id;
 	}
@@ -154,7 +156,19 @@ public class SensorCall {
 	public void setFeedIds(List<Integer> feedIds) {
 		this.feedIds = feedIds;
 	}
-
+	public String getMaxvaluestime() {
+		return maxvaluestime;
+	}
+	public void setMaxvaluestime(String maxvaluestime) {
+		this.maxvaluestime = maxvaluestime;
+	}
+	public String getMinvaluetime() {
+		return minvaluetime;
+	}
+	public void setMinvaluetime(String minvaluetime) {
+		this.minvaluetime = minvaluetime;
+	}
+	
 	
 	
 }

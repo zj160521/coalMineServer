@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import util.LogOut;
 import util.RedisPool;
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -28,9 +28,6 @@ public class GD5StatisticsService {
     private SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd");
     private SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private DecimalFormat df2 = new DecimalFormat("#.##");
-    private final String lockKey = "GD5Statistics";
-    private final String requestId = UUID.randomUUID().toString();
-    private long expireTime = 10000L;
 
     private String startTime;
     private String endTime;
@@ -38,6 +35,9 @@ public class GD5StatisticsService {
     @Scheduled(cron = "0 0 0/1 * * ?")
     public void GD5(){
         try{
+            String lockKey = "GD5Statistics";
+            String requestId = UUID.randomUUID().toString();
+            long expireTime = 10000l;
             boolean lock = RedisPool.tryGetDistributedLock(lockKey, requestId, expireTime);
             if (lock) {
                 Calendar calendar = Calendar.getInstance();
@@ -46,25 +46,27 @@ public class GD5StatisticsService {
                     calendar.add(Calendar.DAY_OF_MONTH, -1);
                     String tableName = "t_gd5_" + df.format(calendar.getTime());
                     List<GD5Report> baseDate = getBaseDate(tableName);
-                    if (StaticUtilMethod.notNullOrEmptyList(baseDate)) {
+                    if (UtilMethod.notEmptyList(baseDate)) {
                         reportDao.addGD5Statistics(baseDate);
                     }
                 } else {
                     String tableName = "t_gd5_" + df.format(calendar.getTime());
                     List<GD5Report> baseDate = getBaseDate(tableName);
-                    if (StaticUtilMethod.notNullOrEmptyList(baseDate)) {
+                    if (UtilMethod.notEmptyList(baseDate)) {
                         reportDao.addGD5Statistics(baseDate);
                     }
                 }
                 RedisPool.releaseDistributedLock(lockKey, requestId);
             }
         } catch (Exception e){
-            StringBuffer sb = new StringBuffer();
             e.printStackTrace();
+            StringBuffer sb = new StringBuffer();
             StackTraceElement[] stackTrace = e.getStackTrace();
             for (int i = 0; i < stackTrace.length; i++) {
-                sb.append(stackTrace[i].toString());
+                StackTraceElement element = stackTrace[i];
+                sb.append(element.toString()+"\n");
             }
+            LogOut.log.error(e.getMessage());
             LogOut.log.error(sb.toString());
         }
     }
@@ -90,10 +92,10 @@ public class GD5StatisticsService {
         }
         List<GD5Report> dateList = new ArrayList<>();
         List<GD5Report> list = reportDao.getAllByTime(startTime, endTime, tableName);
-        if (StaticUtilMethod.notNullOrEmptyList(list)){
+        if (UtilMethod.notEmptyList(list)){
             Map<String, List<GD5Report>> baseDateMap = getBaseDateMap(list);
             for (List<GD5Report> reports : baseDateMap.values()) {
-                if (StaticUtilMethod.notNullOrEmptyList(reports)){
+                if (UtilMethod.notEmptyList(reports)){
                     GD5Report report = new GD5Report();
                     GD5Report gd5Report = reports.get(0);
                     report.setSensor_type(gd5Report.getSensor_type());

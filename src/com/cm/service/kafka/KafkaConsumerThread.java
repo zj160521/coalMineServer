@@ -3,8 +3,11 @@ package com.cm.service.kafka;
 import com.cm.controller.WebSocketController;
 import com.cm.entity.*;
 import com.cm.security.RedisClient;
+
 import net.sf.json.JSONObject;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+
 import redis.clients.jedis.Jedis;
 import util.LogOut;
 
@@ -28,6 +31,7 @@ public class KafkaConsumerThread extends Thread{
 	private ReaderPeople readerPeople = new ReaderPeople();
 	private List sendList = new ArrayList<String>();
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {
 		LogOut.log.debug("接收上报消息线程开始");
@@ -207,6 +211,7 @@ public class KafkaConsumerThread extends Thread{
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void sendMsg() {
 		if (sendList.size() > 0) {
 			StringBuilder msgbuilder = new StringBuilder();

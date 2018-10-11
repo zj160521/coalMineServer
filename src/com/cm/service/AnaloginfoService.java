@@ -12,7 +12,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.AnaloginfoDao;
 import com.cm.entity.AnalogQuery;
@@ -39,12 +39,12 @@ public class AnaloginfoService {
 				l.setMaxtime(query.getMaxtime());
 			}
 			if(l.getStarttime()!=null&&l.getEndtime()!=null){
-				LongStringVo stringVo = StaticUtilMethod.longToTimeFormat(l.getStarttime(), l.getEndtime());
+				LongStringVo stringVo = UtilMethod.longToTimeFormat(l.getStarttime(), l.getEndtime());
 				l.setTimes(stringVo.getTimCast());
 			}else if(l.getStarttime()!=null&&l.getEndtime()==null){
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				String time3 =format.format(new Date());
-				LongStringVo stringVo = StaticUtilMethod.longToTimeFormat(l.getStarttime(), time3);
+				LongStringVo stringVo = UtilMethod.longToTimeFormat(l.getStarttime(), time3);
 				l.setTimes(stringVo.getTimCast());
 				l.setEndtime("至今");
 			}

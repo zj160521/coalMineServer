@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 
-public class StaticUtilMethod {
+public class UtilMethod {
 	
 	private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
@@ -20,7 +20,7 @@ public class StaticUtilMethod {
 	 * @param str
 	 * @return
 	 */
-	public static boolean notNullOrEmptyStr(String str){
+	public static boolean notEmptyStr(String str){
 		return (str != null && !str.isEmpty()) ? true : false;
 	}
 	
@@ -39,7 +39,7 @@ public class StaticUtilMethod {
 	 * @param list
 	 * @return
 	 */
-	public static boolean notNullOrEmptyList(List<?> list){
+	public static boolean notEmptyList(List<?> list){
 		return (list != null && !list.isEmpty()) ? true : false;
 	}
 
@@ -283,7 +283,7 @@ public class StaticUtilMethod {
      * @return
      */
     public static boolean isTimeString(String str){
-    	if(!StaticUtilMethod.notNullOrEmptyStr(str))
+    	if(!UtilMethod.notEmptyStr(str))
     		return false;
     	try {
 			df.parse(str);

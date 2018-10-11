@@ -284,8 +284,7 @@
 		t3.max_frequency,t3.max_range,t3.middle_rang,t3.min_frequency,t3.min_range,
 		t3.n_point,t3.sensorId,t3.sensor_position,t3.sensor_type,
 		t6.k sensorUnit,t6.v type,t7.v position,t4.ipaddr,t5.id cid,t5.`value`,t5.responsetime filltime
-		FROM t_drainage t1 
-		LEFT JOIN t_drainage_sensor t2 ON t2.drainageId=t1.id
+		FROM t_drainage t1
 		LEFT JOIN t_sensor t3 ON t3.id=t2.sensorId AND t3.control!=3
 		LEFT JOIN t_substation t4 ON t4.id=t3.station
 		LEFT JOIN t_coalMine t5 ON t5.ip=t4.ipaddr AND t5.devid=t3.sensorId AND t5.type=t3.sensor_type AND responsetime BETWEEN #{starttime} AND NOW()
@@ -315,7 +314,6 @@
         LEFT JOIN t_substation sub ON tr.station=sub.id
         LEFT JOIN t_static tct ON tr.sensor_type=tct.id
         LEFT JOIN t_area tas ON tr.area_id=tas.id
-        LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
         LEFT JOIN t_dev_link tdl ON tr.devlinkId=tdl.id
         LEFT JOIN t_dev_link tdl1 ON tr.floorDevlinkId=tdl1.id
         where tr.control!=3 and tr.sensor_type=37
@@ -335,7 +333,6 @@
         LEFT JOIN t_substation sub ON tr.station=sub.id
         LEFT JOIN t_static tct ON tr.sensor_type=tct.id
         LEFT JOIN t_area tas ON tr.area_id=tas.id
-        LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
         LEFT JOIN t_dev_link tdl ON tr.devlinkId=tdl.id
         LEFT JOIN t_dev_link tdl1 ON tr.floorDevlinkId=tdl1.id
         where tr.control!=3 and (tr.sensor_type=32 or tr.sensor_type=33 or tr.sensor_type=34 or tr.sensor_type=35 or tr.sensor_type=70 or tr.sensor_type=80)
@@ -381,8 +378,7 @@
 		t5.ipaddr
 		FROM t_drainage t1
 		LEFT JOIN t_drainage t2 ON t2.pid=t1.id
-		LEFT JOIN t_drainage_sensor t3 ON t2.id=t3.drainageId
-		LEFT JOIN t_switch_sensor t4 ON t4.id=t3.sensorId AND t4.control!=3
+		LEFT JOIN t_switch_sensor t4 AND t4.control!=3
 		LEFT JOIN t_substation t5 ON t5.id=t4.station
 		LEFT JOIN t_static t6 ON t6.id=t4.sensor_type
 		LEFT JOIN t_static t7 ON t7.id=t4.sensor_position

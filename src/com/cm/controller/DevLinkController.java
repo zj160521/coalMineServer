@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.sf.json.JSONObject;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
@@ -16,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import util.ListUtil;
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.DevLinkDao;
 import com.cm.entity.DevAction;
@@ -25,6 +27,7 @@ import com.cm.entity.vo.DevLogicVo;
 import com.cm.entity.vo.GroupLgc;
 import com.cm.entity.vo.Ids;
 import com.cm.security.LoginManage;
+import com.cm.service.LinkService;
 
 @Scope("prototype")
 @Controller
@@ -33,9 +36,11 @@ public class DevLinkController {
 	@Autowired
 	private ResultObj result;
 	@Autowired
-	private LoginManage loginManage;
-	@Autowired
 	private DevLinkDao dlDao;
+	@Autowired
+	private LinkService service;
+	@Autowired
+	private LoginManage loginManage;
 	
 	@SuppressWarnings("rawtypes")
 	private ArrayList addList;
@@ -54,37 +59,7 @@ public class DevLinkController {
 	@RequestMapping(value = "/addupLinkGroup",method=RequestMethod.POST)
 	@ResponseBody
 	public Object setDevLink(@RequestBody DevLinkVo devLink, HttpServletRequest request){
-		if(devLink.getPid() >= 0){
-			//插入联动组信息，并获取组ID
-			DevLinkVo dlg = getGroup(devLink);
-			//初始化列表
-			initDataList();
-			
-			//设备逻辑构建
-			List<DevLogicVo> listLgc = devLink.getListLgc();
-			if(ListUtil.notEmptyList(listLgc)){
-				setExps(listLgc, dlg);//构建联动组表达式
-			}
-			//增加或更新联动逻辑
-			addUpLgcList();
-			
-			//联动动作构建
-			initDataList();
-			List<DevAction> listCutOut = devLink.getListCutOut();//开关量
-			if(ListUtil.notEmptyList(listCutOut)) setCut(listCutOut, dlg);
-			List<DevAction> listRadio = devLink.getListRadio();//语音广播
-			dlDao.delActByGrp(dlg.getId(),65);
-			if(ListUtil.notEmptyList(listRadio)) setRadio(listRadio, dlg, devLink);
-			List<DevAction> listCardReader = devLink.getListCardReader();//读卡器
-			dlDao.delActByGrp(dlg.getId(),64);
-			if(ListUtil.notEmptyList(listCardReader)) setCardReader(listCardReader, dlg);
-			addUpActList();
-		}else{
-			dlDao.addLgcGroup(devLink);
-			result.put("id", devLink.getId());
-		}
-		
-		return result.setStatus(0, "ok");
+		return service.setDevLink(devLink, request);
 	}
 	
 	public void initDataList(){
@@ -143,21 +118,30 @@ public class DevLinkController {
 	}
 	
 	public void setGrpupExps(int size, DevLinkVo dlg, int count, DevLogicVo dlv){
-		if(count == 1) dlg.setLgcExps(null);
-		if(dlv.getSole() == 1) return;//跳过删除了的设备表达式
+		if(count == 1) {
+			dlg.setLgcExps(null);
+			dlg.setRepowerExps(null);
+		}
+		if(dlv.getSole() == 1) {
+			if(count == size) dlg.setLgcExps(dlg.getLgcExps().concat("].count(True) >= ").concat(dlg.getLeastNum()+""));
+			return;//跳过删除了的设备表达式
+		}
 		if(dlv.getScene() == 2){//情景模式2
 			dlg.setLgcExps(dlv.getLgcExps().concat(" and ").concat(dlv.getUid2()));
 		}else if(size > 0 && size > dlg.getLeastNum()){//设备数大于条件数
-			if(count == 1){
+			if(count == 1 || dlg.getLgcExps() == null){
 				dlg.setLgcExps("[".concat(dlv.getLgcExps()));
-				if(StaticUtilMethod.notNullOrEmptyStr(dlv.getLgcOperator2()) || StaticUtilMethod.notNullOrEmptyStr(dlv.getLgcOperator3()))
+				if(UtilMethod.notEmptyStr(dlv.getLgcOperator2()) 
+						|| UtilMethod.notEmptyStr(dlv.getLgcOperator3())
+						|| (UtilMethod.notEmptyStr(dlv.getDebugList()) && !dlv.getDebugList().equals("[]")))
 					dlg.setRepowerExps(dlv.getRepowerExps());
 			}else{
-				if (dlg.getLgcExps() != null)
-				 dlg.setLgcExps(dlg.getLgcExps().concat(",").concat(dlv.getLgcExps()));
+				if (dlg.getLgcExps() != null) dlg.setLgcExps(dlg.getLgcExps().concat(",").concat(dlv.getLgcExps()));
 				else dlg.setLgcExps(dlv.getLgcExps());
-				if(StaticUtilMethod.notNullOrEmptyStr(dlv.getLgcOperator2()) || StaticUtilMethod.notNullOrEmptyStr(dlv.getLgcOperator3())){
-					String reStr = StaticUtilMethod.notNullOrEmptyStr(dlg.getRepowerExps()) ? 
+				if(UtilMethod.notEmptyStr(dlv.getLgcOperator2()) 
+						|| UtilMethod.notEmptyStr(dlv.getLgcOperator3())
+						|| (UtilMethod.notEmptyStr(dlv.getDebugList()) && !dlv.getDebugList().equals("[]"))){
+					String reStr = UtilMethod.notEmptyStr(dlg.getRepowerExps()) ? 
 							dlg.getRepowerExps().concat(" and ").concat(dlv.getRepowerExps()) : dlv.getRepowerExps();
 					dlg.setRepowerExps(reStr);
 				}
@@ -169,14 +153,16 @@ public class DevLinkController {
 		}else if(size == dlg.getLeastNum()){//设备数等于条件数
 			if(count == 1){
 				dlg.setLgcExps(dlv.getLgcExps());
-				if(StaticUtilMethod.notNullOrEmptyStr(dlv.getLgcOperator2()) || StaticUtilMethod.notNullOrEmptyStr(dlv.getLgcOperator3()))
+				if(UtilMethod.notEmptyStr(dlv.getLgcOperator2()) || UtilMethod.notEmptyStr(dlv.getLgcOperator3())
+						|| (UtilMethod.notEmptyStr(dlv.getDebugList()) && !dlv.getDebugList().equals("[]")))
 					dlg.setRepowerExps(dlv.getRepowerExps());
 			}else{
-				String exps = StaticUtilMethod.notNullOrEmptyStr(dlg.getLgcExps()) ? dlg.getLgcExps().concat(",").concat(dlv.getLgcExps()) 
+				String exps = UtilMethod.notEmptyStr(dlg.getLgcExps()) ? dlg.getLgcExps().concat(",").concat(dlv.getLgcExps()) 
 						: dlv.getLgcExps();
 				dlg.setLgcExps(exps);
-				if(StaticUtilMethod.notNullOrEmptyStr(dlv.getLgcOperator2()) || StaticUtilMethod.notNullOrEmptyStr(dlv.getLgcOperator3())){
-					String reStr = StaticUtilMethod.notNullOrEmptyStr(dlg.getRepowerExps()) ? 
+				if(UtilMethod.notEmptyStr(dlv.getLgcOperator2()) || UtilMethod.notEmptyStr(dlv.getLgcOperator3())
+						|| (UtilMethod.notEmptyStr(dlv.getDebugList()) && !dlv.getDebugList().equals("[]"))){
+					String reStr = UtilMethod.notEmptyStr(dlg.getRepowerExps()) ? 
 							dlg.getRepowerExps().concat(" and ").concat(dlv.getRepowerExps()) : dlv.getRepowerExps();
 					dlg.setRepowerExps(reStr);
 				}
@@ -185,7 +171,7 @@ public class DevLinkController {
 	}
 	
 	public void setSwitchRep(DevLogicVo dlv){
-		if(dlv.getType() == 25 && !(dlv.getScene() > 0)){
+		if(UtilMethod.notEmptyStr(dlv.getLgcOperator()) && dlv.getType() == 25 && !(dlv.getScene() > 0)){
 			dlv.setLgcOperator2("==");
 			dlv.setValue2(Math.abs(dlv.getValue() - 1));
 		}
@@ -193,10 +179,11 @@ public class DevLinkController {
 	
 	public void exps(DevLogicVo dlv){
 		dlv.setLgcExps(null);
+		dlv.setRepowerExps(null);
 		//监测值表达式构建
-		if(StaticUtilMethod.notNullOrEmptyStr(dlv.getDev2()) && dlv.getScene() != 2)
+		if(UtilMethod.notEmptyStr(dlv.getDev2()) && dlv.getScene() != 2)//设备之间比较
 			dlv.setLgcExps("("+dlv.getUid() + dlv.getLgcOperator()+dlv.getUid2()+")");
-		else if(StaticUtilMethod.notNullOrEmptyStr(dlv.getLgcOperator()))
+		else if(UtilMethod.notEmptyStr(dlv.getLgcOperator()))//设备与值比较
 			dlv.setLgcExps("("+dlv.getUid() + dlv.getLgcOperator()+dlv.getValue()+")");
 		
 		//通讯中断表达式构建
@@ -210,14 +197,17 @@ public class DevLinkController {
 		}
 		//debug表达式构建
 		String debug = dlv.getDebugList();
-		if (StaticUtilMethod.notNullOrEmptyStr(debug) && !debug.equals("[]")){
+		if (UtilMethod.notEmptyStr(debug) && !debug.equals("[]")){
 			String str = dlv.getLgcExps() == null ? "("+dlv.getUid() + "_D in " + debug+")" 
 					: dlv.getLgcExps() + " or (" +dlv.getUid() + "_D in " + debug+")";
 			dlv.setLgcExps(str);
+			String re = dlv.getRepowerExps() == null ? "("+dlv.getUid() + "_D not in " + debug+")" 
+					: dlv.getRepowerExps() + " and ("+dlv.getUid() + "_D not in " + debug+")";
+			dlv.setRepowerExps(re);
 		}
 		//监测值变化
 		if(dlv.getValue_change() != null){
-			if(dlv.getValue_change() == 0 || dlv.getValue_change() == 1 || dlv.getValue_change() == 2){
+			if(dlv.getValue_change() == 0 || dlv.getValue_change() == 1 || dlv.getValue_change() == 2 || dlv.getValue_change() == 3){
 				String str = dlv.getLgcExps() != null ? dlv.getLgcExps().concat(" or ("+dlv.getUid() + "_C==" + dlv.getValue_change()+")") 
 						: "("+dlv.getUid() + "_C==" + dlv.getValue_change()+")";
 				dlv.setLgcExps(str);
@@ -234,7 +224,7 @@ public class DevLinkController {
 		}
 		
 		//情景模式
-		if(!(dlv.getScene() > 0) && StaticUtilMethod.notNullOrEmptyStr(dlv.getLgcOperator2())){
+		if(!(dlv.getScene() > 0) && UtilMethod.notEmptyStr(dlv.getLgcOperator2())){
 			if(dlv.getRepowerExps() == null)
 				dlv.setRepowerExps("("+dlv.getUid() + dlv.getLgcOperator2()+dlv.getValue2()+")");
 			else
@@ -303,7 +293,7 @@ public class DevLinkController {
 		getActMap();
 		//逻辑组对象构建
 		List<GroupLgc> allGroupLgc = dlDao.getAllGroupLgc();
-		if(StaticUtilMethod.notNullOrEmptyList(allGroupLgc)){
+		if(UtilMethod.notEmptyList(allGroupLgc)){
 			int gId = 0;
 			int count = 0;
 			for(GroupLgc gl : allGroupLgc){
@@ -358,7 +348,8 @@ public class DevLinkController {
 	
 	public void addResult(GroupLgc gl, int count, List<GroupLgc> allGroupLgc){
 		setDlv(gl);
-		dv.getListLgc().add(dlv);
+		if (dlv.getLgcOperator3() == null || !dlv.getLgcOperator3().equals("no return"))
+			dv.getListLgc().add(dlv);
 		if(count == allGroupLgc.size())
 			resultList.add(dv);
 	}
@@ -402,7 +393,9 @@ public class DevLinkController {
 		dlv.setDev(gl.getDev());
 		dlv.setDev2(gl.getDev2());
 		dlv.setLgcExps(gl.getLgcExps());
-		dlv.setValue(gl.getValue());
+		if(UtilMethod.notEmptyStr(gl.getLgcOperator()))
+			dlv.setValue(gl.getValue());
+		else dlv.setValue(null);
 		dlv.setSwitchValueText(gl.getSwitchValueText());
 		dlv.setDsp(gl.getDsp());
 		dlv.setLgcOperator(gl.getLgcOperator());
@@ -431,8 +424,24 @@ public class DevLinkController {
 	@RequestMapping(value = "/delLinkGroup",method=RequestMethod.POST)
 	@ResponseBody
 	public Object delDevLink(@RequestBody Ids ids, HttpServletRequest request){
+		List<GroupLgc> allGroupLgc = dlDao.getAllGroupLgc();
+		GroupLgc gc = null;
+		if (UtilMethod.notEmptyList(allGroupLgc) && UtilMethod.notEmptyList(ids.getIds())) {
+			for (GroupLgc grp : allGroupLgc) {
+				if (grp.getGroupId() == ids.getIds().get(0)){
+					gc = grp;
+					break;
+				}
+			}
+		}
 		if(ListUtil.notEmptyList(ids.getIds()))
 			dlDao.delGroup(ids.getIds());
+		
+		if (gc != null && gc.getScene() > 0)
+			loginManage.addLog(request, JSONObject.fromObject(ids).toString(), "删除情景模式:" + gc.getName(), 1542);
+		else if (gc != null && gc.getScene() == 0)
+			loginManage.addLog(request, JSONObject.fromObject(ids).toString(), "删除联动控制:" + gc.getName(), 171);
+
 		return result.setStatus(0, "ok");
 	}
 }

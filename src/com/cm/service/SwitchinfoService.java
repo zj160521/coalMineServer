@@ -5,7 +5,7 @@ import com.cm.entity.Switchinfo;
 import com.cm.entity.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public class SwitchinfoService {
 				l.setValuestate(l.getOnestate());
 			}
 			if(l.getStarttime()!=null&&l.getEndtime()!=null){
-				l.setTimes(StaticUtilMethod.longToTimeFormat(l.getStarttime(), l.getEndtime()).getTimCast());
+				l.setTimes(UtilMethod.longToTimeFormat(l.getStarttime(), l.getEndtime()).getTimCast());
 			}
 		}
 		return list;
@@ -53,7 +53,7 @@ public class SwitchinfoService {
 				l.setValuestate(l.getOnestate());
 			}
 			if(l.getStarttime()!=null&&l.getEndtime()!=null){
-				l.setTimes(StaticUtilMethod.longToTimeFormat(l.getStarttime(), l.getEndtime()).getTimCast());
+				l.setTimes(UtilMethod.longToTimeFormat(l.getStarttime(), l.getEndtime()).getTimCast());
 			}
 			
 		}
@@ -114,4 +114,12 @@ public class SwitchinfoService {
 			return null;
 		}
 	}
+
+	public List<AnaloginfoQuery> getSensorAlarms(NameTime nameTime) {
+	    return dao.getSensorAlarms(nameTime);
+    }
+
+    public List<AnaloginfoQuery> getSwitchSensorAlams(NameTime nameTime) {
+        return dao.getSwitchSensorAlarms(nameTime);
+    }
 }

@@ -16,6 +16,7 @@ public class KafkaMessage implements Cloneable {
     private String ip;
     private int type;
     private int cmd;
+    private int cmd2;
     private int calltype;
     private int card1;
     private int card2;
@@ -50,6 +51,51 @@ public class KafkaMessage implements Cloneable {
     private int sound;
     private int volume;
     private long sendtime = 0;
+    private double upper_level1;
+    private double upper_level2;
+    private double upper_level3;
+    private double upper_level4;
+
+
+    public int getCmd2() {
+        return cmd2;
+    }
+
+    public void setCmd2(int cmd2) {
+        this.cmd2 = cmd2;
+    }
+
+    public double getUpper_level1() {
+        return upper_level1;
+    }
+
+    public void setUpper_level1(double upper_level1) {
+        this.upper_level1 = upper_level1;
+    }
+
+    public double getUpper_level2() {
+        return upper_level2;
+    }
+
+    public void setUpper_level2(double upper_level2) {
+        this.upper_level2 = upper_level2;
+    }
+
+    public double getUpper_level3() {
+        return upper_level3;
+    }
+
+    public void setUpper_level3(double upper_level3) {
+        this.upper_level3 = upper_level3;
+    }
+
+    public double getUpper_level4() {
+        return upper_level4;
+    }
+
+    public void setUpper_level4(double upper_level4) {
+        this.upper_level4 = upper_level4;
+    }
 
     public long getSendtime() {
         return sendtime;

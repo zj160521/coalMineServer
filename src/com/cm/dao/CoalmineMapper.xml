@@ -5,11 +5,9 @@
 <mapper namespace="com.cm.dao.ICoalmineDao">
 	
 	<select id="getDataByTime" resultType="com.cm.entity.vo.CoalmineVo">
-	
 		SELECT ip,dev_id,devid,type,`value`,`status`,DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') responsetime,sta.id stcId,sta.pid stcPid,debug FROM ${tableName} cm
 		LEFT JOIN t_static sta ON type = sta.id
 		WHERE responsetime BETWEEN #{startTime} AND #{endTime} and type != 71
-		
 	</select>
 	
 	<insert id="insert" parameterType="com.cm.entity.Coalmine" > 

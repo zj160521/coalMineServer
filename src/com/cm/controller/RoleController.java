@@ -1,5 +1,6 @@
 package com.cm.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cm.dao.IRoleDao;
 import com.cm.entity.Role;
 import com.cm.security.LoginManage;
@@ -32,17 +33,23 @@ public class RoleController {
 		if (ret != null) return ret;
 		Object per = loginManage.checkPermission(request);
 	    if (per != null) return per;
+	    
+	    String operation2 = "";
 		try {
 			if(role.getId()>0){
 			    theDao.update(role);
+			    operation2 = "修改角色："+role.getName();
 			}else{
 			    theDao.addRole(role);
+			    operation2 = "增加角色："+role.getName();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return result.setStatus(-3, "添加修改角色出错！");
 		}
 		
+		String remark = JSONObject.toJSONString(role);
+        loginManage.addLog(request, remark, operation2, 120);
 		return result.setStatus(0, "ok");
 	}
 	
@@ -81,6 +88,9 @@ public class RoleController {
 			return result.setStatus(-3, "删除角色出错！");
 		}
 		
+		String remark = JSONObject.toJSONString(role);
+		String operation2 = "删除角色："+role.getName();
+        loginManage.addLog(request, remark, operation2, 121);
 		return result.setStatus(0, "ok");
 	}
 }

@@ -10,7 +10,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.ILocalizeDao;
 import com.cm.dao.WorkerDao;
@@ -150,7 +150,7 @@ public class LocalService {
 			if (startWorkerInAreaRec != null) {
 				localize.setStarttime(startWorkerInAreaRec.getStartTime()
 						.substring(0, 19));
-				LongStringVo lsv = StaticUtilMethod.longToTimeFormat(
+				LongStringVo lsv = UtilMethod.longToTimeFormat(
 						localize.getEndtime(), localize.getStarttime());
 				localize.setWellduration(lsv.getTimCast());
 				localize.setLongTimeCast(lsv.getTime());
@@ -344,7 +344,7 @@ public class LocalService {
 			localize.setRfcard_id(Integer.parseInt(worker.getRfcard_id()));
 			localize.setStarttime(minWorkerInAreaRec.getStartTime());
 
-			LongStringVo lsv = StaticUtilMethod.longToTimeFormat(
+			LongStringVo lsv = UtilMethod.longToTimeFormat(
 					endWorkerInAreaRec.getStartTime(),
 					minWorkerInAreaRec.getStartTime());
 			localize.setWellduration(lsv.getTimCast());
@@ -391,7 +391,7 @@ public class LocalService {
 					.getRfcard_id()));
 			localize.setStarttime(minWorkerInAreaRec.getStartTime());
 			
-			LongStringVo lsv = StaticUtilMethod
+			LongStringVo lsv = UtilMethod
 					.longToTimeFormat(df.format(new Date()),
 							minWorkerInAreaRec.getStartTime());
 			localize.setWellduration(lsv.getTimCast());
@@ -463,7 +463,7 @@ public class LocalService {
 	}
 	
 	public void getWellduration(String starttime, String endtime, String wellduration) throws ParseException{
-		LongStringVo lsv = StaticUtilMethod.longToTimeFormat(starttime, endtime);
+		LongStringVo lsv = UtilMethod.longToTimeFormat(starttime, endtime);
 		wellduration = lsv.getTimCast();
 	}
 	

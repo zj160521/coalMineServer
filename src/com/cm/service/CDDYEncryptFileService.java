@@ -31,7 +31,7 @@ public class CDDYEncryptFileService {
         try{
             String property = System.getProperty("os.name");
             if (property.startsWith("Linux")){
-                int count = 0;
+//                int count = 0;
                 List<Filecontent> list = fcService.getAll();
                 if (null != list && !list.isEmpty()){
                     for (Filecontent content : list) {
@@ -39,7 +39,7 @@ public class CDDYEncryptFileService {
                             service.produceData(content.getFilename(), new StringBuffer().append(content.getStr()));
                             fcService.update(content.getId());
                         }
-                        if (content.getStatus() == 0){
+                        /*if (content.getStatus() == 0){
                             String file = cfService.get("encrypt_file");
                             File file1 = new File(file);
                             File[] files = file1.listFiles();
@@ -51,7 +51,7 @@ public class CDDYEncryptFileService {
                             if (count == 0){
                                 service.produceData(content.getFilename(), new StringBuffer().append(content.getStr()));
                             }
-                        }
+                        }*/
                         Calendar now = Calendar.getInstance();
                         Calendar before = Calendar.getInstance();
                         Date date = df.parse(content.getFilltime());

@@ -9,12 +9,12 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.WakeupException;
 
 import com.alibaba.fastjson.JSONObject;
-import com.cm.controller.TimerTaskController;
+import com.cm.service.TimerTaskController;
 
 import util.LogOut;
 
 public class AllConsumerThread extends Thread {
-	/* 注意，这俩货是类成员变量 */
+	
     private final static AtomicBoolean closed = new AtomicBoolean(false);
     private static KafkaConsumer<String, String> consumer=null;
 
@@ -31,7 +31,13 @@ public class AllConsumerThread extends Thread {
 					TimerTaskController.checkSelf=System.currentTimeMillis();
 					for (ConsumerRecord<String, String> record : records) {
 //						LogOut.log.debug("AllConsumerThread data-"+record.topic()+": "+record.value());
-						if (record.topic().equals("websocket") || record.topic().equals("route")) {							
+						if (record.topic().equals("websocket")) {							
+//							LogOut.log.debug(record.value());
+							KafkaConsumerThread.consumerQueue1.put(record);
+							SSDataService ms = new SSDataService();
+							String str = record.value();
+							ms.insert(str);
+						} else if (record.topic().equals("route")) {							
 //							LogOut.log.debug(record.value());
 							KafkaConsumerThread.consumerQueue1.put(record);
 						} else if (record.topic().equals("tomcat_ack")) {
@@ -72,6 +78,8 @@ public class AllConsumerThread extends Thread {
 					sb.append(element.toString()+"\n");
 				}
 				LogOut.log.error("AllConsumerThread Exception-"+sb.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
 			} finally {
 				consumer.close();
 				consumer=null;

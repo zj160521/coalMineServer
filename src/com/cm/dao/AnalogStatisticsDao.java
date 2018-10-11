@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.cm.entity.AnalogStatistics;
+import com.cm.entity.vo.AnalogStatisticsVo;
 import com.cm.entity.vo.NameTime;
 
 public interface AnalogStatisticsDao {
@@ -28,5 +29,7 @@ public interface AnalogStatisticsDao {
 	//模拟量统计值查询计数
 	public int getcount(NameTime nameTime);
 	
-
+	//获取一小时内的五分钟数据
+	public List<AnalogStatisticsVo> getOneHourData(@Param("ip")String ip, @Param("sensorId")int sensorId,
+			@Param("startTime")String startTime, @Param("endTime")String endTime);
 }

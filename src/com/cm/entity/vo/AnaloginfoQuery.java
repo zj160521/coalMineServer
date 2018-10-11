@@ -24,6 +24,7 @@ public class AnaloginfoQuery {
 	private String maxtime;//最大值时间
 	private double avgvalue;//平均值
 	private double minvalue;//最小值
+	private String mintime;//最小值时间
 	private String times;//报警时长
 	private String unit;//单位
 	private int status;//状态
@@ -51,7 +52,17 @@ public class AnaloginfoQuery {
 	private String feeduid;
 	private int alarm_status;
 	private String alarmstatus;
-	public int getId() {
+	private double startValue;
+
+    public double getStartValue() {
+        return startValue;
+    }
+
+    public void setStartValue(double startValue) {
+        this.startValue = startValue;
+    }
+
+    public int getId() {
 		return id;
 	}
 	public void setId(int id) {
@@ -348,6 +359,12 @@ public class AnaloginfoQuery {
 	}
 	public void setAlarmstatus(String alarmstatus) {
 		this.alarmstatus = alarmstatus;
+	}
+	public String getMintime() {
+		return mintime;
+	}
+	public void setMintime(String mintime) {
+		this.mintime = mintime;
 	}
 	
 	

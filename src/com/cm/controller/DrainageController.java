@@ -1,5 +1,6 @@
 package com.cm.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cm.entity.*;
 import com.cm.security.LoginManage;
 import com.cm.security.RedisClient;
@@ -310,11 +311,20 @@ public class DrainageController {
 					if (drainage.getPid() == null || drainage.getPid() == 0) {
 						drainage.setPid(10);
 						drainageService.addDrainageParam(drainage);
+                        String remark = JSONObject.toJSONString(drainage);
+                        String operation2 = "增加抽采测点";
+                        loginManage.addLog(request, remark, operation2, 1593);
 					} else {
 						drainageService.addDrainageParam(drainage);
+                        String remark = JSONObject.toJSONString(drainage);
+                        String operation2 = "增加抽采测点";
+                        loginManage.addLog(request, remark, operation2, 1593);
 					}
 				} else {
 					drainageService.updateDrainage(drainage);
+                    String remark = JSONObject.toJSONString(drainage);
+                    String operation2 = "修改抽采测点";
+                    loginManage.addLog(request, remark, operation2, 1593);
 				}
 			}
 		} catch (Exception e) {
@@ -343,9 +353,15 @@ public class DrainageController {
 				for (Drainage l : list) {
 					drainageService.deleteDrainage(l);
 				}
-				drainageService.deleteDrainage(drainage);
+                String remark = JSONObject.toJSONString(drainage);
+                String operation2 = "删除抽采测点";
+                loginManage.addLog(request, remark, operation2, 1593);
+                drainageService.deleteDrainage(drainage);
 			} else {
-				drainageService.deleteDrainage(drainage);
+                String remark = JSONObject.toJSONString(drainage);
+                String operation2 = "删除抽采测点";
+                loginManage.addLog(request, remark, operation2, 1593);
+                drainageService.deleteDrainage(drainage);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -414,6 +430,9 @@ public class DrainageController {
 				String alais = "G" + string + "S" + sensor.getSensorId();
 				sensor.setAlais(alais);
 				baseinfoService.updataSensor(sensor);
+                String remark = JSONObject.toJSONString(sensor);
+                String operation2 = "瓦斯抽放系统修改传感器" + alais;
+                loginManage.addLog(request, remark, operation2, 15930);
 			} else {
 				// 判断设备id是否重复
                 String isuse = stationService.isuse(sensor.getStation(), sensor.getSensorId());
@@ -448,6 +467,9 @@ public class DrainageController {
 				int id = switchSensorService.getaddedId(sensor.getStation(), sensor.getSensorId(),
 						sensor.getSensor_type());
 				sensor2.setId(id);
+                String remark = JSONObject.toJSONString(sensor);
+                String operation2 = "瓦斯抽放系统增加传感器" + alais;
+                loginManage.addLog(request, remark, operation2, 15930);
 			}
 			// 将更新之后的设备信息发送给分站
 			Sensor switchSensor = baseinfoService.getById2(sensor.getId());
@@ -678,6 +700,9 @@ public class DrainageController {
                 String alais = "G"+string+"K"+sensor.getSensorId();
                 sensor.setAlais(alais);
                 switchSensorService.update(sensor);
+                String remark = JSONObject.toJSONString(sensor);
+                String operation2 = "瓦斯抽放系统修改开关量传感器" + alais;
+                loginManage.addLog(request, remark, operation2, 15931);
 			} else {
 
 				// 判断设备id是否重复
@@ -709,6 +734,9 @@ public class DrainageController {
 				switchSensorService.addSwitchSensor(sensor);
                 String uid = "SW"+sensor.getId()+alais;
                 switchSensorService.updateUid(sensor.getId(), uid);
+                String remark = JSONObject.toJSONString(sensor);
+                String operation2 = "瓦斯抽放系统增加开关量传感器" + alais;
+                loginManage.addLog(request, remark, operation2, 15931);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

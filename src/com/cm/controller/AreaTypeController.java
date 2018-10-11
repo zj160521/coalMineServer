@@ -80,11 +80,12 @@ public class AreaTypeController {
             if (areaType.getType_id() != 0){
                 return result.setStatus(-4, "系统预置类型不能删除");
             }
-            areaTypeService.delete(id);
+
             AreaType type = areaTypeService.getById(id);
             String remark = JSONObject.toJSONString(type);
             String operation2 = "删除区域类型";
             loginManage.addLog(request, remark, operation2, 15122);
+            areaTypeService.delete(id);
         } catch (Exception e){
             e.printStackTrace();
             return result.setStatus(-4, "exception");

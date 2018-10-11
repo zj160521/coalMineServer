@@ -10,6 +10,9 @@ public class AnaloghisVo {
 	private Double avgValue;//平均值
 	private Double maxValue;//最大值
 	private Double minValue;//最小值
+	private int isAvg;//是否是五分钟内的平均值点
+	private int isMax;//是否是五分钟内的最大值点
+	private int isMin;//是否是五分钟内的最小值点
 	private String alarmStatus;//报警状态
 	private String powerStatus;//断电状态
 	private List<String> powerStatusList;//断电状态列表
@@ -24,16 +27,48 @@ public class AnaloghisVo {
 	private int dataStatus;//原始数据状态
 	private String feedbackstatus;//馈电状态
 	private Integer level;//报警等级
-	private String measuretime;//采取措施时刻
+//	private String measuretime;//采取措施时刻
 	private String alarmStartTime;//报警开始时间
 	private String alarmEndTime;//报警结束时间
-	private String alarmTime;//报警时长
+//	private String alarmTime;//报警时长
 	private String cutAlarmStartTime;//断电报警开始时间
 	private String cutAlarmEndTime;//断电报警结束时间
-	private String cutAlarmTime;//断电报警时长
+//	private String cutAlarmTime;//断电报警时长
 	private List<String> feedErrorList;//馈电异常详细信息列表
 	private String unit;//传感器单位
+	private Integer changing;
+	private String startEndTime;//开关量读值区间
 	
+	public String getStartEndTime() {
+		return startEndTime;
+	}
+	public void setStartEndTime(String startEndTime) {
+		this.startEndTime = startEndTime;
+	}
+	public int getIsAvg() {
+		return isAvg;
+	}
+	public void setIsAvg(int isAvg) {
+		this.isAvg = isAvg;
+	}
+	public int getIsMax() {
+		return isMax;
+	}
+	public void setIsMax(int isMax) {
+		this.isMax = isMax;
+	}
+	public int getIsMin() {
+		return isMin;
+	}
+	public void setIsMin(int isMin) {
+		this.isMin = isMin;
+	}
+	public Integer getChanging() {
+		return changing;
+	}
+	public void setChanging(Integer changing) {
+		this.changing = changing;
+	}
 	public Double getAvgValue() {
 		return avgValue;
 	}
@@ -51,18 +86,6 @@ public class AnaloghisVo {
 	}
 	public void setFeedErrorList(List<String> feedErrorList) {
 		this.feedErrorList = feedErrorList;
-	}
-	public String getAlarmTime() {
-		return alarmTime;
-	}
-	public void setAlarmTime(String alarmTime) {
-		this.alarmTime = alarmTime;
-	}
-	public String getCutAlarmTime() {
-		return cutAlarmTime;
-	}
-	public void setCutAlarmTime(String cutAlarmTime) {
-		this.cutAlarmTime = cutAlarmTime;
 	}
 	public String getAlarmStartTime() {
 		return alarmStartTime;
@@ -88,12 +111,12 @@ public class AnaloghisVo {
 	public void setCutAlarmEndTime(String cutAlarmEndTime) {
 		this.cutAlarmEndTime = cutAlarmEndTime;
 	}
-	public String getMeasuretime() {
-		return measuretime;
-	}
-	public void setMeasuretime(String measuretime) {
-		this.measuretime = measuretime;
-	}
+//	public String getMeasuretime() {
+//		return measuretime;
+//	}
+//	public void setMeasuretime(String measuretime) {
+//		this.measuretime = measuretime;
+//	}
 	public Integer getLevel() {
 		return level;
 	}

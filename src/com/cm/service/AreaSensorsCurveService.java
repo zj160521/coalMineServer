@@ -12,7 +12,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.controller.ResultObj;
 import com.cm.dao.AreaSensorCurveDao;
@@ -44,7 +44,7 @@ public class AreaSensorsCurveService implements SingleCurveInterface {
 		boolean isDetail = analogParamVo.getType() == 1 ? true : false;
 		
 		List<AreaSensorVo> allSensor = theDao.getAllSensorByArea(analogParamVo.getId());
-		if(StaticUtilMethod.notNullOrEmptyList(allSensor)){
+		if(UtilMethod.notEmptyList(allSensor)){
 			List<AreaSensorVo> sensorList = pageHelper(allSensor, analogParamVo.getCur_page(), analogParamVo.getPage_rows());
 			if(isDetail){
 				Calendar cal = Calendar.getInstance();
@@ -57,8 +57,8 @@ public class AreaSensorsCurveService implements SingleCurveInterface {
 				Map<String, List<SensorRecsVo>> recsMap = getRecsMap(sensorRecs);
 				result.put("data", recsMap);
 			}else{
-				String starttimeOfDay = StaticUtilMethod.getStarttimeOfDay();
-				String endtimeOfDay = StaticUtilMethod.getEndtimeOfDay();
+				String starttimeOfDay = UtilMethod.getStarttimeOfDay();
+				String endtimeOfDay = UtilMethod.getEndtimeOfDay();
 				List<AnalogQueryVo> alarmRecs = theDao.getAlarmRecs(sensorList, starttimeOfDay, endtimeOfDay);
 				
 				
@@ -112,10 +112,10 @@ public class AreaSensorsCurveService implements SingleCurveInterface {
 		for(SensorRecsVo sr : sensorRecs){
 			String key = sr.getIp() + ":" + sr.getDevid() + ":" + sr.getType();
 			List<AnalogQueryVo> alarmList = alarmMap.get(key);
-			if(StaticUtilMethod.notNullOrEmptyList(alarmList)){
+			if(UtilMethod.notEmptyList(alarmList)){
 				for(AnalogQueryVo alarm : alarmList){
 					try {
-						if(StaticUtilMethod.isMid(sr.getResponsetime(), alarm.getStartTime(), alarm.getEndTime())){
+						if(UtilMethod.isMid(sr.getResponsetime(), alarm.getStartTime(), alarm.getEndTime())){
 							sr.setIsAlarm(1);
 							break;
 						}

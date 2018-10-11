@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.DailyDao;
 import com.cm.dao.IAreaDao;
@@ -303,7 +303,7 @@ public class DailyInMineController {
 			}
 			
 			// 超时判定
-			Integer sec = StaticUtilMethod.getSec(dr.getWellduration());
+			Integer sec = UtilMethod.getSec(dr.getWellduration());
 			if (maxTime > 0 && sec > maxTime) {
 				LongStringVo wdt = null;
 				if ("-".equals(dr.getStartTime())) {
@@ -319,15 +319,15 @@ public class DailyInMineController {
 						dr.setStartTime(recentlyInMineRec.getResponsetime());
 						try {
 							if ("至今".equals(dr.getEndTime()))
-								wdt = StaticUtilMethod.longToTimeFormat(
+								wdt = UtilMethod.longToTimeFormat(
 										dr.getStartTime(),
-										StaticUtilMethod.getNow());
+										UtilMethod.getNow());
 							else if ("当日未出井".equals(dr.getEndTime())) {
 								dr.setEndTime(dr.getWorkday().concat(endTime));
-								wdt = StaticUtilMethod.longToTimeFormat(
+								wdt = UtilMethod.longToTimeFormat(
 										dr.getStartTime(), dr.getEndTime());
 							} else
-								wdt = StaticUtilMethod.longToTimeFormat(
+								wdt = UtilMethod.longToTimeFormat(
 										dr.getStartTime(), dr.getEndTime());
 
 							dr.setWellduration(wdt.getTimCast());
@@ -347,7 +347,7 @@ public class DailyInMineController {
 					}else{
 						ot = sec - maxTime;
 					}
-					String countTimeCast = StaticUtilMethod
+					String countTimeCast = UtilMethod
 							.countTimeCast(ot * 1000);
 					dr.setWellduration(dr.getWellduration().concat("/ 超时")
 							.concat(countTimeCast));
@@ -368,14 +368,14 @@ public class DailyInMineController {
 			if(dr.getStartTime().equals("-")){
 				timeString = true;
 			}else{
-				timeString = StaticUtilMethod.isTimeString(dr.getStartTime());
+				timeString = UtilMethod.isTimeString(dr.getStartTime());
 			}
 				
 			boolean timeString2 = false;
 			if(dr.getEndTime().equals("当日未出井") || dr.getEndTime().equals("至今")){
 				timeString2 = true;
 			}else{
-				timeString2 = StaticUtilMethod.isTimeString(dr.getEndTime());
+				timeString2 = UtilMethod.isTimeString(dr.getEndTime());
 			}
 				
 			if(timeString && timeString2){
@@ -386,13 +386,13 @@ public class DailyInMineController {
 							boolean mid = false;
 							
 							if(dr.getStartTime().equals("-") && dr.getEndTime().equals("当日未出井")){
-								mid = StaticUtilMethod.isMid(ev.getResponsetime(), getStartTime(), getEndTime());
+								mid = UtilMethod.isMid(ev.getResponsetime(), getStartTime(), getEndTime());
 							}else if(dr.getStartTime().equals("-") ){
-								mid = StaticUtilMethod.isMid(ev.getResponsetime(), getStartTime(), dr.getEndTime());
+								mid = UtilMethod.isMid(ev.getResponsetime(), getStartTime(), dr.getEndTime());
 							}else if(dr.getEndTime().equals("当日未出井") || dr.getEndTime().equals("至今")){
-								mid = StaticUtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), getEndTime());
+								mid = UtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), getEndTime());
 							}else{
-								mid = StaticUtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), dr.getEndTime());
+								mid = UtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), dr.getEndTime());
 							}
 							
 							if(mid){
@@ -418,13 +418,13 @@ public class DailyInMineController {
 							boolean mid = false;
 							
 							if(dr.getStartTime().equals("-") && dr.getEndTime().equals("当日未出井")){
-								mid = StaticUtilMethod.isMid(ev.getResponsetime(), getStartTime(), getEndTime());
+								mid = UtilMethod.isMid(ev.getResponsetime(), getStartTime(), getEndTime());
 							}else if(dr.getStartTime().equals("-") ){
-								mid = StaticUtilMethod.isMid(ev.getResponsetime(), getStartTime(), dr.getEndTime());
+								mid = UtilMethod.isMid(ev.getResponsetime(), getStartTime(), dr.getEndTime());
 							}else if(dr.getEndTime().equals("当日未出井")  || dr.getEndTime().equals("至今")){
-								mid = StaticUtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), getEndTime());
+								mid = UtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), getEndTime());
 							}else{
-								mid = StaticUtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), dr.getEndTime());
+								mid = UtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), dr.getEndTime());
 							}
 							
 							if(mid){
@@ -615,7 +615,7 @@ public class DailyInMineController {
 		// 月数据算入每天
 		int totalPn = 0;
 		Set<String> totalPersonNumSet = new HashSet<String>();
-		if (StaticUtilMethod.notNullOrEmptyList(monthlyData)) {
+		if (UtilMethod.notEmptyList(monthlyData)) {
 			for (DailyRecVo ap : monthlyData) {
 				totalPersonNumSet.add(ap.getRfcard_id());
 				String workDay = ap.getWorkday();
@@ -641,7 +641,7 @@ public class DailyInMineController {
 			Set<String> unSet = new HashSet<String>();
 			Set<String> OTSet = new HashSet<String>();
 			Set<String> ALSet = new HashSet<String>();
-			if (StaticUtilMethod.notNullOrEmptyList(dayRecs)) {
+			if (UtilMethod.notEmptyList(dayRecs)) {
 				for (DailyRecVo ap : dayRecs) {
 					personNumSet.add(ap.getRfcard_id());
 					String remark = ap.getRemark();
@@ -702,7 +702,7 @@ public class DailyInMineController {
 
 	public int dealPN(List<OverManVo> overManByMonth) {
 		int totalOM = 0;
-		if (StaticUtilMethod.notNullOrEmptyList(overManByMonth)) {
+		if (UtilMethod.notEmptyList(overManByMonth)) {
 			for (int i = 0; i < overManByMonth.size(); i++) {
 				OverManVo om = overManByMonth.get(i);
 				String mDay = om.getResponsetime().substring(0, 10);

@@ -1,5 +1,8 @@
 package com.cm.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AnalogStatistics {
 	private int id;
 	private String ip;
@@ -32,6 +35,7 @@ public class AnalogStatistics {
 	private double value;//值
 	private String responsetime;//数据上报时间
 	private int level;
+	private List<AnalogStatistics> list = new ArrayList<AnalogStatistics>();
 	public int getId() {
 		return id;
 	}
@@ -218,6 +222,10 @@ public class AnalogStatistics {
 	public void setFloor_repowers(double floor_repowers) {
 		this.floor_repowers = floor_repowers;
 	}
-	
-	
+	public List<AnalogStatistics> getList() {
+		return list;
+	}
+	public void setList(List<AnalogStatistics> list) {
+		this.list = list;
+	}
 }

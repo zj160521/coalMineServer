@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.IAreaDao;
 import com.cm.dao.IExceptionDao;
@@ -202,7 +202,7 @@ public class TimerDailyService extends DailyBaseService{
 				}else{
 					endTime = dr.getEndTime();
 				}
-				if(StaticUtilMethod.isTimeString(startTime) && StaticUtilMethod.isTimeString(endTime)){
+				if(UtilMethod.isTimeString(startTime) && UtilMethod.isTimeString(endTime)){
 					long start = df.parse(startTime).getTime();
 					long end = df.parse(endTime).getTime();
 					for(OverManVo ov : mineOverman){
@@ -219,21 +219,21 @@ public class TimerDailyService extends DailyBaseService{
 			}
 			
 			// 超时判定
-			Integer sec = StaticUtilMethod.getSec(dr.getWellduration());
+			Integer sec = UtilMethod.getSec(dr.getWellduration());
 			LongStringVo wdt = null;
 			if (maxTime > 0 && sec > maxTime) {
 				try {
 					if ("当日未出井".equals(dr.getEndTime())) {
-						wdt = StaticUtilMethod.longToTimeFormat(dr.getStartTime(), etime);
+						wdt = UtilMethod.longToTimeFormat(dr.getStartTime(), etime);
 					} else{
-						wdt = StaticUtilMethod.longToTimeFormat(dr.getStartTime(), dr.getEndTime());
+						wdt = UtilMethod.longToTimeFormat(dr.getStartTime(), dr.getEndTime());
 					}
 					
 					dr.setWellduration(wdt.getTimCast());
 					
 					int ot = (int) wdt.getTime() / 1000 - maxTime;
 
-					String countTimeCast = StaticUtilMethod.countTimeCast(ot * 1000);
+					String countTimeCast = UtilMethod.countTimeCast(ot * 1000);
 					
 					dr.setWellduration(dr.getWellduration().concat("/ 超时").concat(countTimeCast));
 					
@@ -251,13 +251,13 @@ public class TimerDailyService extends DailyBaseService{
 			//失联和进入限制区域判定
 			boolean timeString = false;
 			
-			timeString = StaticUtilMethod.isTimeString(dr.getStartTime());
+			timeString = UtilMethod.isTimeString(dr.getStartTime());
 				
 			boolean timeString2 = false;
 			if(dr.getEndTime().equals("当日未出井")){
 				timeString2 = true;
 			}else{
-				timeString2 = StaticUtilMethod.isTimeString(dr.getEndTime());
+				timeString2 = UtilMethod.isTimeString(dr.getEndTime());
 			}
 				
 			if(timeString && timeString2){
@@ -268,9 +268,9 @@ public class TimerDailyService extends DailyBaseService{
 							boolean mid = false;
 							
 							if(dr.getEndTime().equals("当日未出井")){
-								mid = StaticUtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), getEndTime());
+								mid = UtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), getEndTime());
 							}else{
-								mid = StaticUtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), dr.getEndTime());
+								mid = UtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), dr.getEndTime());
 							}
 							
 							if(mid){
@@ -295,9 +295,9 @@ public class TimerDailyService extends DailyBaseService{
 							boolean mid = false;
 							
 							if(dr.getEndTime().equals("当日未出井")){
-								mid = StaticUtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), getEndTime());
+								mid = UtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), getEndTime());
 							}else{
-								mid = StaticUtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), dr.getEndTime());
+								mid = UtilMethod.isMid(ev.getResponsetime(), dr.getStartTime(), dr.getEndTime());
 							}
 							
 							if(mid){

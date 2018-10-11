@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import util.LogOut;
 import util.RedisPool;
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -26,7 +26,7 @@ public class CalcGD5Cumulant {
     private BaseinfoService baseinfoService;
 
     private SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd");
-    private long expireTime = 10000L;
+    private long expireTime = 10000l;
 
     @Scheduled(cron = "0 0/1 * * * ?")
     private void TimerGD5TotalCumulant(){
@@ -87,7 +87,7 @@ public class CalcGD5Cumulant {
                                 if(null == cumulant){
                                     cumulant = new Cumulant();
                                     List<GD5Report> reports = baseDataMap.get(entry.getKey());
-                                    if(StaticUtilMethod.notNullOrEmptyList(reports)){
+                                    if(UtilMethod.notEmptyList(reports)){
                                         GD5Report port = reports.get(0);
                                         double flow_work = 0.0;
                                         double flow_standard = 0.0;
@@ -114,12 +114,12 @@ public class CalcGD5Cumulant {
                                     }
                                 }
                             }
-                            if (StaticUtilMethod.notNullOrEmptyList(list)){
+                            if (UtilMethod.notEmptyList(list)){
                                 cumulanService.batchAdd(list);
                             }
                             for (Cumulant cumulant : allTotalCumulant) {
                                 List<GD5Report> reports = baseDataMap.get(cumulant.getIp() + ":" + cumulant.getSensorId());
-                                if (StaticUtilMethod.notNullOrEmptyList(reports)){
+                                if (UtilMethod.notEmptyList(reports)){
                                     double flow_work = 0.0;
                                     double flow_standard = 0.0;
                                     double flow_pure = 0.0;
@@ -152,8 +152,10 @@ public class CalcGD5Cumulant {
             StringBuffer sb = new StringBuffer();
             StackTraceElement[] stackTrace = e.getStackTrace();
             for (int i = 0; i < stackTrace.length; i++) {
-                sb.append(stackTrace[i].toString());
+                StackTraceElement element = stackTrace[i];
+                sb.append(element.toString()+"\n");
             }
+            LogOut.log.error(e.getMessage());
             LogOut.log.error(sb.toString());
         }
     }
@@ -218,7 +220,7 @@ public class CalcGD5Cumulant {
                                 if(null == cumulant){
                                     cumulant = new Cumulant();
                                     List<GD5Report> reports = baseDataMap.get(entry.getKey());
-                                    if(StaticUtilMethod.notNullOrEmptyList(reports)){
+                                    if(UtilMethod.notEmptyList(reports)){
                                         GD5Report port = reports.get(0);
                                         double flow_work = 0.0;
                                         double flow_standard = 0.0;
@@ -245,15 +247,15 @@ public class CalcGD5Cumulant {
                                     }
                                 }
                             }
-                            if (StaticUtilMethod.notNullOrEmptyList(list)){
+                            if (UtilMethod.notEmptyList(list)){
                                 cumulanService.batchAdd(list);
                             }
-                            Integer lastYear = StaticUtilMethod.yearDistinguish(allTotalCumulant.get(0).getResponsetime());
+                            Integer lastYear = UtilMethod.yearDistinguish(allTotalCumulant.get(0).getResponsetime());
                             if(null != lastYear){
                                 if (lastYear == 0){
                                     for (Cumulant cumulant : allTotalCumulant) {
                                         List<GD5Report> reports = baseDataMap.get(cumulant.getIp() + ":" + cumulant.getSensorId());
-                                        if (StaticUtilMethod.notNullOrEmptyList(reports)){
+                                        if (UtilMethod.notEmptyList(reports)){
                                             double flow_work = 0.0;
                                             double flow_standard = 0.0;
                                             double flow_pure = 0.0;
@@ -279,7 +281,7 @@ public class CalcGD5Cumulant {
                                 } else if (lastYear == -1){
                                     for (Cumulant cumulant : allTotalCumulant) {
                                         List<GD5Report> reports = baseDataMap.get(cumulant.getIp() + ":" + cumulant.getSensorId());
-                                        if (StaticUtilMethod.notNullOrEmptyList(reports)){
+                                        if (UtilMethod.notEmptyList(reports)){
                                             double flow_work = 0.0;
                                             double flow_standard = 0.0;
                                             double flow_pure = 0.0;
@@ -313,8 +315,10 @@ public class CalcGD5Cumulant {
             StringBuffer sb = new StringBuffer();
             StackTraceElement[] stackTrace = e.getStackTrace();
             for (int i = 0; i < stackTrace.length; i++) {
-                sb.append(stackTrace[i].toString());
+                StackTraceElement element = stackTrace[i];
+                sb.append(element.toString()+"\n");
             }
+            LogOut.log.error(e.getMessage());
             LogOut.log.error(sb.toString());
         }
     }
@@ -382,7 +386,7 @@ public class CalcGD5Cumulant {
                                 if(null == cumulant){
                                     cumulant = new Cumulant();
                                     List<GD5Report> reports = baseDataMap.get(entry.getKey());
-                                    if(StaticUtilMethod.notNullOrEmptyList(reports)){
+                                    if(UtilMethod.notEmptyList(reports)){
                                         GD5Report port = reports.get(0);
                                         double flow_work = 0.0;
                                         double flow_standard = 0.0;
@@ -409,15 +413,15 @@ public class CalcGD5Cumulant {
                                     }
                                 }
                             }
-                            if (StaticUtilMethod.notNullOrEmptyList(list)){
+                            if (UtilMethod.notEmptyList(list)){
                                 cumulanService.batchAdd(list);
                             }
-                            Integer lastMonth = StaticUtilMethod.isLastMonth(allMonthCumulant.get(0).getResponsetime());
+                            Integer lastMonth = UtilMethod.isLastMonth(allMonthCumulant.get(0).getResponsetime());
                             if(null != lastMonth){
                                 if(lastMonth == 0){
                                     for (Cumulant cumulant : allMonthCumulant) {
                                         List<GD5Report> reports = baseDataMap.get(cumulant.getIp() + ":" + cumulant.getSensorId());
-                                        if (StaticUtilMethod.notNullOrEmptyList(reports)){
+                                        if (UtilMethod.notEmptyList(reports)){
                                             double flow_work = 0.0;
                                             double flow_standard = 0.0;
                                             double flow_pure = 0.0;
@@ -443,7 +447,7 @@ public class CalcGD5Cumulant {
                                 } else if (lastMonth == 1){
                                     for (Cumulant cumulant : allMonthCumulant) {
                                         List<GD5Report> reports = baseDataMap.get(cumulant.getIp() + ":" + cumulant.getSensorId());
-                                        if (StaticUtilMethod.notNullOrEmptyList(reports)){
+                                        if (UtilMethod.notEmptyList(reports)){
                                             double flow_work = 0.0;
                                             double flow_standard = 0.0;
                                             double flow_pure = 0.0;
@@ -477,8 +481,10 @@ public class CalcGD5Cumulant {
             StringBuffer sb = new StringBuffer();
             StackTraceElement[] stackTrace = e.getStackTrace();
             for (int i = 0; i < stackTrace.length; i++) {
-                sb.append(stackTrace[i].toString());
+                StackTraceElement element = stackTrace[i];
+                sb.append(element.toString()+"\n");
             }
+            LogOut.log.error(e.getMessage());
             LogOut.log.error(sb.toString());
         }
     }
@@ -546,7 +552,7 @@ public class CalcGD5Cumulant {
                                 if(null == cumulant){
                                     cumulant = new Cumulant();
                                     List<GD5Report> reports = baseDataMap.get(entry.getKey());
-                                    if(StaticUtilMethod.notNullOrEmptyList(reports)){
+                                    if(UtilMethod.notEmptyList(reports)){
                                         GD5Report port = reports.get(0);
                                         double flow_work = 0.0;
                                         double flow_standard = 0.0;
@@ -573,15 +579,15 @@ public class CalcGD5Cumulant {
                                     }
                                 }
                             }
-                            if (StaticUtilMethod.notNullOrEmptyList(list)){
+                            if (UtilMethod.notEmptyList(list)){
                                 cumulanService.batchAdd(list);
                             }
-                            Integer yesterday = StaticUtilMethod.isYesterday(allDayCumulant.get(0).getResponsetime());
+                            Integer yesterday = UtilMethod.isYesterday(allDayCumulant.get(0).getResponsetime());
                             if(null != yesterday){
                                 if(yesterday == 0){
                                     for (Cumulant cumulant : allDayCumulant) {
                                         List<GD5Report> reports = baseDataMap.get(cumulant.getIp() + ":" + cumulant.getSensorId());
-                                        if (StaticUtilMethod.notNullOrEmptyList(reports)){
+                                        if (UtilMethod.notEmptyList(reports)){
                                             double flow_work = 0.0;
                                             double flow_standard = 0.0;
                                             double flow_pure = 0.0;
@@ -607,7 +613,7 @@ public class CalcGD5Cumulant {
                                 } else if (yesterday > 0){
                                     for (Cumulant cumulant : allDayCumulant) {
                                         List<GD5Report> reports = baseDataMap.get(cumulant.getIp() + ":" + cumulant.getSensorId());
-                                        if (StaticUtilMethod.notNullOrEmptyList(reports)){
+                                        if (UtilMethod.notEmptyList(reports)){
                                             double flow_work = 0.0;
                                             double flow_standard = 0.0;
                                             double flow_pure = 0.0;
@@ -641,8 +647,10 @@ public class CalcGD5Cumulant {
             StringBuffer sb = new StringBuffer();
             StackTraceElement[] stackTrace = e.getStackTrace();
             for (int i = 0; i < stackTrace.length; i++) {
-                sb.append(stackTrace[i].toString());
+                StackTraceElement element = stackTrace[i];
+                sb.append(element.toString()+"\n");
             }
+            LogOut.log.error(e.getMessage());
             LogOut.log.error(sb.toString());
         }
     }

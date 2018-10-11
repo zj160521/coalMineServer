@@ -5,8 +5,10 @@
 <mapper namespace="com.cm.dao.CurvecolorDao">
 
     <insert id="add">
-        insert into t_curvecolor(realvalue,maxvalues,minvalue,avgvalue,cbvalue,feedvalue,level1,level2,level3,level4,supplyvalue,initialColor,calibratevalue,unusualvalue)
-        values (#{realvalue},#{maxvalues},#{minvalue},#{avgvalue},#{cbvalue},#{feedvalue},#{level1},#{level2},#{level3},#{level4},#{supplyvalue},#{initialColor},#{calibratevalue},#{unusualvalue})
+        insert into t_curvecolor(realvalue,maxvalues,minvalue,avgvalue,cbvalue,feedvalue,level1,level2,level3,level4,
+        supplyvalue,initialColor,calibratevalue,unusualvalue,changing2value,changing3value)
+        values (#{realvalue},#{maxvalues},#{minvalue},#{avgvalue},#{cbvalue},#{feedvalue},
+        #{level1},#{level2},#{level3},#{level4},#{supplyvalue},#{initialColor},#{calibratevalue},#{unusualvalue},#{changing2value},#{changing3value})
     </insert>
 
     <update id="update">
@@ -30,14 +32,36 @@
             <if test="null!=feedvalue">
                 feedvalue=#{feedvalue},
             </if>
-            level1=#{level1},
-            level2=#{level2},
-            level3=#{level3},
-            level4=#{level4},
-            supplyvalue=#{supplyvalue},
-            initialColor=#{initialColor},
-            unusualvalue=#{unusualvalue},
-            calibratevalue=#{calibratevalue}
+            <if test="null!=level1">
+                level1=#{level1},
+            </if>
+            <if test="null!=level2">
+                level2=#{level2},
+            </if>
+            <if test="null!=level3">
+                level3=#{level3},
+            </if>
+            <if test="null!=level4">
+                level4=#{level4},
+            </if>
+            <if test="null!=supplyvalue">
+                supplyvalue=#{supplyvalue},
+            </if>
+            <if test="null!=initialColor">
+                initialColor=#{initialColor},
+            </if>
+            <if test="null!=unusualvalue">
+                unusualvalue=#{unusualvalue},
+            </if>
+            <if test="null!=calibratevalue">
+                calibratevalue=#{calibratevalue},
+            </if>
+            <if test="null!=changing2value">
+                changing2value=#{changing2value},
+            </if>
+            <if test="null!=changing3value">
+                changing3value=#{changing3value}
+            </if>
         </set>
         <where>
             id=#{id}

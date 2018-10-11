@@ -17,6 +17,9 @@ public class SwitchStateChangeVo {
 	private String ontimes;
 	private int alarm_status;
 	private String alarmstatus;
+	private String classname;
+	private String classstart;
+	private String classend;
 	public int getId() {
 		return id;
 	}
@@ -106,6 +109,24 @@ public class SwitchStateChangeVo {
 	}
 	public void setAlarm_status(int alarm_status) {
 		this.alarm_status = alarm_status;
+	}
+	public String getClassname() {
+		return classname;
+	}
+	public void setClassname(String classname) {
+		this.classname = classname;
+	}
+	public String getClassstart() {
+		return classstart;
+	}
+	public void setClassstart(String classstart) {
+		this.classstart = classstart;
+	}
+	public String getClassend() {
+		return classend;
+	}
+	public void setClassend(String classend) {
+		this.classend = classend;
 	}
 	@Override
 	public String toString() {

@@ -207,10 +207,10 @@ public class SubstationController {
 			String value = "{\"id\":" + s.getId() + ",\"ip\":\"" + s.getIpaddr()
 					+ "\",\"devid\":0,\"type\":\"0x10\",\"op\":\"del\"}";
 			ConfigSyncThread.SendMessage(value);
-			substationService.delete(id);
 			String remark = JSONObject.toJSONString(s);
 			String operation2 = "删除分站" + s.getAlais();
 			loginManage.addLog(request, remark, operation2, 1412);
+            substationService.delete(id);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return result.setStatus(-4, "exception");

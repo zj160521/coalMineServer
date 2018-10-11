@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.SwitchStatementDao;
 import com.cm.entity.vo.AnaloginfoQuery;
@@ -42,12 +42,12 @@ public class SwitchStatementService {
 		long time = 0;
 		for(AnaloginfoQuery l:list){
 			if(l.getEndtime()!=null&&l.getStarttime()!=null){
-				LongStringVo longToTimeFormat = StaticUtilMethod.longToTimeFormat(l.getStarttime(), l.getEndtime());
+				LongStringVo longToTimeFormat = UtilMethod.longToTimeFormat(l.getStarttime(), l.getEndtime());
 				time = time+longToTimeFormat.getTime();
 			}
 			
 		}
-		String secondTime = StaticUtilMethod.countTimeCast(time);
+		String secondTime = UtilMethod.countTimeCast(time);
 		return secondTime;
 	}
 }

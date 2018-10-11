@@ -32,7 +32,13 @@
 	</delete>
 	
 	<select id="getallWindwatt" resultType="com.cm.entity.Windwatt">
-		select * from t_windwatt
+		select * from t_windwatt 
+		<where>
+			<if test="id>0">
+				id=#{id}
+			</if>
+		</where>
+		
 	</select>
 	
 	<select id="getWindwattSensor" resultType="com.cm.entity.vo.WindwattVo">

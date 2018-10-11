@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.AreaOfflimitsQueryDao;
 import com.cm.dao.IWorkerWarningFactory;
@@ -47,7 +47,7 @@ public class AreaOfflimitsQueryService implements IWorkerWarningFactory{
 							AreaOfflimitsVo aovo = listVo.get(0);
 							AreaOfflimitsVo lastVo = listVo.get(listVo.size()-1);
 							
-							LongStringVo longToTimeFormat = StaticUtilMethod.longToTimeFormat(aovo.getResponsetime(), 
+							LongStringVo longToTimeFormat = UtilMethod.longToTimeFormat(aovo.getResponsetime(), 
 									lastVo.getResponsetime());
 							
 							if(longToTimeFormat.getTime() < 1000)
@@ -120,7 +120,7 @@ public class AreaOfflimitsQueryService implements IWorkerWarningFactory{
 				listvo = new ArrayList<AreaOfflimitsVo>();
 				listvo.add(list.get(i));
 			}else{
-				long countLongDvalue = StaticUtilMethod.countLongDvalue(list.get(i).getResponsetime(), startTime);
+				long countLongDvalue = UtilMethod.countLongDvalue(list.get(i).getResponsetime(), startTime);
 				
 				if(countLongDvalue < 60000){ 
 					listvo.add(list.get(i));

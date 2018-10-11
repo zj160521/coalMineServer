@@ -1,5 +1,6 @@
 package com.cm.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cm.controller.ResultObj;
 import com.cm.dao.IStaticDao;
 import com.cm.dao.IUserDao;
@@ -32,6 +33,7 @@ public class UserService {
 	public Object addUpUser(User user, HttpServletRequest request)
 			throws NoSuchAlgorithmException {
 
+		String operation2 = "";
 		try {
 			if (user.getPassword().length() > 0 && user.getPassword().length() < 6){
 				return result.setStatus(-2, "密码至少6位！");
@@ -41,8 +43,10 @@ public class UserService {
 			
 			if (user.getId() > 0) {
 				userDao.update(user);
+				operation2 = "修改用户："+user.getName();
 			} else {
 				userDao.add(user);
+				operation2 = "增加用户："+user.getName();
 				result.put("id", user.getId());
 			}
 
@@ -51,6 +55,9 @@ public class UserService {
 			return result.setStatus(-3, "exception");
 		}
 
+		String remark = JSONObject.toJSONString(user);
+		
+        loginManage.addLog(request, remark, operation2, 122);
 		return result.setStatus(0, "操作成功！");
 	}
 
@@ -105,7 +112,10 @@ public class UserService {
 			User u = userDao.getById(user1.getId());
 
 			userDao.delete(u.getId());
-
+			
+			String remark = JSONObject.toJSONString(u);
+			String operation2 = "删除用户："+u.getName();
+	        loginManage.addLog(request, remark, operation2, 123);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return result.setStatus(-3, "exception");

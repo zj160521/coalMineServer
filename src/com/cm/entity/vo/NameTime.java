@@ -26,7 +26,18 @@ public class NameTime {
 	private int mins;//分钟数
 	private String day;//日期
 	private int debug;//debug值
-	public String getRemark() {
+	private String classtime;
+	private String tableName;
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public String getRemark() {
 		return remark;
 	}
 	public void setRemark(String remark) {
@@ -167,6 +178,13 @@ public class NameTime {
 	}
 	public void setDebug(int debug) {
 		this.debug = debug;
+	}
+	
+	public String getClasstime() {
+		return classtime;
+	}
+	public void setClasstime(String classtime) {
+		this.classtime = classtime;
 	}
 	@Override
 	public String toString() {

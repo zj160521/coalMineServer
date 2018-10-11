@@ -9,7 +9,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.AreaOvertimeQueryDao;
 import com.cm.dao.IWorkerWarningFactory;
@@ -108,7 +108,7 @@ public class AreaOvertimeQueryService implements IWorkerWarningFactory {
 					tiav.setDepartname(aovo.getDepartname());
 					tiav.setWorktypename(aovo.getWorktypename());
 
-					LongStringVo longToTimeFormat = StaticUtilMethod
+					LongStringVo longToTimeFormat = UtilMethod
 							.longToTimeFormat(aovo.getResponsetime(),
 									lastVo.getResponsetime());
 
@@ -133,7 +133,7 @@ public class AreaOvertimeQueryService implements IWorkerWarningFactory {
 		AreaOfflimitsVo areaOfflimitsVo = firstList.get(0);
 		
 		String responsetime = areaOfflimitsVo.getResponsetime();
-		LongStringVo longToTimeFormat = StaticUtilMethod.longToTimeFormat(
+		LongStringVo longToTimeFormat = UtilMethod.longToTimeFormat(
 				responsetime, searchform.getStarttime());
 		if (longToTimeFormat.getTime() <= 60000) {
 			searchform.setRfcard_id(areaOfflimitsVo.getRfcard_id());

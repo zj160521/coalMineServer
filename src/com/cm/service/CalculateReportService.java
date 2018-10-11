@@ -45,7 +45,7 @@ public class CalculateReportService {
 				report.setAvgvalue(s.getAvgvalue());
 				report.setMaxtime(s.getMaxtime());
 				report.setFilltime(s.getFilltime());
-				report.setRemark(1);
+				report.setRemark(0);
 				time.setId(report.getSensor_id());
 				time.setStarttime(report.getFilltime());
 				List<AnalogStatement> list2 = statementService.getfeeds(time);

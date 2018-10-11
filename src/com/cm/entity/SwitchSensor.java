@@ -64,7 +64,9 @@ public class SwitchSensor {
     private double e2_point;
     private double n3_point;
     private double e3_point;
-
+    private int iscontrol;
+    private int isrecovercontrol;
+    private String controlexplain;
     public double getN2_point() {
         return n2_point;
     }
@@ -449,5 +451,30 @@ public class SwitchSensor {
 	public void setDevname(String[] devname) {
 		this.devname = devname;
 	}
+
+	public int getIscontrol() {
+		return iscontrol;
+	}
+
+	public void setIscontrol(int iscontrol) {
+		this.iscontrol = iscontrol;
+	}
+
+	public int getIsrecovercontrol() {
+		return isrecovercontrol;
+	}
+
+	public void setIsrecovercontrol(int isrecovercontrol) {
+		this.isrecovercontrol = isrecovercontrol;
+	}
+
+	public String getControlexplain() {
+		return controlexplain;
+	}
+
+	public void setControlexplain(String controlexplain) {
+		this.controlexplain = controlexplain;
+	}
+	
 	
 }

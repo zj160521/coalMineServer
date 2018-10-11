@@ -1,4 +1,4 @@
-package com.cm.controller;
+package com.cm.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import util.LogOut;
 
+import com.cm.controller.BackupController;
+import com.cm.controller.WebSocketController;
 import com.cm.entity.AreaPersonNum;
 import com.cm.entity.Coalmine_route;
 import com.cm.entity.WorkerInAreaRec;
@@ -39,7 +41,7 @@ public class TimerTaskController {
 	/**
 	 * 定时器任务，检查数据库备份是否启动
 	 */
-	@Scheduled(cron="0 */10 * * * ? ") 
+	@Scheduled(cron="0 0/10 * * * ? ") 
 	public void checkDbBack(){
 		LogOut.log.debug("检查数据库备份");
 		bc.startCron();

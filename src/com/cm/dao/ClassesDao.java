@@ -1,8 +1,8 @@
 package com.cm.dao;
 
-import java.util.List;
-
 import com.cm.entity.Classes;
+
+import java.util.List;
 
 public interface ClassesDao {
 	
@@ -11,5 +11,9 @@ public interface ClassesDao {
 	public List<Classes> getAll();
 	
 	public void delete(int id);
+
+	void update(Classes classes);
+
+	List<Classes> getAllEnv();
 
 }

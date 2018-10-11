@@ -5,6 +5,24 @@ public class Files implements Comparable<Files>{
     private String uncryptpath;
     private String encryptpath;
     private String logpath;
+    private String ftp_ip;
+    private String ftp_port;
+
+    public String getFtp_ip() {
+        return ftp_ip;
+    }
+
+    public void setFtp_ip(String ftp_ip) {
+        this.ftp_ip = ftp_ip;
+    }
+
+    public String getFtp_port() {
+        return ftp_port;
+    }
+
+    public void setFtp_port(String ftp_port) {
+        this.ftp_port = ftp_port;
+    }
 
     public String getLogpath() {
         return logpath;

@@ -30,7 +30,7 @@
 			   <if test="name != null">
 			   		name = #{name},
 			   </if>
-			   <if test="lgcExps != null">
+			   <if test="lgcExps != ''">
 			   		logic_exps = #{lgcExps},
 			   </if>
 			   <if test="alarm != null">
@@ -48,7 +48,7 @@
 			   <if test="leastNum > 0">
 			   		least_num = #{leastNum},
 			   </if>
-			   <if test="repowerExps != null">
+			   <if test="repowerExps != ''">
 			   		repower_exps = #{repowerExps},
 			   </if>
 			   <if test="isControl != null">
@@ -71,6 +71,13 @@
 			,#{it.dsp},#{it.dev2},#{it.comparisonType},#{it.ip},#{it.value2},#{it.lgcOperator2},#{it.repowerExps},#{it.scene},#{it.dev2Id},
 			#{it.uid},#{it.uid2},#{it.lgcOperator3},#{it.value3},#{it.value_change},#{it.reverting},#{it.debugList})
 	    </foreach>
+	</insert>
+	
+	<insert id="addSingleDevLgc" useGeneratedKeys="true" keyProperty="id" parameterType="com.cm.entity.vo.DevLogicVo" >
+	    INSERT INTO t_dev_logic(group_id,logic_devid,dev,logic_value,logic_Operator,dev_type,logic_exps,switchvalue_text,dsp,dev2,comparison_type,
+	    ip,repower_value,repower_operator,repower_exps,scene,dev2_id,uid,uid2,logic_operator2,logic_value2,value_change,reverting,debugList) VALUES
+		(#{groupId},#{lgcDevid},#{dev},#{value},#{lgcOperator},#{type},#{lgcExps},#{switchValueText},#{dsp},#{dev2},#{comparisonType},#{ip},#{value2}
+		,#{lgcOperator2},#{repowerExps},#{scene},#{dev2Id},#{uid},#{uid2},#{lgcOperator3},#{value3},#{value_change},#{reverting},#{debugList})
 	</insert>
 	
 	<update id="updateDevLgc" parameterType="java.util.List" >
@@ -178,7 +185,11 @@
 		UNION
 		SELECT a.uid,a.alais,b.v,c.v sensortype FROM t_radio a 
 		LEFT JOIN t_static b ON a.positionId=b.id
-		LEFT JOIN t_static c ON a.type=c.id)b ON a.action_uid=b.uid
+		LEFT JOIN t_static c ON a.type=c.id
+		UNION
+		SELECT a.uid,a.addr alais,IFNULL('未配置位置',b.v) v,c.v sensortype FROM t_cardreder a
+		LEFT JOIN t_static b ON a.position_id=b.id
+		LEFT JOIN t_static c ON a.typeid=c.id)b ON a.action_uid=b.uid
 	</select>
 	
 	<update id="updateBasisDevlink" parameterType="com.cm.entity.DevLink">
@@ -295,6 +306,10 @@
         select id,logic_devid lgcDevId,action_devid actDevId,logic_exps,action,param,repower_exps from t_dev_link
     </select>
     
+    <select id="getDevLinkScene1" resultType="java.lang.Integer">
+        SELECT id FROM t_dev_logic WHERE repower_operator = #{0};   
+    </select>
+    
     <select id="getDevLinkById" resultType="com.cm.entity.DevLink">
 		select dl.id,dl.logic_devid lgcDevId,dl.action_devid actDevId,dl.logic_exps,dl.action,dl.param,dl.repower_exps,aq.startTime,aq.endTime
 		from t_dev_link dl
@@ -315,7 +330,7 @@
 		where dl.id = #{id} AND ss.sensor_type = 56
     </select>
     
-     <select id="getCutDevScope" resultType="com.cm.entity.vo.BasicDevLinkVo">
+     <select id="getCutDevScope" resultType="java.lang.String">
 		SELECT power_scope FROM t_dev_link 
 		LEFT JOIN t_switch_sensor ss ON action_devid = ss.sensorId
 		LEFT JOIN t_substation sub ON ss.station = sub.id

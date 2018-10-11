@@ -1,8 +1,10 @@
 package com.cm.service;
 
 import com.cm.controller.EncryptDataFileUtils;
-import com.cm.entity.vo.SSParaVo;
-import com.cm.entity.vo.SSWarning;
+import com.cm.entity.Sensor;
+import com.cm.entity.SwitchSensor;
+import com.cm.entity.vo.AnaloginfoQuery;
+import com.cm.entity.vo.NameTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -24,19 +26,27 @@ public class WarningDataEncryptService {
     @Autowired
     private TimerRealTimeDataEncryptService service;
 
+    @Autowired
+    private BaseinfoService baseinfoService;
+
+    @Autowired
+    private SwitchSensorService sensorService;
+
     private String startTime;
     private String endTime;
     private String nowTime;
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private SimpleDateFormat df1 = new SimpleDateFormat("yyyyMMddHHmmss");
+    private SimpleDateFormat df2 = new SimpleDateFormat("yyyy_MM_dd");
     private HashMap<Integer, String> map = new HashMap<>();
-    private final String lockKey = "WarningDataEncryptService";
-    private final String requestId = UUID.randomUUID().toString();
-    private long expireTime = 10000L;
+    private HashMap<String, Integer> sensorMap = new HashMap<>();
 
     @Scheduled(cron = "0/30 * * * * ?")
     public void WarningDataEncryptMethod(){
         try{
+            String lockKey = "WarningDataEncryptService";
+            String requestId = UUID.randomUUID().toString();
+            long expireTime = 10000l;
             boolean lock = RedisPool.tryGetDistributedLock(lockKey, requestId, expireTime);
             if (lock){
 
@@ -50,46 +60,64 @@ public class WarningDataEncryptService {
                     String fileName = "/" + v + "_YCBJ_" + nowTime + ".TXT";
 
                     StringBuffer sb = new StringBuffer();
-                    sb.append(df.format(new Date()) + ";");
+                    sb.append(df.format(Calendar.getInstance().getTime()) + ";");
 
-                    SSParaVo para = new SSParaVo();
-                    para.setStarttime(startTime);
-                    para.setEndtime(endTime);
-                    List<SSWarning> list = siService.getWarnimgRec(para);//获取基础数据
-                    if(list.isEmpty()){
-                        sb.append(list.size() + ";~||\r\n");
-                    } else {
-                        sb.append(list.size() + ";~\r\n");
-                        for (SSWarning warning : list) {
-                            if(warning.getSensorId()==0||warning.getSensor_id()==0){
-                                continue;
+                    String tableName = "t_coalMine_" + df2.format(new Date());
+
+                    NameTime nameTime = new NameTime();
+                    nameTime.setStarttime(startTime);
+                    nameTime.setEndtime(endTime);
+                    nameTime.setTableName(tableName);
+                    List<AnaloginfoQuery> sensorAlarms = siService.getSensorAlarms(nameTime);
+                    List<AnaloginfoQuery> switchSensorAlams = siService.getSwitchSensorAlams(nameTime);
+                    sb.append((sensorAlarms.size() + switchSensorAlams.size()) + ";~||\r\n");
+                    if (null != sensorAlarms && !sensorAlarms.isEmpty()) {
+                        for (AnaloginfoQuery alarm : sensorAlarms) {
+                            StringBuffer points = EncryptDataFileUtils.definitionOfMeasurePoints(alarm.getSensor_type(), alarm.getSensor_id());
+                            sb.append(points + ";");
+                            sb.append(map.get(alarm.getStatus()) + ";");
+                            sb.append(alarm.getStartValue() + ";");
+                            if (alarm.getStatus() == 2){
+                                sb.append(alarm.getLimit_alarm() + ";");
+                                sb.append(alarm.getLimit_alarm() + ";");
+                            } else if (alarm.getStatus() == 3) {
+                                sb.append(alarm.getLimit_power() + ";");
+                                sb.append(alarm.getLimit_power() + ";");
                             }
-                            StringBuffer sensorPoint = EncryptDataFileUtils.definitionOfMeasurePoints(warning.getSensorId(), warning.getSensor_type());
-                            sb.append(sensorPoint + ";");
-                            sb.append(map.get(warning.getStatus()) + ";");
-                            sb.append(warning.getStartValue() + ";");
-                            sb.append(warning.getStartValue()-0.02 + ";");
-                            sb.append(warning.getStartValue()-0.03 + ";");
-                            sb.append(warning.getStarttime() + ";");
-                            sb.append(warning.getEndtime() + ";");
-                            if(warning.getStartValue() > warning.getEndValue()){
-                                sb.append(warning.getStartValue() + ";");
-                                sb.append(warning.getStarttime() + ";");
-                                sb.append(warning.getEndtime() + ";");
-                                sb.append((warning.getEndValue()+warning.getStartValue())/2 + ";");
-                                sb.append(warning.getEndValue() + ";");
-
+                            sb.append(alarm.getStarttime() + ";");
+                            if (null == alarm.getEndtime()) {
+                                sb.append("X;");
                             } else {
-                                sb.append(warning.getEndValue() + ";");
-                                sb.append(warning.getEndtime() + ";");
-                                sb.append(warning.getStarttime() + ";");
-                                sb.append((warning.getEndValue()+warning.getStartValue())/2 + ";");
-                                sb.append(warning.getStartValue());
+                                sb.append(alarm.getEndtime());
                             }
-                            sb.append(warning.getMeasure() + ";");
-                            sb.append(warning.getMeasuretime() + ";");
+                            sb.append(alarm.getMaxvalues() + ";");
+                            sb.append(null == alarm.getEndtime() ? ";" : alarm.getEndtime()+";");
+                            sb.append(alarm.getStarttime() + ";");
+                            sb.append(alarm.getAvgvalue() + ";");
+                            sb.append(alarm.getMinvalue() + ";;");
+                            sb.append(null == alarm.getMeasures() ? ";" : alarm.getMeasures() + ";");
+                            sb.append(null == alarm.getMeasurestime() ? ";" : alarm.getMeasurestime() + ";");
+                            if (sensorAlarms.indexOf(alarm) == sensorAlarms.size() - 1) {
+                                sb.append("admin;~||\r\n");
+                            } else {
+                                sb.append("admin;~\r\n");
+                            }
+                        }
+                    }
 
-                            if(list.indexOf(warning) == list.size()-1){
+                    if (null != switchSensorAlams && !switchSensorAlams.isEmpty()) {
+                        for (AnaloginfoQuery alam : switchSensorAlams) {
+                            StringBuffer points = EncryptDataFileUtils.definitionOfMeasurePoints(alam.getSensor_type(), alam.getSensor_id());
+                            sb.append(points + ";");
+                            sb.append(map.get(alam.getStatus()) + ";");
+                            sb.append(alam.getStartValue() + ";");
+                            sb.append(1 + ";");
+                            sb.append(0 + ";");
+                            sb.append(alam.getStarttime() + ";");
+                            sb.append(alam.getEndtime() + ";;;;;;;");
+                            sb.append(null == alam.getMeasures() ? ";" : alam.getMeasures() + ";");
+                            sb.append(null == alam.getMeasurestime() ? ";" : alam.getMeasurestime() + ";");
+                            if (switchSensorAlams.indexOf(alam) == switchSensorAlams.size()) {
                                 sb.append("admin;~||\r\n");
                             } else {
                                 sb.append("admin;~\r\n");
@@ -104,10 +132,12 @@ public class WarningDataEncryptService {
         } catch (Exception e){
             e.printStackTrace();
             StringBuffer sb = new StringBuffer();
-            StackTraceElement[] elements = e.getStackTrace();
-            for (int i = 0; i < elements.length; i++) {
-                sb.append(elements[i].toString());
+            StackTraceElement[] stackTrace = e.getStackTrace();
+            for (int i = 0; i < stackTrace.length; i++) {
+                StackTraceElement element = stackTrace[i];
+                sb.append(element.toString()+"\n");
             }
+            LogOut.log.error(e);
             LogOut.log.error(sb.toString());
         }
 
@@ -116,7 +146,6 @@ public class WarningDataEncryptService {
 
     public void getStartEndTime(){
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.SECOND,-30);
         endTime = df.format(cal.getTime());
         nowTime = df1.format(cal.getTime());
         String substring = nowTime.substring(0,nowTime.length()-1);
@@ -129,6 +158,16 @@ public class WarningDataEncryptService {
         map.put(2, "001");
         map.put(3, "002");
         map.put(5, "004");
+
+        List<Sensor> list = baseinfoService.getAllSensor2();
+        for (Sensor sensor : list) {
+            sensorMap.put(sensor.getIpaddr() + ":" +sensor.getSensorId(), sensor.getId());
+        }
+
+        List<SwitchSensor> switchSensors = sensorService.AllSwitchSensor();
+        for (SwitchSensor sensor : switchSensors) {
+            sensorMap.put(sensor.getIpaddr() + ":" + sensor.getSensorId(), sensor.getId());
+        }
     }
 
 

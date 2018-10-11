@@ -27,7 +27,9 @@ public interface AnalogHistoryDao {
 	
 	public LinkedList<SensorVo> getAllSensor(List<DevVo> ldv);
 	
-	public List<AnalogQueryVo> getAnalogQry(int devid,String ip,String starttime, String endTime);
+	public List<AnalogQueryVo> getAnalogQry(int devid, String ip, String starttime, String endTime);
+	
+	public String getAlarmEndTime(String startTime, int devid, String ip);
 	
 	public List<AnaloghisVo> getHistoryRcs(AnalogParamVo analogParamVo);
 	

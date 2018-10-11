@@ -318,11 +318,11 @@ public class StaticController {
 			return result.setStatus(-1, "no login");
 		}
 		try {
-			staticService.delete(id);
             Static aStatic = staticService.getPositionByid(id);
             String remark = JSONObject.toJSONString(aStatic);
             String operation2 = "删除数据字典信息";
             loginManage.addLog(request, remark, operation2, 128);
+            staticService.delete(id);
         } catch (Exception e) {
 			e.printStackTrace();
             return result.setStatus(-4, "exception");

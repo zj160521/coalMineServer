@@ -2,8 +2,10 @@ package com.cm.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,14 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import util.JedisUtil;
-import util.GetHostName;
-
 import com.cm.dao.ICoalmineDao;
-import com.cm.entity.Coalmine;
-import com.cm.entity.Config;
+import com.cm.entity.vo.Coalmine;
 import com.cm.service.ConfigService;
 import com.cm.service.CreateTableService;
+import com.cm.service.kafka.SSDataService;
 
 @Scope("prototype")
 @Controller
@@ -40,21 +39,15 @@ public class TestController {
 	@RequestMapping(value = "/f", method = RequestMethod.GET)
 	@ResponseBody
 	public Object testtest(HttpServletRequest request) throws Exception{
-//		RedisOperation.setHashValue("ni", "mid", "hao");
-		List<Config> configByV = cfgService.getConfigByV("hostName");
-		String hostNames = GetHostName.getHostName();
-		for (Config cfg : configByV) {
-			if (!cfg.getK().equals(hostNames)) hostNames = cfg.getK();
-			break;
+		String str = "";
+		Map<String, LinkedList<Coalmine>> dataMap = SSDataService.dataMap;
+		for (Entry<String, LinkedList<Coalmine>> etr : dataMap.entrySet()) {
+			LinkedList<Coalmine> value = etr.getValue();
+			for (Coalmine cl : value) {
+				str += cl.getIp()+" : "+cl.getDevid() + "-" +cl.getResponsetime()+"  ";
+			}
 		}
-		String[] cmd = {"scp","/home/tt.txt","root@"+hostNames+":/home"};
-		Runtime.getRuntime().exec(cmd);
-		Thread.sleep(1000);
-		String[] cmd3 = {"scp","root@"+hostNames+":/home/*.txt","/home"};
-		Runtime.getRuntime().exec(cmd3);
-
-		
-//		result.put("host", GetHostName.getHostNameForLiunx());
+		result.put("str", str);
 		return result.setStatus(0, "ok");
 	}
 	
@@ -95,7 +88,7 @@ public class TestController {
 			coal.setValue(0.1);
 			list.add(coal);
 		}
-		dao.insertList(list);
+//		dao.insertList(list);
 		long cast = System.currentTimeMillis() - currentTimeMillis;
 		result.put("pl==timeCast=====:", cast);
 	}
@@ -116,7 +109,7 @@ public class TestController {
 			coal.setStatus(0);
 			coal.setType(56);
 			coal.setValue(0.1);
-			dao.insert(coal);
+//			dao.insert(coal);
 		}
 		long cast = System.currentTimeMillis() - currentTimeMillis;
 		result.put("dt==timeCast=====:", cast);

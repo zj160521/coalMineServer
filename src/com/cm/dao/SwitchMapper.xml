@@ -291,7 +291,7 @@
 		LEFT JOIN t_static tsb ON tss.break_display=tsb.id
 		LEFT JOIN t_static tsc ON tss.connect_display=tsc.id
 		LEFT JOIN t_position_type tpt ON tss.position_type_id=tpt.id
-		where tss.control!=3 AND tst.islogical IS NULL ORDER BY sub.ipaddr,tss.sensorId
+		where tss.control!=3 AND tss.sensor_type IN (53,56,71) ORDER BY tss.sensor_type,sub.ipaddr,tss.sensorId
     </select>
     
 </mapper>

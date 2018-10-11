@@ -13,6 +13,7 @@ public class SeperateTable {
 		tables.add("t_coalmine_min_data");
 		tables.add("t_feedback");
 		tables.add("t_gd5");
+		tables.add("t_analog_statistics");
 	}
 
 	private static SeperateTable self = null;

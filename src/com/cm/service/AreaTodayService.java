@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.entity.vo.AreaPass;
 import com.cm.entity.vo.LongStringVo;
@@ -79,7 +79,7 @@ public class AreaTodayService extends AreaPassBaseService{
 					if(cardId == rfId && areaId == wiar.getAreaId()){
 						status(wiar);
 						wiT = wiar;
-						if(StaticUtilMethod.isLastRec(dailyRecs, i+1))
+						if(UtilMethod.isLastRec(dailyRecs, i+1))
 							dealWithLast();
 					}else{
 						listAddResult(wiar);
@@ -94,7 +94,7 @@ public class AreaTodayService extends AreaPassBaseService{
 		status(wiar);
 		setVariable(wiar);
 		setNewApT();
-		if(StaticUtilMethod.isLastRec(dailyRecs, i+1))
+		if(UtilMethod.isLastRec(dailyRecs, i+1))
 			dealWithLast();
 	}
 	
@@ -229,7 +229,7 @@ public class AreaTodayService extends AreaPassBaseService{
 	}
 	
 	public void getWellduration(String starttime, String endtime) throws ParseException{
-		LongStringVo lsv = StaticUtilMethod.longToTimeFormat(starttime, endtime);
+		LongStringVo lsv = UtilMethod.longToTimeFormat(starttime, endtime);
 		wellduration = lsv.getTimCast();
 	}
 }

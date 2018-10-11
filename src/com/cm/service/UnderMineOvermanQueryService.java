@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.IWorkerWarningFactory;
 import com.cm.dao.UnderMineOvermanQueryDao;
@@ -55,7 +55,7 @@ public class UnderMineOvermanQueryService implements IWorkerWarningFactory{
 						aovo.setPersonNum(max);
 						aovo.setMaxstarttime(maxVo.getResponsetime());
 						
-						LongStringVo longToTimeFormat = StaticUtilMethod.longToTimeFormat(aovo.getStarttime(), 
+						LongStringVo longToTimeFormat = UtilMethod.longToTimeFormat(aovo.getStarttime(), 
 								listVo.get(listVo.size() -1).getResponsetime());
 						
 						if(longToTimeFormat.getTime() < 1000)

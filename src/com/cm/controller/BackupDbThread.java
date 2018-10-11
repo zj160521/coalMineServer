@@ -38,10 +38,26 @@ public class BackupDbThread implements Runnable{
 				backup=null;
 				return;
 			}
+			if (runcmd.runCli2() != 0) {
+				flag=-1;
+				status=-1;
+				add(log);
+				backup=null;
+				return;
+			}
 			flag=30;
 			String r=(String) runcmd.doEnd();
 			remark=r;
 			if(!"1".equals(r)){
+				flag=-1;
+				status=-1;
+				add(log);
+				backup=null;
+				return;
+			}
+			String r3=(String) runcmd.doEnd2();
+			remark=r3;
+			if(!"1".equals(r3)){
 				flag=-1;
 				status=-1;
 				add(log);
@@ -56,6 +72,11 @@ public class BackupDbThread implements Runnable{
 			}
 			flag=60;
 			if (runcmd.runCli() != 0) {
+				status=-1;
+				add(log);
+				backup=null;
+			}
+			if (runcmd.runCli2() != 0) {
 				status=-1;
 				add(log);
 				backup=null;
@@ -76,6 +97,11 @@ public class BackupDbThread implements Runnable{
 			}
 			flag=90;
 			if (runcmd.runCli() != 0) {
+				status=-1;
+				add(log);
+				backup=null;
+			}
+			if (runcmd.runCli2() != 0) {
 				status=-1;
 				add(log);
 				backup=null;

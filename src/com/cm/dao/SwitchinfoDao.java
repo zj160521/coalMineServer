@@ -3,11 +3,8 @@ package com.cm.dao;
 import java.util.List;
 
 import com.cm.entity.Switchinfo;
-import com.cm.entity.vo.AnalogoutVo;
-import com.cm.entity.vo.NameTime;
-import com.cm.entity.vo.SSParaVo;
-import com.cm.entity.vo.SSWarning;
-import com.cm.entity.vo.SwitchRecs;
+import com.cm.entity.vo.*;
+import org.apache.ibatis.annotations.Param;
 
 public interface SwitchinfoDao {
 	
@@ -26,4 +23,10 @@ public interface SwitchinfoDao {
 		public List<SSWarning> getWarnimgRec(SSParaVo para);
 		
 		public List<SwitchRecs> getStatusChangeRecs(SSParaVo para);
+
+		public List<AnaloginfoQuery> getSwitchStateChange(@Param("tableName") String tableName);
+
+        public List<AnaloginfoQuery> getSensorAlarms(NameTime nameTime);
+
+        public List<AnaloginfoQuery> getSwitchSensorAlarms(NameTime nameTime);
 }

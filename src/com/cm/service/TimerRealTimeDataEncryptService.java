@@ -4,10 +4,9 @@ import com.cm.controller.AES;
 import com.cm.controller.EncryptDataFileUtils;
 import com.cm.dao.GD5ReportDao;
 import com.cm.dao.IRSAKeyDao;
-import com.cm.entity.Config;
+import com.cm.entity.EnvClasses;
 import com.cm.entity.GD5Report;
 import com.cm.entity.RsaKey;
-import com.cm.entity.vo.CoalmineVo;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -16,18 +15,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import sun.misc.BASE64Decoder;
-import util.GetHostName;
 import util.RedisPool;
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import javax.crypto.Cipher;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
@@ -36,10 +31,15 @@ import java.security.Security;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
 
@@ -56,26 +56,31 @@ public class TimerRealTimeDataEncryptService {
 	private ConfigService cfgService;
 	@Autowired
 	private IRSAKeyDao rsaService;
+	@Autowired
+	private EnvClassesService envClassesService;
 
 	private DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private DateFormat df2 = new SimpleDateFormat("yyyyMMddHHmmss");
 	private DateFormat df3 = new SimpleDateFormat("yyyy_MM_dd");
+	private DateFormat df4 = new SimpleDateFormat("yyyy-MM-dd");
+	private String today;
+	private String tomorrow;
 	private String endTime;
 	private String startTime;
 	private String now2;
-	private String beforeTime;
 	private final String rootPath = "/opt/";
 	private String encryptFilePath;
 	private String unencryptFilePath;
 	private final String decryptFilePath = "decrypt_file";
 	private final String splitFlag = "~";
+	private final String lineFeed = "\r\n";
 	private String AESKey;
 	private String PADDING = "RSA/NONE/NoPadding";
 	private String PROVIDER = "BC";
 
 	@Scheduled(cron = "0/30 * * * * ?")
 	public void EncryptData() {
-//		String lockKey = "SSAndGD5DataEncrypt";
+//		String lockKey = "GD5DataEncrypt";
 //        String requestId = UUID.randomUUID().toString();
 //        boolean lock = RedisPool.tryGetDistributedLock(lockKey, requestId, 15000l);
 //        if (lock) {
@@ -84,26 +89,21 @@ public class TimerRealTimeDataEncryptService {
 	    		setPath();
 	    		// 导入公钥后才进行加密
 	    		String pubKey = cfgService.get("pubKey");
-	    		if(StaticUtilMethod.notNullOrEmptyStr(pubKey) && System.getProperty("os.name").startsWith("Linux")){
+//	    		if(UtilMethod.notEmptyStr(pubKey) && System.getProperty("os.name").startsWith("Linux")){
 					createFile();// 创建文件夹
 					getStartEndTime();// 获取需保存数据的开始和结束时间
+					setTomorrow();
 					// 获取矿井编号
 					String mineNum = stcService.getV(8);
 					if(mineNum == null || mineNum.isEmpty()) mineNum = "未设置矿井编号";
-					// 加密实时数据并保存至指定文件夹
-					encryptRealTimeData(getOriginalRealTimeData(), mineNum, "_SSSJ_");
 					// 加密GD5数据并保存至指定文件夹
 					encryptRealTimeData(getOriginalGD5Data(), mineNum, "_LJSJ_");
-	    		}
-	    		// 删除一小时以前数据文件
-	    		deletefile(encryptFilePath);
-	    		deletefile(unencryptFilePath);
+//	    		}
     		} catch (Exception e) {
 				e.printStackTrace();
-			} 
-//	    		finally {
+			} finally {
 //				RedisPool.releaseDistributedLock(lockKey, requestId);
-//			}
+			}
 //        }
 	}
 	
@@ -111,10 +111,10 @@ public class TimerRealTimeDataEncryptService {
 	public void setPath(){
 		encryptFilePath = cfgService.get("encrypt_file");
 		unencryptFilePath = cfgService.get("unencrypt_file");
-		if(!StaticUtilMethod.notNullOrEmptyStr(encryptFilePath)){
+		if(!UtilMethod.notEmptyStr(encryptFilePath)){
 			encryptFilePath = "/opt/encrypt_file";
 		}
-		if(!StaticUtilMethod.notNullOrEmptyStr(unencryptFilePath)){
+		if(!UtilMethod.notEmptyStr(unencryptFilePath)){
 			unencryptFilePath = "/opt/unencrypt_file";
 		}
 	}
@@ -129,14 +129,6 @@ public class TimerRealTimeDataEncryptService {
 		String fileName = "/" + mineNum + fileType + now2 + ".TXT";
 		// 加密并写数据
 		produceData(fileName, sb);
-	}
-	
-	// 实时数据元数据
-	public StringBuffer getOriginalRealTimeData(){
-		String tableName = "t_coalMine_" + df3.format(new Date());
-		List<CoalmineVo> dataByTime = cmService.getDataByTime(startTime, endTime, tableName);// 查询实时数据
-		StringBuffer sb = getRTSB(dataByTime, endTime);// 实时数据拼接成指定格式
-		return sb;
 	}
 	
 	// 累积量元数据
@@ -168,50 +160,75 @@ public class TimerRealTimeDataEncryptService {
 
 	public void getStartEndTime() {
 		Calendar cal = Calendar.getInstance();
+		Calendar cal2 = Calendar.getInstance();
+		cal2.set(Calendar.HOUR, -12);  
+		cal2.set(Calendar.MINUTE, 0);  
+		cal2.set(Calendar.SECOND, 30);  
+		cal2.set(Calendar.MILLISECOND, 0);
+		if (cal.getTimeInMillis() < cal.getTimeInMillis()) {
+			Date yesterdayStartTime = getYesterdayStartTime();
+			startTime = df.format(yesterdayStartTime);
+		} else {
+			startTime = UtilMethod.getStarttimeOfDay();
+		}
+		today = df4.format(cal.getTime());
 		cal.add(Calendar.SECOND, -30);
 		endTime = df.format(cal.getTime());
 		now2 = df2.format(cal.getTime());
-		cal.add(Calendar.SECOND, -30);
-		startTime = df.format(cal.getTime());
-		cal.add(Calendar.SECOND, 30);
-		cal.add(Calendar.HOUR, -1);
-		beforeTime = df2.format(cal.getTime());
+		
 	}
-
-	public StringBuffer getRTSB(List<CoalmineVo> dataByTime, String now) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(now + ";" + dataByTime.size() + splitFlag + "\r\n");
-		if(StaticUtilMethod.notNullOrEmptyList(dataByTime)){
-			for (int i = 0; i < dataByTime.size(); i++) {
-				CoalmineVo cv = dataByTime.get(i);
-				if (cv.getIp() != null && cv.getIp() != "") {
-					StringBuffer definitionOfMeasurePoints = null;
-					if (cv.getType() == 16 && cv.getDev_id() > 0) {
-						definitionOfMeasurePoints = EncryptDataFileUtils
-								.definitionOfMeasurePoints(16, cv.getDev_id());
-					} else if (cv.getType() > 0 && cv.getDev_id() > 0) {
-						definitionOfMeasurePoints = EncryptDataFileUtils
-								.definitionOfMeasurePoints(cv.getType(),
-										cv.getDev_id());
-					}
-					if (definitionOfMeasurePoints != null)
-						sb.append(definitionOfMeasurePoints + ";" + cv.getValue()
-								+ ";" + cv.getStatus() + splitFlag);
-
-					if (i == dataByTime.size() - 1)
-						sb.append("||");
-				}
-			}
-		}else{
-			sb.append("||");
-		}
-		return sb;
+	
+	public Date getYesterdayStartTime() {
+		Calendar cal = new GregorianCalendar();
+		cal.set(Calendar.HOUR, -12);  
+		cal.set(Calendar.MINUTE, 0);  
+		cal.set(Calendar.SECOND, 0);  
+		cal.set(Calendar.MILLISECOND, 0);
+		cal.setTime(cal.getTime());
+		cal.add(Calendar.DAY_OF_MONTH, -1);
+		return cal.getTime();
+	}
+	
+	public void setTomorrow() {
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DAY_OF_MONTH, 1);
+		tomorrow = df4.format(cal.getTime());
 	}
 
 	public StringBuffer getGD5SB(List<GD5Report> dataByTime, String now) {
+		List<EnvClasses> allClasses = envClassesService.getAll();
+		if (UtilMethod.notEmptyList(allClasses)) {//处理班次的开始结束时间（班次配置中存在跨夜）
+			for (int i = 0; i < allClasses.size(); i++) {
+				EnvClasses ec = allClasses.get(i);
+				ec.setId(i);
+				String[] starts = ec.getStart().split(":");
+				String[] ends = ec.getEnd().split(":");
+				int startHour = Integer.parseInt(starts[0]);
+				int startMin = Integer.parseInt(starts[1]);
+				int endHour = Integer.parseInt(ends[0]);
+				int endMin = Integer.parseInt(ends[1]);
+				
+				if (startHour < endHour) {
+					ec.setStart(today + " " + ec.getStart() + ":00");
+					ec.setEnd(today + " " + ec.getEnd() + ":00");
+				} else if (startHour == endHour) {
+					if (startMin <= endMin) {
+						ec.setStart(today + " " + ec.getStart() + ":00");
+						ec.setEnd(today + " " + ec.getEnd() + ":00");
+					} else {
+						ec.setStart(today + " " + ec.getStart() + ":00");
+						ec.setEnd(tomorrow + " " + ec.getEnd() + ":00");
+					}
+				} else if (startHour > endHour) {
+					ec.setStart(today + " " + ec.getStart() + ":00");
+					ec.setEnd(tomorrow + " " + ec.getEnd() + ":00");
+				}
+			}
+		}
+		
 		StringBuffer sb = new StringBuffer();
-		sb.append(now + ";" + dataByTime.size() + splitFlag + "\r\n");
-		if(StaticUtilMethod.notNullOrEmptyList(dataByTime)){
+		if (UtilMethod.notEmptyList(dataByTime)) {
+			Map<String, Map<Integer, Double>> devMap = new HashMap<String, Map<Integer, Double>>();
 			for (int i = 0; i < dataByTime.size(); i++) {
 				GD5Report cv = dataByTime.get(i);
 				if (cv.getIp() != null && cv.getIp() != "") {
@@ -221,19 +238,63 @@ public class TimerRealTimeDataEncryptService {
 								.definitionOfMeasurePoints(16, cv.getDevid());
 					} else {
 						definitionOfMeasurePoints = EncryptDataFileUtils
-								.definitionOfMeasurePoints(
-										Integer.parseInt(cv.getType()),
-										cv.getDevid());
+								.definitionOfMeasurePoints(cv.getSensor_type(), cv.getDevid());
 					}
-					sb.append(definitionOfMeasurePoints + ";" + "0;"
-							+ cv.getFlow_work_sum() + splitFlag);
-
-					if (i == dataByTime.size() - 1)
-						sb.append("||");
+					
+					Map<Integer, Double> map = devMap.get(definitionOfMeasurePoints.toString());
+					if (UtilMethod.notEmptyList(allClasses)) {
+						for (EnvClasses ec : allClasses) {
+							if (map == null) map = new HashMap<Integer, Double>();//-1:的值为前班次，0：班次1,1：班次2，一次类推
+							Double value = map.get(ec.getId());
+							if (value == null) {
+								value = 0.0;
+								map.put(ec.getId(), value);
+							}
+							try {
+								if (UtilMethod.isMid(cv.getResponsetime(), ec.getStart(), ec.getEnd())) {
+									Double cls = map.get(-1);
+									if (cls == null) {
+										map.put(-1, (double) ec.getId());
+									} else if (ec.getId() > cls) {
+										map.put(-1, (double) ec.getId());
+									}
+									value += cv.getFlow_work();
+									map.put(ec.getId(), value);
+								}
+							} catch (ParseException e) {
+								e.printStackTrace();
+							}
+						}
+					} else {
+						if (map == null) {
+							map = new HashMap<Integer, Double>();//-1:表示当前班次
+							map.put(-1, (double) 0);
+						}
+						Double value = map.get(0);
+						if (value == null) value = 0.0;
+						value += cv.getFlow_work();
+						map.put(0, value);
+					}
+					if (map != null)
+						devMap.put(definitionOfMeasurePoints.toString(), map);
 				}
 			}
-		}else{
+			sb.append(now + ";" + devMap.size() + splitFlag + lineFeed);
+			if (devMap.size() > 0) {
+				for (Entry<String, Map<Integer, Double>> etr : devMap.entrySet()) {
+					sb.append(etr.getKey() + ";" + etr.getValue().get(-1).intValue());
+					Map<Integer, Double> map = etr.getValue();
+					if (map != null) {
+						for (Entry<Integer, Double> value : map.entrySet()) {
+							if (value.getKey() != -1) sb.append(";"+String.format("%.2f", value.getValue()));
+						}
+					}
+					sb.append(splitFlag + lineFeed);
+				}
+			}
 			sb.append("||");
+		} else {
+			sb.append(now + ";" + 0 + splitFlag + lineFeed + "||");
 		}
 		return sb;
 	}
@@ -266,32 +327,6 @@ public class TimerRealTimeDataEncryptService {
 				e.printStackTrace();
 			}
 			RsaEncrypt(fileName);//加密AES密钥
-//			copyFileToSlave(filename);
-		}
-	}
-	
-	public void copyFileToSlave (String fileName) {
-		try {
-			List<Config> configByV = cfgService.getConfigByV("hostName");
-			String hostName = GetHostName.getHostName();
-			for (Config cfg : configByV) {
-				if (!cfg.getK().equals(hostName)) hostName = cfg.getK();
-				break;
-			}
-			
-			try {
-				String[] cmd = {"scp", unencryptFilePath + fileName, "root@"+ hostName +":" + unencryptFilePath+"/"};
-				int waitFor = Runtime.getRuntime().exec(cmd).waitFor();
-				if (waitFor == 0) {
-					String[] cmd2 = {"scp", encryptFilePath + fileName, "root@"+ hostName +":" + encryptFilePath+"/"};
-					Runtime.getRuntime().exec(cmd2);
-				}
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -378,39 +413,6 @@ public class TimerRealTimeDataEncryptService {
 			sb.append(str.charAt(number));
 		}
 		return sb.toString();
-	}
-	
-	/**
-	 * 删除一小时前文件
-	 */
-	public void deletefile(String delpath){
-		try {
-			//删除一小时前的明文和密文文件
-			File file = new File(delpath);
-			if (file.isDirectory()) {
-				String[] filelist = file.list();
-				for (int i = 0; i < filelist.length; i++) {
-					String fileName = filelist[i];
-					String[] split = fileName.split("_");
-					String name = split[split.length -1].split(".TXT")[0];
-					
-					long parseLong = Long.parseLong(name);
-					long parseLong2 = Long.parseLong(beforeTime);
-					
-					if(parseLong < parseLong2){
-						File delFile  = new File(delpath.concat("/"+fileName));
-						delFile.delete();
-					}
-				}
-			}
-			//删除rsa加密的aes密钥
-			Calendar cal = Calendar.getInstance();
-			cal.add(Calendar.MONTH, -3);
-			String filltime = df.format(cal.getTime());
-			rsaService.delete(filltime);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 }

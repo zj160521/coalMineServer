@@ -1,6 +1,9 @@
 package com.cm.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,21 +46,30 @@ public class AnalogStatisticsController {
 			return result.setStatus(-1, "no login");
 		}
 		try {
-			boolean start = valiDateTimeWithLongFormat(nameTime.getStarttime());
-			boolean end = valiDateTimeWithLongFormat(nameTime.getEndtime());
-			if(start==true&&end==true){
-				nameTime.setStart_row((nameTime.getCur_page()-1)*nameTime.getPage_rows());
-				List<AnalogStatistics> list = service.getall(nameTime);
-				if(list.size()==0){
-					result.put("data", list);
-					return result.setStatus(0, "没有数据！");
-				}else{
-					nameTime.setTotal_rows(service.getcount(nameTime));
-					result.put("namTime", nameTime);
-					result.put("data",list);
-				}
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			String nowday = dateFormat.format(new Date());
+			long a = dateFormat.parse(nowday).getTime();
+			long b = dateFormat.parse(nameTime.getDay()).getTime();
+			if(b>a){
+				List<AnalogStatistics> list = new ArrayList<AnalogStatistics>();
+				result.put("data", list);
+				return result.setStatus(0, "没有数据！");
 			}else{
-				return result.setStatus(-2, "时间输入不正确，请重新输入");
+				boolean start = valiDateTimeWithLongFormat(nameTime.getStarttime());
+				if(start==true){
+					nameTime.setStart_row((nameTime.getCur_page()-1)*nameTime.getPage_rows());
+					List<AnalogStatistics> list = service.getall(nameTime);
+					if(list.size()==0){
+						result.put("data", list);
+						return result.setStatus(0, "没有数据！");
+					}else{
+						nameTime.setTotal_rows(service.getcount(nameTime));
+						result.put("namTime", nameTime);
+						result.put("data",list);
+					}
+				}else{
+					return result.setStatus(-2, "时间输入不正确，请重新输入");
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

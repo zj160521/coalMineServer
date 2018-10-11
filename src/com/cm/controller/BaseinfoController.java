@@ -11,13 +11,16 @@ import com.cm.service.*;
 import com.cm.service.kafka.ConfigSyncThread;
 import com.cm.service.kafka.KafkaMsgQueue;
 import com.cm.service.kafka.MessageUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
 import redis.clients.jedis.Jedis;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -74,9 +77,10 @@ public class BaseinfoController {
 
     private static final String RADIO_ACTION = "broadcast";
     private static final String CUTOUT_ACTION = "cutout";
+    private static final String CARDREADER_ACTION = "call";
 
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     @ResponseBody
     public Object getById(@PathVariable int id, HttpServletRequest request) {
         if (!loginManage.isUserLogin(request)) {
@@ -120,7 +124,39 @@ public class BaseinfoController {
             e1.printStackTrace();
             return result.setStatus(-2, e1.getMessage());
         }
-
+        if(sensor.getLimit_power() != 0 && Math.abs(sensor.getLimit_power()) != 999999){
+        	if(sensor.getSensorList()==null){
+        		return result.setStatus(-4, "配有断电值的时候必须要设置联动设备并配置断馈电仪");
+        	}else{
+        		List<DevlinkSensor> devlinkSensors = sensor.getSensorList();
+        		int count = 0;
+        		for(DevlinkSensor d:devlinkSensors){
+        			if(d.getSensor_type()==56||d.getSensor_type()==53){
+        				count++;
+        			}
+        		}
+        		if(count == 0){
+        			return result.setStatus(-4, "配有断电值的时候必须要设置联动设备并配置断馈电仪");
+        		}
+        	}
+        }
+        if(sensor.getFloor_power() != 0 && Math.abs(sensor.getFloor_power()) != 999999){
+        	if(sensor.getSensorList()==null){
+        		return result.setStatus(-4, "配有断电值的时候必须要设置联动设备并配置断馈电仪");
+        	}else{
+        		List<DevlinkSensor> devlinkSensors = sensor.getSensorList();
+        		int count = 0;
+        		for(DevlinkSensor d:devlinkSensors){
+        			if(d.getSensor_type()==56||d.getSensor_type()==53){
+        				count++;
+        			}
+        		}
+        		if(count == 0){
+        			return result.setStatus(-4, "配有断电值的时候必须要设置联动设备并配置断馈电仪");
+        		}
+        	}
+        }
+        
         Sensor sensor3 = new Sensor();
         sensor.setControl(1);
         try {
@@ -162,13 +198,13 @@ public class BaseinfoController {
                             }
                         } else {
                             if (positionType.getAlarm() > 0){
-                                if (sensor.getUpper_level1() < positionType.getAlarm()){
-                                    return result.setStatus(-4, "保存失败，设备报警值不能小于系统设定值");
+                                if (sensor.getUpper_level1() > positionType.getAlarm()){
+                                    return result.setStatus(-4, "保存失败，设备报警值不能大于系统设定值");
                                 }
                             }
                             if (positionType.getCut() > 0){
-                                if (sensor.getLimit_power() < positionType.getCut()){
-                                    return result.setStatus(-4, "保存失败，设备断电值不能小于系统设定值");
+                                if (sensor.getLimit_power() > positionType.getCut()){
+                                    return result.setStatus(-4, "保存失败，设备断电值不能大于系统设定值");
                                 }
                             }
                             if (positionType.getRepower() > 0){
@@ -222,13 +258,13 @@ public class BaseinfoController {
                             }
                         } else {
                             if (positionType.getAlarm() > 0){
-                                if (sensor.getUpper_level1() < positionType.getAlarm()){
-                                    return result.setStatus(-4, "保存失败，设备报警值不能小于系统设定值");
+                                if (sensor.getUpper_level1() > positionType.getAlarm()){
+                                    return result.setStatus(-4, "保存失败，设备报警值不能大于系统设定值");
                                 }
                             }
                             if (positionType.getCut() > 0){
-                                if (sensor.getLimit_power() < positionType.getCut()){
-                                    return result.setStatus(-4, "保存失败，设备断电值不能小于系统设定值");
+                                if (sensor.getLimit_power() > positionType.getCut()){
+                                    return result.setStatus(-4, "保存失败，设备断电值不能大于系统设定值");
                                 }
                             }
                             if (positionType.getRepower() > 0){
@@ -348,10 +384,11 @@ public class BaseinfoController {
                         return result.setStatus(-4, "该设备为" + methane.getAlais() + "设备的外接甲烷传感器，不能直接进行此操作");
                     }
                 }
-                baseinfoService.deleteSensor(id);
+
                 String remark = JSONObject.toJSONString(sensor);
                 String operation2 = "删除传感器" + sensor.getAlais();
                 loginManage.addLog(request, remark, operation2, 15131);
+                baseinfoService.deleteSensor(id);
             } catch (Exception e) {
                 e.printStackTrace();
                 return result.setStatus(-4, "exception");
@@ -396,95 +433,100 @@ public class BaseinfoController {
             return result.setStatus(-1, "no login");
         }*/
 
-        Cardreder cardreder = new Cardreder();
-        List<Cardreder> list1 = cardrederService.getallCardreder(cardreder);
-        for (Cardreder cardreder2 : list1) {
-            cardreder2.setPid(64);
-            cardreder2.setPath("people.svg");
-            cardreder2.setList_type(1);
-        }
-        List<SwitchSensor> list2 = switchSensorService.AllSwitchSensor();
-        for (SwitchSensor switchSensor : list2) {
-            if (switchSensor.getSensor_type() == 53) {
-                switchSensor.setHasfloor(1);//1表示断电控制器
-            } else if (switchSensor.getSensor_type() == 54) {
-                switchSensor.setHasfloor(2);//2表示馈电传感器
-            } else if (switchSensor.getSensor_type() == 56) {
-                switchSensor.setHasfloor(3);//3表示断馈电仪器
-            } else {
-                switchSensor.setHasfloor(0);
+        try{
+            Cardreder cardreder = new Cardreder();
+            List<Cardreder> list1 = cardrederService.getallCardreder(cardreder);
+            for (Cardreder cardreder2 : list1) {
+                cardreder2.setPid(64);
+                cardreder2.setPath("people.svg");
+                cardreder2.setList_type(1);
             }
-        }
-
-        List<Sensor> slist = baseinfoService.getAllSensor2();
-        List<Object> list6 = new ArrayList<Object>();
-        List<Sensor> list3 = new ArrayList<Sensor>();
-
-        for (SwitchSensor switchSensor : list2) {
-            switchSensor.setPid(25);
-            switchSensor.setList_type(2);
-            if (switchSensor.getIsDrainage() == 1) {
-                list6.add(switchSensor);
+            List<SwitchSensor> list2 = switchSensorService.AllSwitchSensor();
+            for (SwitchSensor switchSensor : list2) {
+                if (switchSensor.getSensor_type() == 53) {
+                    switchSensor.setHasfloor(1);//1表示断电控制器
+                } else if (switchSensor.getSensor_type() == 54) {
+                    switchSensor.setHasfloor(2);//2表示馈电传感器
+                } else if (switchSensor.getSensor_type() == 56) {
+                    switchSensor.setHasfloor(3);//3表示断馈电仪器
+                } else {
+                    switchSensor.setHasfloor(0);
+                }
             }
-        }
-        for (Sensor sensor : slist) {
-            sensor.setPid(100);
-            sensor.setList_type(3);
-            if (sensor.getSensor_type() == 32 || sensor.getSensor_type() == 33 || sensor.getSensor_type() == 34 || sensor.getSensor_type() == 35 || sensor.getSensor_type() == 70 || sensor.getSensor_type() == 80) {
-                sensor.setIsmethane(1);
+
+            List<Sensor> slist = baseinfoService.getAllSensor2();
+            List<Object> list6 = new ArrayList<Object>();
+            List<Sensor> list3 = new ArrayList<Sensor>();
+
+            for (SwitchSensor switchSensor : list2) {
+                switchSensor.setPid(25);
+                switchSensor.setList_type(2);
+                if (switchSensor.getIsDrainage() == 1) {
+                    list6.add(switchSensor);
+                }
             }
-            if (sensor.getDrainageId() > 0) {
-                list6.add(sensor);
+            for (Sensor sensor : slist) {
+                sensor.setPid(100);
+                sensor.setList_type(3);
+                if (sensor.getSensor_type() == 32 || sensor.getSensor_type() == 33 || sensor.getSensor_type() == 34 || sensor.getSensor_type() == 35 || sensor.getSensor_type() == 70 || sensor.getSensor_type() == 80) {
+                    sensor.setIsmethane(1);
+                }
+                if (sensor.getDrainageId() > 0) {
+                    list6.add(sensor);
+                }
+                list3.add(sensor);
             }
-            list3.add(sensor);
-        }
-        List<Radio> list4 = radioService.getAll();
-        for (Radio r : list4) {
-            r.setPid(65);
-            r.setList_type(4);
-        }
-        List<Video> list5 = videoService.getAllVideo();
-        for (Video v : list5) {
-            v.setPid(70);
-            v.setList_type(5);
-        }
-        List<Equipments> list7 = equService.getAllElec();
-        List<Object> list8 = new ArrayList<>();
-        List<Sensor> allVentilateSensor = ventilateService.getAllVentilateSensor();
-        for (Sensor sensor : allVentilateSensor) {
-            list8.add(sensor);
-        }
-        List<SwitchSensor> allVentilateSwitchSensor = ventilateService.getAllVentilateSwitchSensor();
-        for (SwitchSensor switchSensor : allVentilateSwitchSensor) {
-            list8.add(switchSensor);
-        }
+            List<Radio> list4 = radioService.getAll();
+            for (Radio r : list4) {
+                r.setPid(65);
+                r.setList_type(4);
+            }
+            List<Video> list5 = videoService.getAllVideo();
+            for (Video v : list5) {
+                v.setPid(70);
+                v.setList_type(5);
+            }
+            List<Equipments> list7 = equService.getAllElec();
+            List<Object> list8 = new ArrayList<>();
+            List<Sensor> allVentilateSensor = ventilateService.getAllVentilateSensor();
+            for (Sensor sensor : allVentilateSensor) {
+                list8.add(sensor);
+            }
+            List<SwitchSensor> allVentilateSwitchSensor = ventilateService.getAllVentilateSwitchSensor();
+            for (SwitchSensor switchSensor : allVentilateSwitchSensor) {
+                list8.add(switchSensor);
+            }
 
-        List<EnvArea> list10 = areaService.getAll();
-        for (EnvArea area : list10) {
-            area.setType(900);
+            List<EnvArea> list10 = areaService.getAll();
+            for (EnvArea area : list10) {
+                area.setType(900);
+            }
+
+            List<Substation> list9 = stationService.getAll();
+            All_Senser all = new All_Senser();
+
+            filterSensor(list1,sr);
+            all.setList1(list1);
+
+            filterSensor(list2,sr);
+            all.setList2(list2);
+
+            filterSensor(list3,sr);
+            all.setList3(list3);
+
+            all.setList4(list4);
+            all.setList5(list5);
+            all.setList6(list6);
+            all.setList7(list7);
+            all.setList8(list8);
+            all.setList9(list9);
+            all.setList10(list10);
+            result.put("data", all);
+
+        } catch (Exception e){
+            e.printStackTrace();
+            return result.setStatus(-4,"exception");
         }
-
-        List<Substation> list9 = stationService.getAll();
-        All_Senser all = new All_Senser();
-        
-        filterSensor(list1,sr);
-        all.setList1(list1);
-        
-        filterSensor(list2,sr);
-        all.setList2(list2);
-        
-        filterSensor(list3,sr);
-        all.setList3(list3);
-        
-        all.setList4(list4);
-        all.setList5(list5);
-        all.setList6(list6);
-        all.setList7(list7);
-        all.setList8(list8);
-        all.setList9(list9);
-        all.setList10(list10);
-        result.put("data", all);
-
         return result.setStatus(0, "ok");
     }
 
@@ -537,6 +579,14 @@ public class BaseinfoController {
             ss.setN_point(sensor.getN_point());
             ss.setX_point(sensor.getX_point());
             ss.setY_point(sensor.getY_point());
+            ss.setE2_point(sensor.getE2_point());
+            ss.setN2_point(sensor.getN2_point());
+            ss.setX2_point(sensor.getX2_point());
+            ss.setY2_point(sensor.getY2_point());
+            ss.setE3_point(sensor.getE3_point());
+            ss.setN3_point(sensor.getN3_point());
+            ss.setX3_point(sensor.getX3_point());
+            ss.setY3_point(sensor.getY3_point());
             disService.updateSwitchSensor(ss);
         } else if (uid.startsWith("SE")) {
             Sensor s = new Sensor();
@@ -545,6 +595,14 @@ public class BaseinfoController {
             s.setN_point(sensor.getN_point());
             s.setX_point(sensor.getX_point());
             s.setY_point(sensor.getY_point());
+            s.setE2_point(sensor.getE2_point());
+            s.setN2_point(sensor.getN2_point());
+            s.setX2_point(sensor.getX2_point());
+            s.setY2_point(sensor.getY2_point());
+            s.setE3_point(sensor.getE3_point());
+            s.setN3_point(sensor.getN3_point());
+            s.setX3_point(sensor.getX3_point());
+            s.setY3_point(sensor.getY3_point());
             disService.updateSensor(s);
         } else if (uid.startsWith("AU")) {
             Radio r = new Radio();
@@ -635,6 +693,10 @@ public class BaseinfoController {
                 if (d.getSensor_type() == 65) {
                     link.setAction(RADIO_ACTION);
                     link.setParam("" + d.getAction());
+                }
+                if (d.getSensor_type() == 64) {
+                	link.setAction(CARDREADER_ACTION);
+                	link.setParam("" + d.getAction());
                 }
                 links.add(link);
             }

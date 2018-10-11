@@ -1,7 +1,10 @@
 package com.cm.controller;
 
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.cm.entity.SecretData;
 import com.cm.entity.vo.NameTime;
 import com.cm.security.LoginManage;
@@ -44,25 +46,35 @@ public class SecretDataController {
 			return result.setStatus(-1, "no login");
 		}
 		try {
-			String starttime = nameTime.getDay()+" "+nameTime.getStarttime();
-			String endtime = nameTime.getDay()+" "+nameTime.getEndtime();
-			boolean start = valiDateTimeWithLongFormat(starttime);
-			boolean end = valiDateTimeWithLongFormat(endtime);
-			if(start==true&&end==true){
-				nameTime.setStarttime(starttime);
-				nameTime.setEndtime(endtime);
-				nameTime.setStart_row((nameTime.getCur_page()-1)*nameTime.getPage_rows());
-				List<SecretData> list = service.getbypag(nameTime);
-				nameTime.setTotal_rows(service.getcount(nameTime));
-				if(list!=null&&list.size()>0){
-					result.put("data", list);
-					result.put("nametime", nameTime);
-				}else{
-					result.put("data", list);
-					return result.setStatus(0, "没有数据！");
-				}
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			String nowday = dateFormat.format(new Date());
+			long a = dateFormat.parse(nowday).getTime();
+			long b = dateFormat.parse(nameTime.getDay()).getTime();
+			if(b>a){
+				List<SecretData> list = new ArrayList<SecretData>();
+				result.put("data", list);
+				return result.setStatus(0, "没有数据！");
 			}else{
-				return result.setStatus(-2, "时间格式有误！");
+				String starttime = nameTime.getDay()+" "+nameTime.getStarttime();
+				String endtime = nameTime.getDay()+" "+nameTime.getEndtime();
+				boolean start = valiDateTimeWithLongFormat(starttime);
+				boolean end = valiDateTimeWithLongFormat(endtime);
+				if(start==true&&end==true){
+					nameTime.setStarttime(starttime);
+					nameTime.setEndtime(endtime);
+					nameTime.setStart_row((nameTime.getCur_page()-1)*nameTime.getPage_rows());
+					List<SecretData> list = service.getbypag(nameTime);
+					nameTime.setTotal_rows(service.getcount(nameTime));
+					if(list!=null&&list.size()>0){
+						result.put("data", list);
+						result.put("nametime", nameTime);
+					}else{
+						result.put("data", list);
+						return result.setStatus(0, "没有数据！");
+					}
+				}else{
+					return result.setStatus(-2, "时间格式有误！");
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -36,12 +36,14 @@ public class EncryptDataFileUtils {
     private static SubstationService substationService;
 
     @PostConstruct
-    public void init(){
+    public void init() {
         staticService = staticService2;
         baseinfoService = baseinfoService2;
         sensorService = sensorService2;
         substationService = substationService2;
     }
+
+
 
     /**
      *
@@ -58,20 +60,22 @@ public class EncryptDataFileUtils {
             sb.append("DT");
             sb.append("4001");
             Substation substation = substationService.getSubbyid(sensor_id);
-            sb.append(substation.getUid());
+            sb.append(null != substation.getUid() ? substation.getUid() : "");
         } else {
             Static sta = staticService.getPositionByid(sensor_type);
             String uid = "";
-            if(sta.getPid()==25) {
-                sb.append("KG");
-                SwitchSensor sensor = sensorService.getById(sensor_id);
-                if(null != sensor){
+            if (null != sta){
+                if(sta.getPid()==25) {
+                    sb.append("KG");
+                    SwitchSensor sensor = sensorService.getById(sensor_id);
+                    if(null != sensor){
+                        uid = sensor.getUid();
+                    }
+                } else if (sta.getPid() == 100) {
+                    sb.append("MN");
+                    Sensor sensor = baseinfoService.getById2(sensor_id);
                     uid = sensor.getUid();
                 }
-            } else if (sta.getPid() == 100) {
-                sb.append("MN");
-                Sensor sensor = baseinfoService.getById2(sensor_id);
-                uid = sensor.getUid();
             }
             sb.append(sta.getEncode());
             sb.append(uid);

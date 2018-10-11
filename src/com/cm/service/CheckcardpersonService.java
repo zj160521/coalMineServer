@@ -9,7 +9,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.CheckcardpersonDao;
 import com.cm.entity.Checkcardperson;
@@ -155,7 +155,7 @@ public class CheckcardpersonService {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("intoTime", record.getIntoTime());
 		map.put("outTime", record.getOutTime());
-		map.put("times", StaticUtilMethod.longToTimeFormat(record.getIntoTime(), record.getOutTime()).getTimCast());
+		map.put("times", UtilMethod.longToTimeFormat(record.getIntoTime(), record.getOutTime()).getTimCast());
 		
 		return map;
 	}
@@ -177,7 +177,7 @@ public class CheckcardpersonService {
 					a = list.get(i).getResponsetime();
 				}
 				if(i>0&&list.get(i).getArea_id()==0&&list.get(i).getStatus()==2){
-					times = times+StaticUtilMethod.countLongDvalue(a, list.get(i).getResponsetime());
+					times = times+UtilMethod.countLongDvalue(a, list.get(i).getResponsetime());
 					a = list.get(i).getResponsetime();
 					count++;
 				}
@@ -187,12 +187,12 @@ public class CheckcardpersonService {
 					count++;
 				}*/
 				if(i==list.size()-1&&list.get(i).getArea_id()!=0){
-					times = times+StaticUtilMethod.countLongDvalue(a, list.get(i).getResponsetime());
+					times = times+UtilMethod.countLongDvalue(a, list.get(i).getResponsetime());
 					count++;
 				}
 			}
 			checkcardperson.setNum_month(count);
-			checkcardperson.setWelltime(StaticUtilMethod.countTimeCast(times));
+			checkcardperson.setWelltime(UtilMethod.countTimeCast(times));
 			return checkcardperson;
 		}else{
 			return null;

@@ -1,5 +1,6 @@
 package com.cm.service;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -68,7 +69,9 @@ public class AnalogStatisticsService {
 	
 	public List<AnalogStatistics> getall(NameTime nameTime){
 		List<AnalogStatistics> list = dao.getall(nameTime);
-		for(AnalogStatistics l : list){
+		Map<String, AnalogStatistics> map = new HashMap<String,AnalogStatistics>();
+		List<AnalogStatistics> statistics = new ArrayList<AnalogStatistics>();
+		for(AnalogStatistics l:list){
 			if(l.getPosition()==null){
 				l.setPosition("未配置位置");
 			}
@@ -99,28 +102,57 @@ public class AnalogStatisticsService {
 			}else{
 				l.setLimit_repower(l.getLimit_repowers()+"/"+l.getFloor_repowers());
 			}
-			if(l.getStatus()==0){
-				l.setStatuss("正常");
-			}else if(l.getStatus()==2){
-				l.setStatuss("报警");
-			}else if(l.getStatus()==3){
-				l.setStatuss("断电");
-			}else{
-				l.setStatuss("正常");
+			AnalogStatistics a = map.get(l.getIp()+l.getSensorId()+l.getSensor_type());
+			if(a==null){
+				a = new AnalogStatistics();
+				a.setIp(l.getIp());
+				a.setSensorId(l.getSensorId());
+				a.setSensor_type(l.getSensor_type());
+				a.setAlais(l.getAlais());
+				a.setSensortype(l.getSensortype());
+				a.setMaxvalues(l.getMaxvalues());
+				a.setMaxtime(l.getMaxtime());
+				a.setMinvalue(l.getMinvalue());
+				a.setMintime(l.getMintime());
+				a.setUnit(l.getUnit());
+				a.setLimit_alarm(l.getLimit_alarm());
+				a.setLimit_power(l.getLimit_power());
+				a.setLimit_repower(l.getLimit_repower());
+				a.setPosition(l.getPosition());
+				map.put(l.getIp()+l.getSensorId()+l.getSensor_type(), a);
+				statistics.add(a);
 			}
-			if(l.getDebug()==3){
-				l.setDebugs("是");
-			}else{
-				l.setDebugs("否");
+			a.getList().add(l);
+			if(l.getMaxvalues()>=a.getMaxvalues()){
+				a.setMaxvalues(l.getMaxvalues());
+				a.setMaxtime(l.getMaxtime());
+			}
+			if(l.getMinvalue()<=a.getMinvalue()){
+				a.setMinvalue(l.getMinvalue());
+				a.setMintime(l.getMintime());
 			}
 		}
-		return list;
+		for(AnalogStatistics l : statistics){
+				List<AnalogStatistics> list2 = l.getList();
+				double avgcount = 0;
+				for(int i=0;i<list2.size();i++){
+					list.get(i).setId(i+1);
+					avgcount = avgcount+list2.get(i).getAvgvalue();
+				}
+				l.setAvgvalue(saveOneBitTwoRound(avgcount/list2.size()));
+			}
+		return statistics;
 	}
 	
 	public int getcount(NameTime nameTime){
 		return dao.getcount(nameTime);
 	}
 	
+	public static Double saveOneBitTwoRound(Double d){
+        BigDecimal bd = new BigDecimal(d);
+        Double tem = bd.setScale(2,BigDecimal.ROUND_FLOOR).doubleValue();
+        return tem;
+    }
 	
 	private String gettime() throws ParseException{
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:00");

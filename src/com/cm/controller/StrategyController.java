@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cm.controller.ResultObj;
 import com.cm.controller.strategy.Context;
 import com.cm.controller.strategy.StrategyA;
@@ -90,7 +91,9 @@ public class StrategyController {
 			LogOut.log.info("异常：", e);
 			result.setStatus(-2, "错误！");
 		}
-		
+		String remark = JSONObject.toJSONString(ps);
+        String operation2 = "新增区域规则配置："+ps.getArea_type();
+		loginManage.addLog(request, remark, operation2, 1519);
 		return result.setStatus(0, "ok");
 	}
 	
@@ -115,6 +118,9 @@ public class StrategyController {
 			LogOut.log.info("异常：", e);
 			return result.setStatus(-2, "传感器添加重复！");
 		}
+		String remark = JSONObject.toJSONString(as);
+        String operation2 = "修改区域传感器规则配置";
+		loginManage.addLog(request, remark, operation2, 1518);
 		return result.setStatus(0, "ok");
 	}
 	
@@ -166,7 +172,9 @@ public class StrategyController {
 			LogOut.log.info("异常：", e);
 			return result.setStatus(-2, "错误！");
 		}
-		
+		String remark = JSONObject.toJSONString(as);
+        String operation2 = "修改区域传感器配置规则";
+		loginManage.addLog(request, remark, operation2, 1518);
 		return result.setStatus(0, "ok");
 	}
 	

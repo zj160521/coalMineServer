@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cm.entity.Config;
-import com.cm.entity.Sensor;
 import com.cm.security.LoginManage;
 import com.cm.service.ConfigService;
 
@@ -35,6 +35,9 @@ public class ConfigController {
 	        }
 	        try {
 	           service.update(config);
+	           String remark = JSONObject.toJSONString(config);
+               String operation2 = "修改数据异常状态是否控制断电配置";
+               loginManage.addLog(request, remark, operation2, 1510);
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            result.clean();
@@ -45,7 +48,7 @@ public class ConfigController {
 	
 	@RequestMapping(value = "/getconfig",method=RequestMethod.GET)
 	@ResponseBody
-	public Object update(HttpServletRequest request){
+	public Object getconfig(HttpServletRequest request){
 		 if (!loginManage.isUserLogin(request)) {
 	            return result.setStatus(-1, "no login");
 	        }

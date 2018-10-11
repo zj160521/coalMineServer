@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
@@ -91,7 +91,7 @@ public class SwitchinfoController {
                         String endtime = sdf.format(new Date());
                         ssw.setEndtime(endtime);
                     }
-					LongStringVo longToTimeFormat = StaticUtilMethod.longToTimeFormat(ssw.getStarttime(), ssw.getEndtime());
+					LongStringVo longToTimeFormat = UtilMethod.longToTimeFormat(ssw.getStarttime(), ssw.getEndtime());
 					
 					ssw.setStartStatus(startStatus);
 					ssw.setEndStatus(endStatus);
@@ -102,7 +102,7 @@ public class SwitchinfoController {
 					
 					totalCast += longToTimeFormat.getTime();
 				}
-				String countTimeCast = StaticUtilMethod.countTimeCast(totalCast);//累计时长转换
+				String countTimeCast = UtilMethod.countTimeCast(totalCast);//累计时长转换
 				
 				result.put("totalnum", warnimgRec.size());
 				result.put("totalTime", countTimeCast);
@@ -157,7 +157,7 @@ public class SwitchinfoController {
 	
 	public void dealWithEndId(SSWarning ssw){
 		if(ssw.getEndId() == 0) {
-			String now = StaticUtilMethod.getNow();
+			String now = UtilMethod.getNow();
 			ssw.setEndtime(now);
 			ssw.setEndValue(ssw.getStartValue());
 		}

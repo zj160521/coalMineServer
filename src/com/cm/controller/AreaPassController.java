@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.AreaDailyDao;
 import com.cm.dao.IAreaDao;
@@ -155,13 +155,13 @@ public class AreaPassController {
 				overManCount += (areaOM.getPersonNum() - areaOM.getMaxAllow());
 				if(area_ids != null && area_ids.contains(areaOM.getAreaId()) || area_ids == null){
 					for(AreaPass ap : dataRecs){
-						if(StaticUtilMethod.isTimeString(ap.getStartTime()) && 
-								(StaticUtilMethod.isTimeString(ap.getEndTime()) || ap.getEndTime().equals("至今"))){
+						if(UtilMethod.isTimeString(ap.getStartTime()) && 
+								(UtilMethod.isTimeString(ap.getEndTime()) || ap.getEndTime().equals("至今"))){
 							boolean mid = false;
 							if(ap.getEndTime().equals("至今"))
-								mid = StaticUtilMethod.isMid(areaOM.getFilltime(),ap.getStartTime(),getEndTime());
+								mid = UtilMethod.isMid(areaOM.getFilltime(),ap.getStartTime(),getEndTime());
 							else
-								mid = StaticUtilMethod.isMid(areaOM.getFilltime(),ap.getStartTime(),ap.getEndTime());
+								mid = UtilMethod.isMid(areaOM.getFilltime(),ap.getStartTime(),ap.getEndTime());
 							
 							if(mid && ap.getAreaId() == areaOM.getAreaId()){
 								List<String> list = ap.getEptList();
@@ -203,7 +203,7 @@ public class AreaPassController {
 			}
 		}else{
 			List<AreaChangeVo> areaMSG = areaDao.getAreaMSG(day);
-			if(StaticUtilMethod.notNullOrEmptyList(areaMSG)){
+			if(UtilMethod.notEmptyList(areaMSG)){
 				for(AreaChangeVo area : areaMSG){
 					Integer integer = areaMap.get(area.getId());
 					if(integer == null)
@@ -222,11 +222,11 @@ public class AreaPassController {
 	}
 	
 	public String addMinutes(String time, int minutes) throws ParseException{
-		Date inAreaTime = StaticUtilMethod.StringToDateFormat(time);
+		Date inAreaTime = UtilMethod.StringToDateFormat(time);
 		Calendar inTime = Calendar.getInstance();
 		inTime.setTime(inAreaTime);
 		inTime.add(Calendar.MINUTE, minutes);
-		return StaticUtilMethod.DateToStringFormat(inTime.getTime());
+		return UtilMethod.DateToStringFormat(inTime.getTime());
 	}
 	
 	public void getExceptionMSG(List<AreaPass> areaLimited) throws ParseException{
@@ -253,11 +253,11 @@ public class AreaPassController {
 					if("当日未出该区域".equals(ap.getEndTime()))
 						etime = getEndTime();
 					if("至今".equals(ap.getEndTime()))
-						etime = StaticUtilMethod.getNow();
+						etime = UtilMethod.getNow();
 					if("未检测到出区域读卡记录".equals(ap.getEndTime()) || "未检测到进入区域读卡记录".equals(ap.getStartTime()))
 						continue;
 					
-					mid = StaticUtilMethod.isMid(un.getLastTime(), stime, etime);
+					mid = UtilMethod.isMid(un.getLastTime(), stime, etime);
 					
 					if(mid){
 						if(ap.getEptList() == null || ap.getEptList().isEmpty()){
@@ -292,7 +292,7 @@ public class AreaPassController {
 				}
 			}
 			
-			Integer sec = StaticUtilMethod.getSec(ap.getWellduration());
+			Integer sec = UtilMethod.getSec(ap.getWellduration());
 			Integer max = areaMap.get(ap.getAreaId());
 			if(ap.getAreaId() > 0 && sec > max){
 				LongStringVo wdt = null;
@@ -309,7 +309,7 @@ public class AreaPassController {
 							ap.setEndTime(ap.getWorkday().concat(endTime));
 						
 						try {
-							wdt = StaticUtilMethod.longToTimeFormat(ap.getStartTime(), ap.getEndTime());
+							wdt = UtilMethod.longToTimeFormat(ap.getStartTime(), ap.getEndTime());
 							ap.setWellduration(wdt.getTimCast());
 						} catch (ParseException e) {
 							e.printStackTrace();
@@ -327,7 +327,7 @@ public class AreaPassController {
 						ot = (int)wdt.getTime()/1000 - max;
 					else
 						ot = sec - max;
-					String countTimeCast = StaticUtilMethod.countTimeCast(ot*1000);
+					String countTimeCast = UtilMethod.countTimeCast(ot*1000);
 					ap.setWellduration(ap.getWellduration().concat("/ 超时").concat(countTimeCast));
 					
 					if(ap.getEptList() == null || ap.getEptList().isEmpty()){
@@ -681,13 +681,21 @@ public class AreaPassController {
 		Object obj = null;
 		if(searchform.getType()==3){
 			List<Integer> list = areaDao.getAllemphasisAreaIds();
-			searchform.setArea_ids(list);
-			obj = getDailyRec(request, searchform);
+			if (UtilMethod.notEmptyList(list)) {
+				searchform.setArea_ids(list);
+				obj = getDailyRec(request, searchform);
+			} else { 
+				return result.setStatus(0, "");
+			}
 		}
 		if(searchform.getType()==4){
 			List<Integer> list = areaDao.getAllAreaLimitIds();
-			searchform.setArea_ids(list);
-			obj = getDailyRec(request, searchform);
+			if (UtilMethod.notEmptyList(list)) {
+				searchform.setArea_ids(list);
+				obj = getDailyRec(request, searchform);
+			} else { 
+				return result.setStatus(0, "");
+			}
 		}
 		return obj;
 	}

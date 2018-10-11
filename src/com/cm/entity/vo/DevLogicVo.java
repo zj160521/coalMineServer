@@ -1,13 +1,13 @@
 package com.cm.entity.vo;
 
-public class DevLogicVo {
+public class DevLogicVo implements Cloneable{
 	private int id;
 	private int groupId;
 	private int lgcDevid;
 	private String dev;//设备别名
 	private String dev2;//设备2别名
 	private String lgcExps;//逻辑表达式
-	private double value;//执行参数
+	private Double value;//执行参数
 	private String switchValueText;
 	private String dsp;//设备描述
 	private int sole;//是否删除
@@ -125,10 +125,10 @@ public class DevLogicVo {
 	public void setDev2(String dev2) {
 		this.dev2 = dev2;
 	}
-	public double getValue() {
+	public Double getValue() {
 		return value;
 	}
-	public void setValue(double value) {
+	public void setValue(Double value) {
 		this.value = value;
 	}
 	public String getLgcOperator() {

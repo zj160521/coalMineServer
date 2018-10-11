@@ -15,7 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import redis.clients.jedis.Jedis;
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -69,7 +69,7 @@ public class AreaController {
 					area.setAreaRuleList(areaRuleList);
 					List<Sensor> list2 = areaService.getSensorByAreaid(area.getId());
 					List<Sensor> sensorList = new ArrayList<Sensor>();
-					if(StaticUtilMethod.notNullOrEmptyList(list2)){
+					if(UtilMethod.notEmptyList(list2)){
 						for(Sensor sensor : list2){
 							if(sensor.getType() != null){
 								String shortName = DevShortNameService.getShortName(sensor.getType());
@@ -112,7 +112,7 @@ public class AreaController {
 	public Map<Integer, Sensor> getAreaSensorMap(){
 	    HashMap<Integer, Sensor> map = new HashMap<>();
         List<Sensor> list = adjoinAreaService.getAllAreaSensor();
-        if(StaticUtilMethod.notNullOrEmptyList(list)){
+        if(UtilMethod.notEmptyList(list)){
             for (Sensor sensor : list) {
                 Sensor sensor1 = map.get(sensor.getId());
                 if (null == sensor1){
@@ -126,7 +126,7 @@ public class AreaController {
 	public Map<Integer,List<AreaRule>> getAreaRuleMap(){
 		Map<Integer,List<AreaRule>> map = new HashMap<Integer,List<AreaRule>>();
 		List<AreaRule> allAreaRules = arDao.getAllAreaRules();
-		if(StaticUtilMethod.notNullOrEmptyList(allAreaRules)){
+		if(UtilMethod.notEmptyList(allAreaRules)){
 			for(AreaRule ar : allAreaRules){
 				if(ar.getRuleDev() == null || ar.getRuleDev() == ""){
 					continue;
@@ -183,7 +183,7 @@ public class AreaController {
                     areaService.updateCardreder(area.getId(), area.getCardreders());
                 }
                 String remark = JSONObject.toJSONString(area);
-                String operation2 = "修改区域配置";
+                String operation2 = "修改区域配置:" + area.getAreaname();
                 loginManage.addLog(request, remark, operation2, 15120);
 				// 更新redis表
 				RedisClient.getInstance().setAreaTimeout(as);
@@ -203,7 +203,7 @@ public class AreaController {
                     areaService.updateCardreder(area.getId(), area.getCardreders());
                 }
                 String remark = JSONObject.toJSONString(area);
-                String operation2 = "增加区域配置";
+                String operation2 = "增加区域配置:" + area.getAreaname();
                 loginManage.addLog(request, remark, operation2, 15120);
 				// 更新redis表
 				RedisClient.getInstance().setAreaTimeout(as);
@@ -238,11 +238,12 @@ public class AreaController {
 			return per;
 		try {
 
-			areaService.deleteArea(id);
+
             Area area = areaService.getByid(id);
             String remark = JSONObject.toJSONString(area);
-            String operation2 = "删除区域配置";
+            String operation2 = "删除区域配置:" + area.getAreaname();
             loginManage.addLog(request, remark, operation2, 15121);
+            areaService.deleteArea(id);
         } catch (Exception e) {
 			e.printStackTrace();
 			return result.setStatus(-4, "exception");

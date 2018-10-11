@@ -1,4 +1,4 @@
-package com.cm.controller;
+package com.cm.service;
 
 import java.text.ParseException;
 import java.util.List;
@@ -212,11 +212,11 @@ public class CalculateReport {
 		}	
 	}
 	
-	@Scheduled(cron = "0 3 * * * ?")
+	@Scheduled(cron = "0 32 * * * ?")
 	public void addAlarmreport(){
 		try {
 			List<SensorAlarmreport> list = alarmreportService.getAlarmreport();
-//			LogOut.log.debug(list.size()+"-----------------------------模拟量报警数据");
+			LogOut.log.debug(list.size()+"-----------------------------模拟量报警数据");
 			if(list.size()>0&&list!=null){
 					alarmreportService.addAlarmreport(list);
 			}

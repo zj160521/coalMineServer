@@ -14,6 +14,7 @@
 		LEFT JOIN t_substation d2 ON e.station=d2.id
 		<where>
 			e.control&lt;3
+			and e.sensor_type!=69
 			<if test="sensorids!=null and sensorids.length>0">
 			AND e.id in
 				<foreach collection="sensorids" item="id" index="index" open="(" close=")" separator=",">
@@ -53,7 +54,7 @@
 	</select>
 	
 	<select id="getAnalogStatis"  resultType="com.cm.entity.vo.AnaloginfoQuery">
-		SELECT ip,sensorId,sensor_type,maxvalues,minvalue,CONVERT(avgvalue,DECIMAL(10,2)) avgvalue FROM ${tablename} WHERE statistictime=(SELECT MAX(statistictime) FROM ${tablename} WHERE remark=1) AND remark=1
+		SELECT ip,sensorId,sensor_type,maxvalues,minvalue,CONVERT(avgvalue,DECIMAL(10,2)) avgvalue,maxtime,mintime FROM ${tablename} WHERE statistictime=(SELECT MAX(statistictime) FROM ${tablename} WHERE remark=1) AND remark=1
 	</select>
 	
 	<!-- 开关量调用显示 -->
@@ -151,7 +152,7 @@
 	</select>
 	
 	<select id="getsensorRepower" resultType="com.cm.entity.vo.AnaloginfoQuery">
-		SELECT a.logic_ip ip,a.logic_devid sensorId,b.id feedId,a.param powervalue,b.power_scope powerposition FROM t_dev_link a
+		SELECT a.logic_ip ip,a.logic_devid sensorId,b.uid feeduid,a.param powervalue,b.power_scope powerposition FROM t_dev_link a
 		LEFT JOIN t_switch_sensor b ON a.action_uid=b.uid
 		where a.action_type=56
 	</select>
@@ -164,7 +165,8 @@
 		LEFT JOIN t_analoginfo b ON a.startId=b.id
 		LEFT JOIN t_analoginfo c ON a.endId=c.id
 		WHERE a.status=1 AND a.type=0 AND a.endId=0) a
-		INNER JOIN (SELECT a.id,a.uid feeduid,a.power_scope powerposition FROM t_switch_sensor a
+		INNER JOIN 
+		(SELECT a.id,a.uid feeduid,a.power_scope powerposition FROM t_switch_sensor a
 		LEFT JOIN t_static b ON a.sensor_position=b.id
 		)b ON a.sensor_id=b.id
 		INNER JOIN (SELECT a.alais,a.sensorId,b.ipaddr,a.sensor_type,c.k unit,c.v sensortype,d.v position,a.limit_alarm,a.floor_alarm,
@@ -201,13 +203,13 @@
 		(SELECT b.ipaddr,a.sensorId,a.sensor_type,d.v sensortype,c.v position,a.alais,a.uid,a.alarm_status,d.k alarmstatus FROM t_switch_sensor a
 		LEFT JOIN t_substation b ON a.station=b.id
 		LEFT JOIN t_static c ON a.sensor_position=c.id
-		LEFT JOIN t_static d ON a.sensor_type=d.id)b ON a.ip=b.ipaddr AND a.devid=b.sensorId AND a.type=b.sensor_type
+		LEFT JOIN t_static d ON a.sensor_type=d.id WHERE d.islogical=1)b ON a.ip=b.ipaddr AND a.devid=b.sensorId AND a.type=b.sensor_type
 		<where>
 			<if test="uid!=null and uid!=''">
 				b.uid=#{uid}
 			</if>
 		</where>
-		ORDER BY a.devid,a.type,a.responsetime 
-	</select>
+		ORDER BY a.devid,a.type,a.responsetime
+    </select>
 	
 </mapper>

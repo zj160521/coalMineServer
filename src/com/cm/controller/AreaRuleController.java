@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.EquipmentDao;
 import com.cm.dao.IAreaRuleDao;
@@ -70,7 +70,7 @@ public class AreaRuleController {
 //	        if (per != null)
 //	            return per;
 			HashMap<String, AllEquipmentVo> equipment = getEquipment();
-			if(arvo != null && arvo.getAreaId() > 0 && StaticUtilMethod.notNullOrEmptyList(arvo.getRuleList())){
+			if(arvo != null && arvo.getAreaId() > 0 && UtilMethod.notEmptyList(arvo.getRuleList())){
 				List<AreaRule> addList = new ArrayList<AreaRule>();
 				List<AreaRule> updataList = new ArrayList<AreaRule>();
 				List<AreaRule> areaRuleByAreaId = dao.getAreaRuleByAreaId(arvo.getAreaId());
@@ -108,10 +108,10 @@ public class AreaRuleController {
 						addList.add(ar);
 					}
 				}
-				if(StaticUtilMethod.notNullOrEmptyList(addList)){
+				if(UtilMethod.notEmptyList(addList)){
 					dao.addAreaRules(addList);
 				}
-				if(StaticUtilMethod.notNullOrEmptyList(updataList)){
+				if(UtilMethod.notEmptyList(updataList)){
 					dao.updateAreaRules(updataList);
 				}
 			}
@@ -131,7 +131,7 @@ public class AreaRuleController {
 		List<Radio> allRadio = radioDao.getAll();
 		List<Equipments> allElec = equipmentDao.getAllElec();
 		List<Substation> allSubstation = substationDao.getAll();
-		if(StaticUtilMethod.notNullOrEmptyList(allSensor2)){
+		if(UtilMethod.notEmptyList(allSensor2)){
 			for(Sensor sensor : allSensor2){
 				AllEquipmentVo vo = new AllEquipmentVo();
 				vo.setAlais(sensor.getAlais());
@@ -141,7 +141,7 @@ public class AreaRuleController {
 				map.put(sensor.getUid(), vo);
 			}
 		}
-		if(StaticUtilMethod.notNullOrEmptyList(allSwitchSensor)){
+		if(UtilMethod.notEmptyList(allSwitchSensor)){
 			for(SwitchSensor sensor : allSwitchSensor){
 				AllEquipmentVo vo = new AllEquipmentVo();
 				vo.setAlais(sensor.getAlais());
@@ -151,7 +151,7 @@ public class AreaRuleController {
 				map.put(sensor.getUid(), vo);
 			}
 		}
-		if(StaticUtilMethod.notNullOrEmptyList(allRadio)){
+		if(UtilMethod.notEmptyList(allRadio)){
 			for(Radio sensor : allRadio){
 				AllEquipmentVo vo = new AllEquipmentVo();
 				vo.setAlais(sensor.getAlais());
@@ -161,7 +161,7 @@ public class AreaRuleController {
 				map.put(sensor.getUid(), vo);
 			}
 		}
-		if(StaticUtilMethod.notNullOrEmptyList(allElec)){
+		if(UtilMethod.notEmptyList(allElec)){
 			for(Equipments sensor : allElec){
 				AllEquipmentVo vo = new AllEquipmentVo();
 				vo.setAlais(sensor.getAlais());
@@ -171,7 +171,7 @@ public class AreaRuleController {
 				map.put(sensor.getUid(), vo);
 			}
 		}
-		if(StaticUtilMethod.notNullOrEmptyList(allSubstation)){
+		if(UtilMethod.notEmptyList(allSubstation)){
 			for(Substation sensor : allSubstation){
 				AllEquipmentVo vo = new AllEquipmentVo();
 				vo.setAlais(sensor.getAlais());
@@ -199,7 +199,7 @@ public class AreaRuleController {
 //            return per;
 		
 		try {
-			if(StaticUtilMethod.notNullOrEmptyList(ids.getIds())){
+			if(UtilMethod.notEmptyList(ids.getIds())){
 				dao.deleteAreaRules(ids.getIds());
 			}
 		} catch (Exception e) {
@@ -222,7 +222,7 @@ public class AreaRuleController {
 		try {
 			if(arv.getAreaId() > 0){
 				List<AreaRule> areaRuleByAreaId = dao.getAreaRuleByAreaId(arv.getAreaId());
-				if(StaticUtilMethod.notNullOrEmptyList(areaRuleByAreaId)){
+				if(UtilMethod.notEmptyList(areaRuleByAreaId)){
 					setDefaultAllowAndEmphasis(areaRuleByAreaId, arv);
 					
 					if(arv.getAreaName() == null){
@@ -250,7 +250,7 @@ public class AreaRuleController {
 		try {
 			List<AreaRule> allAreaRules = dao.getAllAreaRules();
 			List<AreaRuleVo> arvoList = new ArrayList<AreaRuleVo>();
-			if(StaticUtilMethod.notNullOrEmptyList(allAreaRules)){
+			if(UtilMethod.notEmptyList(allAreaRules)){
 				HashMap<Integer,List<AreaRule>> listMap = new HashMap<Integer,List<AreaRule>>();
 				HashMap<Integer,AreaRule> arMap = new HashMap<Integer,AreaRule>();
 				HashMap<Integer,String> nameMap = new HashMap<Integer,String>();
@@ -258,7 +258,7 @@ public class AreaRuleController {
 				for(AreaRule ar : allAreaRules){
 					areaIdSet.add(ar.getAreaId());
 					nameMap.put(ar.getAreaId(), ar.getAreaname());
-					if(StaticUtilMethod.notNullOrEmptyStr(ar.getRuleDev())){
+					if(UtilMethod.notEmptyStr(ar.getRuleDev())){
 						List<AreaRule> list = listMap.get(ar.getAreaId());
 						if(list == null){
 							list = new ArrayList<AreaRule>();

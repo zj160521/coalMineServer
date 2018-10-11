@@ -116,6 +116,24 @@ public class Sensor implements Serializable,Cloneable {
     private double e2_point;
     private double n3_point;
     private double e3_point;
+    private double continuous_change;
+    private int change_time;
+
+    public double getContinuous_change() {
+        return continuous_change;
+    }
+
+    public void setContinuous_change(double continuous_change) {
+        this.continuous_change = continuous_change;
+    }
+
+    public int getChange_time() {
+        return change_time;
+    }
+
+    public void setChange_time(int change_time) {
+        this.change_time = change_time;
+    }
 
     public double getN2_point() {
         return n2_point;

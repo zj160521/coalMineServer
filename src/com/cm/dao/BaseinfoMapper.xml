@@ -9,14 +9,14 @@
 		max_frequency,sensor_position,n_point,e_point,error_band,limit_warning,floor_warning,
 		limit_alarm,floor_alarm,limit_power,floor_power,limit_repower,floor_repower,iscalc,isDrainage,area_id,alais,devlinkId,floorDevlinkId,period,drainageId,x_point,y_point,
 		coId,methaneId,calibration,upgrade3,upgrade2,upgrade1,position_type_id,upper_level1,upper_level2,upper_level3,upper_level4,floor_level1,floor_level2,
-		floor_level3,floor_level4,direction,x2_point,y2_point,x3_point,y3_point,n2_point,e2_point,n3_point,e3_point)
+		floor_level3,floor_level4,direction,x2_point,y2_point,x3_point,y3_point,n2_point,e2_point,n3_point,e3_point,continuous_change,change_time)
 		values(#{station},#{sensorId},#{input_type},#{control},#{sensor_type},#{min_range},#{middle_rang},#{max_range},
 		#{min_frequency},#{max_frequency},#{sensor_position},#{n_point},#{e_point},
 		#{error_band},#{limit_warning},#{floor_warning},#{limit_alarm},#{floor_alarm},
 		#{limit_power},#{floor_power},#{limit_repower},#{floor_repower},#{iscalc},#{isDrainage},#{area_id},#{alais},#{devlinkId},#{floorDevlinkId},#{period},#{drainageId},#{x_point},#{y_point},
 		#{coId},#{methaneId},#{calibration},#{upgrade3},#{upgrade2},#{upgrade1},#{position_type_id},#{upper_level1},#{upper_level2},#{upper_level3},
 		#{upper_level4},#{floor_level1},#{floor_level2},#{floor_level3},#{floor_level4},#{direction},#{x2_point},#{y2_point},#{x3_point},#{y3_point},
-		#{n2_point},#{e2_point},#{n3_point},#{e3_point})
+		#{n2_point},#{e2_point},#{n3_point},#{e3_point},#{continuous_change},#{change_time})
 	</insert>
 	
 	<!-- 获得所有的传感器配置信息 -->
@@ -27,17 +27,16 @@
 		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
 		tr.n_point,tr.e_point,tr.alais,tr.period,tr.fluctuation_range,
 		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,tr.area_id,tas.areaname,
-		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tr.iscalc,
 		tr.uid,tr.drainageId,tr.x_point,tr.y_point,
         tr.calibration,tr.upgrade3,tr.upgrade2,tr.upgrade1,tr.position_type_id,tpt.`name` position_type,tr.upper_level1,tr.upper_level2,tr.upper_level3,
         tr.upper_level4,tr.floor_level1,tr.floor_level2,tr.floor_level3,tr.floor_level4,tr.direction,tr.x2_point,tr.y2_point,tr.x3_point,tr.y3_point,
-        tr.n2_point,tr.e2_point,tr.n3_point,tr.e3_point
+        tr.n2_point,tr.e2_point,tr.n3_point,tr.e3_point,tr.continuous_change,tr.change_time
 		FROM t_sensor tr 
 		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
 		LEFT JOIN t_substation sub ON tr.station=sub.id
 		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
 		LEFT JOIN t_area tas ON tr.area_id=tas.id
-		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
 		LEFT JOIN t_position_type tpt on tr.position_type_id=tpt.id
 		where tr.control!=3
 		<if test="type>0 and type != null">
@@ -66,17 +65,16 @@
 		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
 		tr.n_point,tr.e_point,tr.alais,tr.period,tr.fluctuation_range,
 		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,tr.area_id,tas.areaname,
-		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tr.iscalc,
 		tr.uid,tr.drainageId,tr.x_point,tr.y_point,
 		tr.calibration,tr.upgrade3,tr.upgrade2,tr.upgrade1,tr.position_type_id,tpt.`name` position_type,tr.upper_level1,tr.upper_level2,tr.upper_level3,
         tr.upper_level4,tr.floor_level1,tr.floor_level2,tr.floor_level3,tr.floor_level4,tct.islogical,tr.direction,tr.x2_point,tr.y2_point,tr.x3_point,tr.y3_point,
-        tr.n2_point,tr.e2_point,tr.n3_point,tr.e3_point
+        tr.n2_point,tr.e2_point,tr.n3_point,tr.e3_point,tr.continuous_change,tr.change_time
 		FROM t_sensor tr 
 		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
 		LEFT JOIN t_substation sub ON tr.station=sub.id
 		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
 		LEFT JOIN t_area tas ON tr.area_id=tas.id
-		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
 		LEFT JOIN t_position_type tpt ON tr.position_type_id=tpt.id
 		where tr.control!=3
 		ORDER BY sub.ipaddr,tr.sensorId
@@ -90,16 +88,15 @@
 		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
 		tr.n_point,tr.e_point,tr.fluctuation_range,
 		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,
-		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tr.iscalc,
 		tr.uid,tr.alais,tr.calibration,tr.upgrade3,tr.upgrade2,
 		tr.upgrade1,tr.upper_level1,tr.upper_level2,tr.upper_level3,
         tr.upper_level4,tr.floor_level1,tr.floor_level2,tr.floor_level3,tr.floor_level4,tr.direction,tr.x2_point,tr.y2_point,tr.x3_point,tr.y3_point,
-        tr.n2_point,tr.e2_point,tr.n3_point,tr.e3_point
+        tr.n2_point,tr.e2_point,tr.n3_point,tr.e3_point,tr.continuous_change,tr.change_time
 		FROM t_sensor tr 
 		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
 		LEFT JOIN t_substation sub ON tr.station=sub.id
 		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
-		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
 		where tr.control!=3 and tr.station=#{subid}
 		ORDER BY sub.ipaddr,tr.sensorId
 	</select>
@@ -111,16 +108,15 @@
 		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
 		tr.n_point,tr.e_point,tr.fluctuation_range,
 		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,
-		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tr.iscalc,
 		tr.uid,tr.alais,tr.calibration,
 		tr.upgrade3,tr.upgrade2,tr.upgrade1,tr.position_type_id,tpt.`name` position_type,tr.upper_level1,tr.upper_level2,tr.upper_level3,
         tr.upper_level4,tr.floor_level1,tr.floor_level2,tr.floor_level3,tr.floor_level4,tr.direction,tr.x2_point,tr.y2_point,tr.x3_point,tr.y3_point,
-        tr.n2_point,tr.e2_point,tr.n3_point,tr.e3_point
+        tr.n2_point,tr.e2_point,tr.n3_point,tr.e3_point,tr.continuous_change,tr.change_time
 		FROM t_sensor tr 
 		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
 		LEFT JOIN t_substation sub ON tr.station=sub.id
 		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
-		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
 		LEFT JOIN t_position_type tpt ON tr.position_type_id=tpt.id
 		where tr.control!=3 and tr.area_id=#{areaid}
 		ORDER BY sub.ipaddr,tr.sensorId
@@ -133,14 +129,13 @@
 		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
 		tr.n_point,tr.e_point,tr.fluctuation_range,
 		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,
-		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,tr.uid,tr.alais,tr.calibration,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tr.iscalc,tr.uid,tr.alais,tr.calibration,
         tr.upgrade3,tr.upgrade2,tr.upgrade1,tr.upper_level1,tr.upper_level2,tr.upper_level3,
-        tr.upper_level4,tr.floor_level1,tr.floor_level2,tr.floor_level3,tr.floor_level4
+        tr.upper_level4,tr.floor_level1,tr.floor_level2,tr.floor_level3,tr.floor_level4,tr.continuous_change,tr.change_time
 		FROM t_sensor tr
 		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
 		LEFT JOIN t_substation sub ON tr.station=sub.id
 		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
-		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
 		where tr.control!=3 and tr.uid IN 
 		<foreach collection="uids" item="uid" index="index" open="(" separator="," close=")">
 		#{uid}
@@ -265,7 +260,9 @@
             n2_point=#{n2_point},
             e2_point=#{e2_point},
             n3_point=#{n3_point},
-            e3_point=#{e3_point}
+            e3_point=#{e3_point},
+            continuous_change=#{continuous_change},
+            change_time=#{change_time}
 		</set>
 		<where>
 			<if test="id>0">
@@ -345,14 +342,13 @@
 		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
 		tr.n_point,tr.e_point,tr.alais,tr.period,tr.fluctuation_range,
 		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,tr.area_id,tas.areaname,
-		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tr.iscalc,
 		tr.uid,tr.drainageId,tr.x_point,tr.y_point
 		FROM t_sensor tr
 		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
 		LEFT JOIN t_substation sub ON tr.station=sub.id
 		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
 		LEFT JOIN t_area tas ON tr.area_id=tas.id
-		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
 		where tr.control!=3 AND tr.sensor_type=69
 		ORDER BY sub.ipaddr,tr.sensorId
     </select>
@@ -364,7 +360,7 @@
 		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
 		tr.n_point,tr.e_point,tr.fluctuation_range,
 		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,
-		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,tr.devlinkId,tr.floorDevlinkId,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tr.iscalc,tr.devlinkId,tr.floorDevlinkId,
 		tdl.action_devid linkageDeviceId,tdl.param action,tdl1.action_devid floorLinkId,tdl1.param flooraction,tr.uid,tr.alais,tr.calibration,
 		tr.upgrade3,tr.upgrade2,tr.upgrade1,tr.position_type_id,tpt.`name` position_type,tr.upper_level1,tr.upper_level2,tr.upper_level3,
         tr.upper_level4,tr.floor_level1,tr.floor_level2,tr.floor_level3,tr.floor_level4
@@ -372,7 +368,6 @@
 		LEFT JOIN t_static tcp ON tr.sensor_position=tcp.id
 		LEFT JOIN t_substation sub ON tr.station=sub.id
 		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
-		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
 		LEFT JOIN t_dev_link tdl ON tr.devlinkId=tdl.id
 		LEFT JOIN t_dev_link tdl1 ON tr.floorDevlinkId=tdl1.id
 		LEFT JOIN t_position_type tpt ON tr.position_type_id=tpt.id

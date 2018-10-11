@@ -8,7 +8,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.CommunicationInterruptDao;
 import com.cm.entity.Analoginfo;
@@ -83,11 +83,11 @@ public class CommunicationInterruptService {
 	
 	private String getTimes(String time1,String time2) throws ParseException{
 		if(time1!=null&&time2!=null){
-			return StaticUtilMethod.longToTimeFormat(time1, time2).getTimCast();
+			return UtilMethod.longToTimeFormat(time1, time2).getTimCast();
 		}else if(time1!=null&&time2==null){
 			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			String time3 =format.format(new Date());
-			return StaticUtilMethod.longToTimeFormat(time1, time3).getTimCast();
+			return UtilMethod.longToTimeFormat(time1, time3).getTimCast();
 		}else{
 			return null;
 		}

@@ -34,7 +34,7 @@
 		<where>
 			status=2
 			and debug=0
-			<if test="starttime!=null and endtime!=null"> 
+			<if test="starttime!=null and endtime!=null and endtime!=''"> 
 				and starttime <![CDATA[>=]]> #{starttime}
 				and starttime <![CDATA[<=]]> #{endtime}
 			</if>
@@ -141,7 +141,7 @@
 		<where>
 			status=3
 			and debug=0
-			<if test="starttime!=null and endtime!=null"> 
+			<if test="starttime!=null and endtime!=null  and endtime!=''"> 
 				and starttime <![CDATA[>=]]> #{starttime}
 				and starttime <![CDATA[<=]]> #{endtime}
 			</if>
@@ -178,7 +178,7 @@
 		<where>
 			status=1
 			and debug=0
-			<if test="starttime!=null and endtime!=null"> 
+			<if test="starttime!=null and endtime!=null and endtime!=''"> 
 				and starttime <![CDATA[>=]]> #{starttime}
 				and starttime <![CDATA[<=]]> #{endtime}
 			</if>

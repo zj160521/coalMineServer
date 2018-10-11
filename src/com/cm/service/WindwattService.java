@@ -58,8 +58,8 @@ public class WindwattService {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public List<Windwatt> getallWindwatt(){
-		List<Windwatt> list = dao.getallWindwatt();
+	public List<Windwatt> getallWindwatt(int id){
+		List<Windwatt> list = dao.getallWindwatt(id);
 		for(Windwatt l:list){
 			l.setList(dao.getWindwattSensor(l.getId()));
 		}
@@ -67,4 +67,7 @@ public class WindwattService {
 		return list;
 	}
 	
+	public List<WindwattVo> getallsensor(){
+		return dao.getallsensor();
+	}
 }

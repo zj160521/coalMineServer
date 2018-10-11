@@ -8,7 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.controller.ResultObj;
 import com.cm.dao.IGD5Dao;
@@ -47,7 +47,7 @@ public class GD5CurveService implements SingleCurveInterface {
 			String startTime = analogParamVo.getDay()+ start;
 			String endTime = analogParamVo.getDay()+ end;
 			List<GD5> allList = theDao.getAll(startTime, endTime, analogParamVo.getIp(),analogParamVo.getDevid());
-			if(StaticUtilMethod.notNullOrEmptyList(allList)){
+			if(UtilMethod.notEmptyList(allList)){
 				LinkedHashMap<String,GD5> map = new LinkedHashMap<String,GD5>();
 				for(GD5 data : allList){
 					String key = data.getResponsetime().substring(0, 16);

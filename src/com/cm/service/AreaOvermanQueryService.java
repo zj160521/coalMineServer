@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.AreaOvermanQueryDao;
 import com.cm.dao.IWorkerWarningFactory;
@@ -67,7 +67,7 @@ public class AreaOvermanQueryService implements IWorkerWarningFactory{
 				listvo = new ArrayList<AreaOvertimeVo>();
 				listvo.add(list.get(i));
 			}else{
-				long countLongDvalue = StaticUtilMethod.countLongDvalue(list.get(i).getResponsetime(), startTime);
+				long countLongDvalue = UtilMethod.countLongDvalue(list.get(i).getResponsetime(), startTime);
 				
 				if(countLongDvalue < 60000){ 
 					listvo.add(list.get(i));
@@ -109,7 +109,7 @@ public class AreaOvermanQueryService implements IWorkerWarningFactory{
 			aovo.setPersonNum(max);
 			aovo.setMaxstarttime(maxVo.getResponsetime());
 			
-			LongStringVo longToTimeFormat = StaticUtilMethod.longToTimeFormat(aovo.getStarttime(), list.get(list.size() -1).getResponsetime());
+			LongStringVo longToTimeFormat = UtilMethod.longToTimeFormat(aovo.getStarttime(), list.get(list.size() -1).getResponsetime());
 			
 			if(longToTimeFormat.getTime() < 1000)
 				aovo.setWellduration("0 小时 00 分 01秒");

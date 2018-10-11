@@ -75,6 +75,15 @@ public class AnalogHistoryService {
 		}
 	}
 	
+	public String getAlarmEndTime(String startTime, int devid, String ip) {
+		try {
+			return  analogHistoryDao.getAlarmEndTime(startTime, devid, ip);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	public List<AnaloghisVo> getHistoryRcs(AnalogParamVo analogParamVo){
 		try {
 			return  analogHistoryDao.getHistoryRcs(analogParamVo);

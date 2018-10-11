@@ -88,7 +88,12 @@ public class ClassesController {
 		Object per = loginManage.checkPermission(request);
 		if(null!=per) return per;
 		try {
-			classesService.add(classes);
+            if (null != classes && null != classes.getWeek() && null!= classes.getDayrange()) {
+                classes.setStatus(1);
+                classesService.add(classes);
+            } else {
+                return result.setStatus(-4, "请配置正确的班次");
+            }
 		} catch (Exception e) {
 			e.printStackTrace();
 			return result.setStatus(-4, "exception");
@@ -96,7 +101,7 @@ public class ClassesController {
 		return result.setStatus(0, "ok");
 	}
 	
-	@RequestMapping(value="/delete/{id}",method=RequestMethod.POST)
+	@RequestMapping(value="/delete/{id}",method=RequestMethod.GET)
 	@ResponseBody
 	public Object delete(@PathVariable int id,HttpServletRequest request){
 		if(!loginManage.isUserLogin(request)){

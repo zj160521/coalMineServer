@@ -3,24 +3,177 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.cm.dao.IDistrictSeneorDao">
 	<update id="updateSensor" parameterType="com.cm.entity.Sensor">
-	    update t_sensor set n_point=#{n_point},e_point=#{e_point},x_point=#{x_point},y_point=#{y_point} where id=#{id};
+	    update t_sensor
+	    <set>
+	       <if test="n_point!=null">
+	          n_point=#{n_point},
+	       </if>
+	       <if test="e_point!=null">
+	          e_point=#{e_point},
+	       </if>
+	       <if test="x_point!=null">
+	          x_point=#{x_point},
+	       </if>
+	       <if test="y_point!=null">
+	          y_point=#{y_point},
+	       </if>
+	       <if test="n2_point!=null">
+	          n2_point=#{n2_point},
+	       </if>
+	       <if test="e2_point!=null">
+	          e2_point=#{e2_point},
+	       </if>
+	       <if test="x2_point!=null">
+	          x2_point=#{x2_point},
+	       </if>
+	       <if test="y2_point!=null">
+	          y2_point=#{y2_point},
+	       </if>
+	       <if test="n3_point!=null">
+	          n3_point=#{n3_point},
+	       </if>
+	       <if test="e3_point!=null">
+	          e3_point=#{e3_point},
+	       </if>
+	       <if test="x3_point!=null">
+	          x3_point=#{x3_point},
+	       </if>
+	       <if test="y3_point!=null">
+	          y3_point=#{y3_point}
+	       </if>
+	    </set> 
+	    where id=#{id};
 	</update>
 	<update id="updateSwitchSensor" parameterType="com.cm.entity.SwitchSensor">
-	    update t_switch_sensor set n_point=#{n_point},e_point=#{e_point},y_point=#{y_point},x_point=#{x_point} where id=#{id};
+	    update t_switch_sensor 
+	    <set>
+	       <if test="n_point!=null">
+	          n_point=#{n_point},
+	       </if>
+	       <if test="e_point!=null">
+	          e_point=#{e_point},
+	       </if>
+	       <if test="x_point!=null">
+	          x_point=#{x_point},
+	       </if>
+	       <if test="y_point!=null">
+	          y_point=#{y_point},
+	       </if>
+	       <if test="n2_point!=null">
+	          n2_point=#{n2_point},
+	       </if>
+	       <if test="e2_point!=null">
+	          e2_point=#{e2_point},
+	       </if>
+	       <if test="x2_point!=null">
+	          x2_point=#{x2_point},
+	       </if>
+	       <if test="y2_point!=null">
+	          y2_point=#{y2_point},
+	       </if>
+	       <if test="n3_point!=null">
+	          n3_point=#{n3_point},
+	       </if>
+	       <if test="e3_point!=null">
+	          e3_point=#{e3_point},
+	       </if>
+	       <if test="x3_point!=null">
+	          x3_point=#{x3_point},
+	       </if>
+	       <if test="y3_point!=null">
+	          y3_point=#{y3_point}
+	       </if>
+	    </set> 
+	    where id=#{id};
 	</update>
 	<update id="updateCardreader" parameterType="com.cm.entity.Cardreder">
-	    update t_cardreder set n_point=#{n_point},e_point=#{e_point},y_point=#{y_point},x_point=#{x_point} where id=#{id};
+	    update t_cardreder 
+	    <set>
+	       <if test="n_point!=null">
+	          n_point=#{n_point},
+	       </if>
+	       <if test="e_point!=null">
+	          e_point=#{e_point},
+	       </if>
+	       <if test="x_point!=null">
+	          x_point=#{x_point},
+	       </if>
+	       <if test="y_point!=null">
+	          y_point=#{y_point}
+	       </if>
+	    </set> 
+	    where id=#{id};
 	</update>
 	<update id="updateRadio" parameterType="com.cm.entity.Radio">
-	    update t_radio set n_point=#{n_point},e_point=#{e_point},y_point=#{y_point},x_point=#{x_point} where id=#{id};
+	    update t_radio 
+	    <set>
+	       <if test="n_point!=null">
+	          n_point=#{n_point},
+	       </if>
+	       <if test="e_point!=null">
+	          e_point=#{e_point},
+	       </if>
+	       <if test="x_point!=null">
+	          x_point=#{x_point},
+	       </if>
+	       <if test="y_point!=null">
+	          y_point=#{y_point}
+	       </if>
+	    </set> 
+	    where id=#{id};
 	</update>
 	<update id="updateVideo" parameterType="com.cm.entity.Video">
-	    update t_video set n_point=#{n_point},e_point=#{e_point} where id=#{id};
+	    update t_video 
+	    <set>
+	       <if test="n_point!=null">
+	          n_point=#{n_point},
+	       </if>
+	       <if test="e_point!=null">
+	          e_point=#{e_point},
+	       </if>
+	       <if test="x_point!=null">
+	          x_point=#{x_point},
+	       </if>
+	       <if test="y_point!=null">
+	          y_point=#{y_point}
+	       </if>
+	    </set> 
+	    where id=#{id};
 	</update>
     <update id="updateSubstation" parameterType="com.cm.entity.Substation">
-        update t_substation set n_point=#{n_point},e_point=#{e_point},x_point=#{x_point},y_point=#{y_point} where id=#{id};
+        update t_substation 
+        <set>
+	       <if test="n_point!=null">
+	          n_point=#{n_point},
+	       </if>
+	       <if test="e_point!=null">
+	          e_point=#{e_point},
+	       </if>
+	       <if test="x_point!=null">
+	          x_point=#{x_point},
+	       </if>
+	       <if test="y_point!=null">
+	          y_point=#{y_point}
+	       </if>
+	    </set> 
+	    where id=#{id};
     </update>
     <update id="updateEquipment" parameterType="com.cm.entity.Equipments">
-        update t_equipment set n_point=#{n_point},e_point=#{e_point},x_point=#{x_point},y_point=#{y_point} where id=#{id};
+        update t_equipment 
+        <set>
+	       <if test="n_point!=null">
+	          n_point=#{n_point},
+	       </if>
+	       <if test="e_point!=null">
+	          e_point=#{e_point},
+	       </if>
+	       <if test="x_point!=null">
+	          x_point=#{x_point},
+	       </if>
+	       <if test="y_point!=null">
+	          y_point=#{y_point}
+	       </if>
+	    </set> 
+	    where id=#{id};
     </update>
 </mapper>

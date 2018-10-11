@@ -94,6 +94,8 @@ public class SensorCallService {
 				call.setMaxvalue(map2.get(k).getMaxvalues()+s.getUnit());	
 				call.setAvgvalue(map2.get(k).getAvgvalue()+s.getUnit());
 				call.setMinvalue(map2.get(k).getMinvalue()+s.getUnit());
+				call.setMaxvaluestime(map2.get(k).getMaxtime());
+				call.setMinvaluetime(map2.get(k).getMintime());
 			}
 			if(map.get(k)!=null){
 				String[] a = {"断电/"+map.get(k).getStarttime(),"复电/"+map.get(k).getEndtime()};
@@ -216,7 +218,8 @@ public class SensorCallService {
 				call.setMaxvalue(map2.get(k).getMaxvalues()+s.getUnit());	
 				call.setAvgvalue(map2.get(k).getAvgvalue()+s.getUnit());
 				call.setMinvalue(map2.get(k).getMinvalue()+s.getUnit());
-			}
+				call.setMaxvaluestime(map2.get(k).getMaxtime());
+				call.setMinvaluetime(map2.get(k).getMintime());			}
 			if(map.get(k)!=null){
 				String[] a = {"断电/"+map.get(k).getStarttime(),"复电/"+map.get(k).getEndtime()};
 				call.setPowerStarttime(a);
@@ -348,20 +351,20 @@ public class SensorCallService {
 			}
 			List<AnaloginfoQuery> queries = map2.get(s.getIp()+s.getSensorId());
 			List<AnaloginfoQuery> queries2 = map3.get(s.getIp()+s.getSensorId());
-			Map<Integer, AnaloginfoQuery> map4 = new HashMap<Integer, AnaloginfoQuery>();
+			Map<String, AnaloginfoQuery> map4 = new HashMap<String, AnaloginfoQuery>();
 			if(queries!=null){
 				for(AnaloginfoQuery l:queries){
-					AnaloginfoQuery query = map4.get(l.getFeedId());
+					AnaloginfoQuery query = map4.get(l.getFeeduid());
 					if(query==null){
 						query = new AnaloginfoQuery();
-						map4.put(l.getFeedId(), l);
+						map4.put(l.getFeeduid(), l);
 					}
 				}
 			}
 			if(queries2!=null){
 				String[] strings = new String[queries2.size()];
 				for(int i=0;i<queries2.size();i++){
-					AnaloginfoQuery query = map4.get(queries2.get(i).getFeedId());
+					AnaloginfoQuery query = map4.get(queries2.get(i).getFeeduid());
 					if(query!=null){
 						if(query.getPosition()==null){
 							strings[i] = "未配置位置"+"/馈电异常/"+query.getStarttime();
@@ -438,20 +441,20 @@ public class SensorCallService {
 			}
 			List<AnaloginfoQuery> queries = map2.get(l.getIp()+l.getSensorId());
 			List<AnaloginfoQuery> queries2 = map3.get(l.getIp()+l.getSensorId());
-			Map<Integer, AnaloginfoQuery> map4 = new HashMap<Integer, AnaloginfoQuery>();
+			Map<String, AnaloginfoQuery> map4 = new HashMap<String, AnaloginfoQuery>();
 			if(queries!=null){
 				for(AnaloginfoQuery s:queries){
-					AnaloginfoQuery query = map4.get(s.getFeedId());
+					AnaloginfoQuery query = map4.get(s.getFeeduid());
 					if(query==null){
 						query = new AnaloginfoQuery();
-						map4.put(s.getFeedId(), s);
+						map4.put(s.getFeeduid(), s);
 					}
 				}
 			}
 			if(queries2!=null){
 				String[] strings = new String[queries2.size()];
 				for(int i=0;i<queries2.size();i++){
-					AnaloginfoQuery query = map4.get(queries2.get(i).getFeedId());
+					AnaloginfoQuery query = map4.get(queries2.get(i).getFeeduid());
 					if(query!=null){
 						if(query.getPowerposition()==null){
 							strings[i] = "未配置区域"+"/馈电异常/"+query.getStarttime();
@@ -467,8 +470,8 @@ public class SensorCallService {
 					}
 				}
 				call.setFeedstastus(strings);
+				calls.add(call);
 			}
-			calls.add(call);
 		}
 		return calls;
 	}

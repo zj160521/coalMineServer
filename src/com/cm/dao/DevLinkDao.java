@@ -26,6 +26,8 @@ public interface DevLinkDao {
 	
 	public void addDevLgc(List<DevLogicVo> list);
 	
+	public void addSingleDevLgc(DevLogicVo it);
+	
 	public void updateDevLgc(List<DevLogicVo> list);
 	
 	public void addDevAction(List<DevAction> list);
@@ -66,4 +68,6 @@ public interface DevLinkDao {
 	public List<String> getbygoupid(@Param("pid")int pid);
 	
 	public List<String> getCutDevScope(@Param("id")int id,@Param("ip")String ip);
+	
+	public Integer getDevLinkScene1(int id);
 }

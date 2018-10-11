@@ -20,6 +20,27 @@ public class SensorReport {
 	private String feedtime;//馈电异常时长
 	private String filltime;//统计日期
 	private int remark;
+	private String classname;
+	private String classstart;
+	private String classend;
+	public String getClassname() {
+		return classname;
+	}
+	public void setClassname(String classname) {
+		this.classname = classname;
+	}
+	public String getClassstart() {
+		return classstart;
+	}
+	public void setClassstart(String classstart) {
+		this.classstart = classstart;
+	}
+	public String getClassend() {
+		return classend;
+	}
+	public void setClassend(String classend) {
+		this.classend = classend;
+	}
 	public String getIp() {
 		return ip;
 	}

@@ -11,7 +11,7 @@
 		tr.control,tr.input_type,tr.min_range,tr.middle_rang,tr.max_range,tr.min_frequency,tr.max_frequency,
 		tr.n_point,tr.e_point,tr.alais,tr.period,
 		tr.error_band,tr.limit_warning,tr.floor_warning,tr.limit_alarm,tr.floor_alarm,tr.area_id,tas.areaname,
-		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tds.drainageId menu,tr.iscalc,tr.devlinkId,tr.floorDevlinkId,
+		tr.limit_power,tr.floor_power,tr.limit_repower,tr.floor_repower,tr.isDrainage,tr.iscalc,tr.devlinkId,tr.floorDevlinkId,
 		tdl.action_devid linkageDeviceId,tdl.param action,tdl1.action_devid floorLinkId,tdl1.param flooraction,tr.uid,tr.x_point,tr.y_point,tr.upgrade1,
 		tr.upgrade2,tr.upgrade3,tr.calibration,tr.x2_point,tr.y2_point,tr.x3_point,tr.y3_point,
         tr.n2_point,tr.e2_point,tr.n3_point,tr.e3_point
@@ -20,7 +20,6 @@
 		LEFT JOIN t_substation sub ON tr.station=sub.id
 		LEFT JOIN t_static tct ON tr.sensor_type=tct.id
 		LEFT JOIN t_area tas ON tr.area_id=tas.id
-		LEFT JOIN t_drainage_sensor tds ON tr.id=tds.sensorId
 		LEFT JOIN t_dev_link tdl ON tr.devlinkId=tdl.id
 		LEFT JOIN t_dev_link tdl1 ON tr.floorDevlinkId=tdl1.id
 		where tr.control!=3 and tr.x2_point > 0 and tr.y2_point > 0

@@ -13,7 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.controller.ResultObj;
 import com.cm.dao.IFeedbackDao;
@@ -50,6 +50,7 @@ public class StatusCurveService implements SingleCurveInterface {
 	private Map<String,List<Feedback>> feedMap;
 	private Map<String,List<Feedback>> minFeedMap;
 	private Map<Integer,SwitchSensor> switchSensorMap;
+	private String alarmEndTime;
 	
 	/**
 	 * 获取开关量数据
@@ -60,6 +61,7 @@ public class StatusCurveService implements SingleCurveInterface {
 		//初始化变量
 		map2 = new HashMap<Integer, Static>();
 		map = new HashMap<String, CopyOnWriteArrayList<AnalogQueryVo>>();
+		alarmEndTime = null;
 		//获取设备信息
 		List<DevVo> ldv = setDlv(analogParamVo);
 		List<SensorVo> sensor = analogHistoryService.getSwitchSensor(ldv);
@@ -88,7 +90,7 @@ public class StatusCurveService implements SingleCurveInterface {
 		//基础数据处理：如果开关量状态无变化，数据一分钟取一条，debug数据全取
 		List<AnaloghisVo> resultList = analogHistoryService.getHistory(analogParamVo);
 		List<StatusCurveVo> valueList;
-		if(StaticUtilMethod.notNullOrEmptyList(resultList)){
+		if(UtilMethod.notEmptyList(resultList)){
 			valueList = getValueList(resultList, sensorVo);
 		}else{
 			result.put("data", new ArrayList<>());
@@ -100,6 +102,7 @@ public class StatusCurveService implements SingleCurveInterface {
 				analogParamVo.getStartTime(),analogParamVo.getEndTime());
 		if(analogQry != null && analogQry.size() > 0)
 			setAlarmMap(analogQry);
+		alarmEndTime = analogHistoryService.getAlarmEndTime(analogParamVo.getStartTime(), analogParamVo.getDevid(),analogParamVo.getIp());
 		//获取传感器状态
 		List<Static> ssensorList = staticService.getAllSwitchSensorType();
 		if(ssensorList != null && ssensorList.size() > 0){
@@ -110,7 +113,7 @@ public class StatusCurveService implements SingleCurveInterface {
 		//获取所有开关量
 		List<SwitchSensor> allSwitchSensor = switchDao.AllSwitchSensor();
 		switchSensorMap = new HashMap<Integer,SwitchSensor>();
-		if(StaticUtilMethod.notNullOrEmptyList(allSwitchSensor)){
+		if(UtilMethod.notEmptyList(allSwitchSensor)){
 			for(SwitchSensor ss : allSwitchSensor){
 				switchSensorMap.put(ss.getId(), ss);
 			}
@@ -118,7 +121,7 @@ public class StatusCurveService implements SingleCurveInterface {
 		//获取断馈电信息
 		getCutFeedMap(analogParamVo);
 		//set设备报警、断馈电状态
-		if(StaticUtilMethod.notNullOrEmptyList(valueList) && sensor.size() > 0) {
+		if(UtilMethod.notEmptyList(valueList) && sensor.size() > 0) {
 			resultList = makeData(sensor.get(0), valueList);
 		} else {
 			resultList = new ArrayList<AnaloghisVo>();
@@ -135,7 +138,7 @@ public class StatusCurveService implements SingleCurveInterface {
 				analogParamVo.getStartTime(), analogParamVo.getEndTime());
 		feedMap = new HashMap<String,List<Feedback>>();
 		minFeedMap = new HashMap<String,List<Feedback>>();
-		if(StaticUtilMethod.notNullOrEmptyList(cutFeedStatus)){
+		if(UtilMethod.notEmptyList(cutFeedStatus)){
 			for(Feedback fb : cutFeedStatus){
 				String key = fb.getIp() + ":" + fb.getDevid() + ":" + fb.getResponsetime(); 
 				List<Feedback> list = feedMap.get(key);
@@ -181,7 +184,6 @@ public class StatusCurveService implements SingleCurveInterface {
     			2.如果开关量状态无变化，数据一分钟取一条，
     			3.debug非0数据全取
     			4.断馈电仪状态有无变化需断电值和馈电值一起看*/
-	@SuppressWarnings("null")
 	public List<StatusCurveVo> getValueList(List<AnaloghisVo> resultList, SensorVo sensorVo){
 		List<StatusCurveVo> rList = new ArrayList<StatusCurveVo>();
 		Double status = -1.0;
@@ -208,33 +210,57 @@ public class StatusCurveService implements SingleCurveInterface {
 			}else{
 				try {
 					if(status != null && status == -1.0){/*保存第一条数据*/	
-						reSetVariablesAndAddVo(status, feedStatus, minutsTime, av, valueVo, rList);
+						status = av.getAvalue();
+						feedStatus = av.getFeedback();
+						minutsTime = df.parse(av.getStarttime());
+						setValueVo(valueVo, av);
+						rList.add(valueVo);
 					}else{
 						if(av.getDebug() != 0){/*debug非0数据记录*/
-							reSetVariablesAndAddVo(status, feedStatus, minutsTime, av, valueVo, rList);
+							status = av.getAvalue();
+							feedStatus = av.getFeedback();
+							minutsTime = df.parse(av.getStarttime());
+							setValueVo(valueVo, av);
+							rList.add(valueVo);
 						}
 						boolean notAddRec = true;
 						if(status == null){//获取断电状态变化记录
 							if(av.getAvalue() != null){
-								reSetVariablesAndAddVo(status, feedStatus, minutsTime, av, valueVo, rList);
+								status = av.getAvalue();
+								feedStatus = av.getFeedback();
+								minutsTime = df.parse(av.getStarttime());
+								setValueVo(valueVo, av);
+								rList.add(valueVo);
 								notAddRec = false;
 							}else{
 								//状态无变化的数据一分钟取一条
 								if(minutsTime.getTime() != df.parse(av.getStarttime()).getTime()){
 									av.setStarttime(av.getStarttime().substring(0, 16)+":00");
-									reSetVariablesAndAddVo(status, feedStatus, minutsTime, av, valueVo, rList);
+									status = av.getAvalue();
+									feedStatus = av.getFeedback();
+									minutsTime = df.parse(av.getStarttime());
+									setValueVo(valueVo, av);
+									rList.add(valueVo);
 									notAddRec = false;
 								}
 							}
 						}else{
 							if(av.getAvalue() == null || Double.doubleToLongBits(av.getAvalue()) != Double.doubleToLongBits(status)){
-								reSetVariablesAndAddVo(status, feedStatus, minutsTime, av, valueVo, rList);
+								status = av.getAvalue();
+								feedStatus = av.getFeedback();
+								minutsTime = df.parse(av.getStarttime());
+								setValueVo(valueVo, av);
+								rList.add(valueVo);
 								notAddRec = false;
 							}else{
 								//状态无变化的数据一分钟取一条
 								if(minutsTime.getTime() != df.parse(av.getStarttime()).getTime()){
 									av.setStarttime(av.getStarttime().substring(0, 16)+":00");
-									reSetVariablesAndAddVo(status, feedStatus, minutsTime, av, valueVo, rList);
+									status = av.getAvalue();
+									feedStatus = av.getFeedback();
+									minutsTime = df.parse(av.getStarttime());
+									setValueVo(valueVo, av);
+									rList.add(valueVo);
 									notAddRec = false;
 								}
 							}
@@ -243,11 +269,19 @@ public class StatusCurveService implements SingleCurveInterface {
 						if(sensorVo.getType() == 56 && notAddRec){/*获取馈电状态变化记录*/
 							if(feedStatus == null){
 								if(av.getFeedback() != null){
-									reSetVariablesAndAddVo(status, feedStatus, minutsTime, av, valueVo, rList);
+									status = av.getAvalue();
+									feedStatus = av.getFeedback();
+									minutsTime = df.parse(av.getStarttime());
+									setValueVo(valueVo, av);
+									rList.add(valueVo);
 								}
 							}else{
 								if(av.getFeedback() == null || Double.doubleToLongBits(av.getFeedback()) != Double.doubleToLongBits(feedStatus)){
-									reSetVariablesAndAddVo(status, feedStatus, minutsTime, av, valueVo, rList);
+									status = av.getAvalue();
+									feedStatus = av.getFeedback();
+									minutsTime = df.parse(av.getStarttime());
+									setValueVo(valueVo, av);
+									rList.add(valueVo);
 								}
 							}
 						}
@@ -260,18 +294,18 @@ public class StatusCurveService implements SingleCurveInterface {
 		return rList;
 	}
 	
-	public void reSetVariablesAndAddVo(Double status, Integer feedStatus, Date minutsTime, AnaloghisVo av, StatusCurveVo valueVo, List<StatusCurveVo> rList){
-		try {
-			status = av.getAvalue();
-			feedStatus = av.getFeedback();
-			minutsTime = df.parse(av.getStarttime());
-			setValueVo(valueVo, av);
-			rList.add(valueVo);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		
-	}
+//	public void reSetVariablesAndAddVo(Double status, Integer feedStatus, Date minutsTime, AnaloghisVo av, StatusCurveVo valueVo, List<StatusCurveVo> rList){
+//		try {
+//			status = av.getAvalue();
+//			feedStatus = av.getFeedback();
+//			minutsTime = df.parse(av.getStarttime());
+//			setValueVo(valueVo, av);
+//			rList.add(valueVo);
+//		} catch (ParseException e) {
+//			e.printStackTrace();
+//		}
+//		
+//	}
 	
 	public void setValueVo(StatusCurveVo valueVo, AnaloghisVo av){
 		valueVo.setDebug(av.getDebug());
@@ -285,7 +319,7 @@ public class StatusCurveService implements SingleCurveInterface {
 				analogParamVo.setEndTime(analogParamVo.getDay().concat(" 23:59:59"));
 				analogParamVo.setStartTime(analogParamVo.getDay().concat(" 00:00:00"));
 			}else if("2".equals(analogParamVo.getModel())){
-				String st = analogParamVo.getEndTime() == null ? StaticUtilMethod.getNow() : analogParamVo.getDay().concat(" ").concat(analogParamVo.getEndTime()).concat(sec);
+				String st = analogParamVo.getEndTime() == null ? UtilMethod.getNow() : analogParamVo.getDay().concat(" ").concat(analogParamVo.getEndTime()).concat(sec);
 				analogParamVo.setEndTime(st);
 				analogParamVo.setStartTime(analogParamVo.getDay().concat(" ").concat(analogParamVo.getStartTime()).concat(sec));
 			}
@@ -321,6 +355,7 @@ public class StatusCurveService implements SingleCurveInterface {
 			String[]  k = static1 == null ? null : static1.getK().split("\"");
 			AnaloghisVo af =new AnaloghisVo();
 			af.setStarttime(vo.getStartTime());
+			setStartEndTime(af);
 			af.setAvalue(vo.getCutValue());
 			af.setFeedback(vo.getFeedValue());
 			af.setIp(sensor.getIp());
@@ -332,6 +367,8 @@ public class StatusCurveService implements SingleCurveInterface {
 					af.setStatus(k[1]);
 				else if(af.getAvalue() == 1 && k != null)
 					af.setStatus(k[3]);
+				else if (af.getAvalue() == 2)
+					af.setStatus("断线");
 			}else{
 				af.setStatus("断线");
 			}
@@ -351,25 +388,38 @@ public class StatusCurveService implements SingleCurveInterface {
 		return resultList;
 	}
 	
+	public void setStartEndTime (AnaloghisVo af) {
+		if (UtilMethod.notEmptyStr(af.getStarttime())) {
+			String start = af.getStarttime().substring(11, 13);
+			String startTime = start + ":00";
+			String endTime = (Integer.parseInt(start) + 1) + ":00";
+			af.setStartEndTime(startTime + "~" + endTime);
+		}
+	}
+	
 	public void setAlarm(AnaloghisVo af, SensorVo sensor){
 		try {
 			//报警状态
 			CopyOnWriteArrayList<AnalogQueryVo> list = map.get("alarm");
-			if(list != null && list.size() > 0){
+			if(UtilMethod.notEmptyList(list)){
 				for(AnalogQueryVo aqv : list){
-					if(StaticUtilMethod.isTimeString(af.getStarttime()) && 
-							StaticUtilMethod.isTimeString(aqv.getStartTime()) &&
-							StaticUtilMethod.isTimeString(aqv.getEndTime()) &&
-							StaticUtilMethod.isMid(af.getStarttime(), aqv.getStartTime(), aqv.getEndTime())){
-						af.setMeasure(aqv.getMeasure());
-						af.setAlarmStatus("报警");
+					if(UtilMethod.isTimeString(af.getStarttime()) && 
+							UtilMethod.isTimeString(aqv.getStartTime()) &&
+							UtilMethod.isTimeString(aqv.getEndTime()) &&
+							UtilMethod.isMid(af.getStarttime(), aqv.getStartTime(), aqv.getEndTime())){
+						String measure = aqv.getMeasure() == null ? "--" : aqv.getMeasure();
+						String measureTime = aqv.getMeasuretime() == null ? "--" : aqv.getMeasuretime();
+						af.setMeasure(measure + " / " + measureTime);
+						af.setAlarmStatus("报警/ " + aqv.getStartTime());
+						alarmEndTime = aqv.getEndTime();
 						break;
 					}
 				}
-			}
-			if(af.getAlarmStatus() == null){
-				af.setAlarmStatus("解除");
-			}
+			} 
+			if (af.getAlarmStatus() == null || af.getAlarmStatus() == "") {
+				String time = alarmEndTime != null ? alarmEndTime : "--";
+				af.setAlarmStatus("解除/ "+ time);
+			} 
 			
 			//断馈电状态
 			if(af.getStarttime().substring(17, 19).equals("00")){
@@ -390,7 +440,7 @@ public class StatusCurveService implements SingleCurveInterface {
 		List<String> powerStatusList = new ArrayList<String>();
 		//获取断馈电数据
 		List<Feedback> list = feedMap.get(key);
-		if(StaticUtilMethod.notNullOrEmptyList(list)){
+		if(UtilMethod.notEmptyList(list)){
 			for(Feedback fb : list){
 				SwitchSensor switchSensor = switchSensorMap.get(fb.getCut_devid());
 				if(null != switchSensor){

@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.DailyDao;
 import com.cm.dao.ICoalmineRouteDao;
@@ -127,7 +127,7 @@ public class DailyBaseService {
 			isSetVo(wi, worker);
 			count++;
 			
-			if(StaticUtilMethod.isLastRec(dailyRecByWorker, i+1))
+			if(UtilMethod.isLastRec(dailyRecByWorker, i+1))
 				dealWithLast(wi, worker);
 		}
 	}
@@ -163,7 +163,7 @@ public class DailyBaseService {
 	}
 	
 	public void getWellduration(String starttime, String endtime) throws ParseException{
-		LongStringVo lsv = StaticUtilMethod.longToTimeFormat(starttime, endtime);
+		LongStringVo lsv = UtilMethod.longToTimeFormat(starttime, endtime);
 		wellduration = lsv.getTimCast();
 	}
 	
@@ -194,7 +194,7 @@ public class DailyBaseService {
 			
 			isSetVo(wi, worker);
 			count++;
-			if(StaticUtilMethod.isLastRec(dailyRecByWorker, i+1))
+			if(UtilMethod.isLastRec(dailyRecByWorker, i+1))
 				dealWithLast(wi, worker);
 		}
 	}

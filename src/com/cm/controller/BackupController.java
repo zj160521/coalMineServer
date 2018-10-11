@@ -1,5 +1,6 @@
 package com.cm.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cm.controller.extrun.IRunCmd;
 import com.cm.controller.extrun.RunCheckDiskMemory;
 import com.cm.controller.extrun.RunFindMaster;
@@ -17,6 +18,7 @@ import com.cm.service.DbBackupLogService;
 import com.cm.service.RecomputeService;
 import com.cm.service.StaticService;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -43,6 +45,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
@@ -67,6 +70,9 @@ public class BackupController {
 	
 	private Jedis j=RedisClient.getInstance().getJedis();
 	
+	private SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private SimpleDateFormat format2 = new SimpleDateFormat("yyyy_MM_dd");
+	
 	public static final String path = "/opt/backupDB/";
 	public static final String importpath = "/opt/importDB/";
 	@Bean
@@ -76,7 +82,7 @@ public class BackupController {
 
 	private ScheduledFuture<?> future=null;
 	
-	public String gettable(String time){
+	public static String gettable(String time){
 		StringBuffer sb=new StringBuffer();
 		sb.append(" t_analog_statistics_"+time);
 		sb.append(" t_coalMine_"+time);
@@ -84,15 +90,113 @@ public class BackupController {
 		sb.append(" t_coalMine_route_"+time);
 		sb.append(" t_feedback_"+time);
 		sb.append(" t_gd5_"+time);
-		
 		return sb.toString();
 	}
 	
-	@RequestMapping(value = "/getFiles", method = RequestMethod.GET)
+	public static String gettable2(){
+		StringBuffer sb=new StringBuffer();
+		sb.append(" t_role");
+		sb.append(" t_permission");
+		sb.append(" t_static");
+		sb.append(" t_pageeditor");
+		sb.append(" t_line");
+		sb.append(" t_curvecolor");
+		sb.append(" t_area_neighbor");
+		sb.append(" t_alarm_measure");
+		sb.append(" t_user");
+		sb.append(" t_sensor_log");
+		sb.append(" t_mid_permission");
+		sb.append(" t_district");
+		sb.append(" t_equipment");
+		sb.append(" t_worker");
+		sb.append(" t_worktype");
+		sb.append(" t_filecontent");
+		sb.append(" t_classes");
+		sb.append(" t_work_basic");
+		sb.append(" t_department");
+		sb.append(" t_worker_position");
+		sb.append(" t_drainage");
+		sb.append(" t_switch_sensor");
+		sb.append(" t_sensor");
+		sb.append(" t_sensor_information");
+		sb.append(" t_radio");
+		sb.append(" t_user_log");
+		sb.append(" t_substation");
+		sb.append(" t_license");
+		sb.append(" t_locationinfo");
+		sb.append(" t_cardreder");
+		sb.append(" t_callinfo");
+		sb.append(" t_area");
+		sb.append(" t_env_area");
+		sb.append(" t_area_worker");
+		sb.append(" t_analoginfo");
+		sb.append(" t_workerInAreaRec");
+		sb.append(" t_switchinfo");
+		sb.append(" t_communication_interrupt");
+		sb.append(" t_maporg");
+		sb.append(" t_video");
+		sb.append(" t_overtime_alarm");
+		sb.append(" t_gd5_sum");
+		sb.append(" t_connection");
+		sb.append(" t_sensor2switch");
+		sb.append(" t_switch2switch");
+		sb.append(" t_sensor2cardreader");
+		sb.append(" t_switch2cardreader");
+		sb.append(" t_workerTrackRecord");
+		sb.append(" t_analoginfo_query");
+		sb.append(" t_sensor_report");
+		sb.append(" t_system_control");
+		sb.append(" t_system_linktogether");
+		sb.append(" t_radio_sound");
+		sb.append(" t_config");
+		sb.append(" t_rsa_key");
+		sb.append(" t_daily");
+		sb.append(" t_area_daily");
+		sb.append(" t_overman");
+		sb.append(" t_worker_unconnection");
+		sb.append(" t_worker_area_warn");
+		sb.append(" t_worker_exit_warn");
+		sb.append(" t_door_card");
+		sb.append(" t_dev_link");
+		sb.append(" t_dev_logic_group");
+		sb.append(" t_dev_logic");
+		sb.append(" t_dev_action");
+		sb.append(" t_unattendance");
+		sb.append(" t_switch_efficiency");
+		sb.append(" t_callhelp");
+		sb.append(" t_switch_statechange");
+		sb.append(" t_sensor_alarmreport");
+		sb.append(" t_dbbackup_log");
+		sb.append(" t_windwatt_sensor");
+		sb.append(" t_windwatt");
+		sb.append(" t_exitcheck");
+		sb.append(" t_areaconfig_change_rec");
+		sb.append(" t_area_rule");
+		sb.append(" t_area_static_cfg");
+		sb.append(" t_area_type");
+		sb.append(" t_position_type");
+		sb.append(" t_area_pos");
+		sb.append(" t_area_sensor");
+		sb.append(" t_calibrationData");
+		sb.append(" t_area_attrib");
+		sb.append(" t_gd5_statistics");
+		return sb.toString();
+	}
+	
+	@RequestMapping(value = "/getFiles", method = RequestMethod.POST)
 	@ResponseBody
-	public Object getFiles(HttpServletRequest request) {
+	public Object getFiles(HttpServletRequest request,@RequestBody NameTime nameTime) {
 		if (!loginManage.isUserLogin(request)) {
 			return result.setStatus(-1, "no login");
+		}
+		Date start = null;
+		Date end = null;
+		try {
+			start = format.parse(nameTime.getStarttime());
+			end = format.parse(nameTime.getEndtime());
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return result.setStatus(-2, "错误！");
 		}
 		
 		RunFindMaster runcmd = new RunFindMaster();
@@ -112,12 +216,26 @@ public class BackupController {
 					if(a.length>9){
 						int num = (a.length-2)/9;
 						for(int i=0;i<num;i++){
+							//筛选时间内所有文件
+							Date time=null;
+							try {
+								time=format2.parse(a[i*9+10].substring(0, 10));
+							} catch (Exception e) {
+								time=null;
+							}
+							
+							if(time!=null){
+								if(!belongCalendar(time,start,DateUtils.addDays(end, 1))){
+									continue;
+								}
+							}
+							
 							FileVo file=new FileVo();
 							file.setFilename(a[i*9+10]);
 							double num2=Double.parseDouble(a[i*9+6])/(1024*1024);
 							double value =new BigDecimal(num2).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
 							file.setSize(value);
-							file.setCreatTime(a[i*9+7]+a[i*9+8]);
+							file.setCreatTime(a[i*9+7]+a[i*9+8]+"日"+a[i*9+9]);
 							list.add(file);
 						}
 					}
@@ -129,6 +247,30 @@ public class BackupController {
 		return result.setStatus(0, "ok");
 	}
 	
+	/**
+	 * 判断时间是否在时间段内
+	 * @param nowTime
+	 * @param beginTime
+	 * @param endTime
+	 * @return
+	 */
+	public  boolean belongCalendar(Date nowTime, Date beginTime, Date endTime) {
+	    Calendar date = Calendar.getInstance();
+	    date.setTime(nowTime);
+	    Calendar begin = Calendar.getInstance();
+	    begin.setTime(beginTime);
+	    Calendar end = Calendar.getInstance();
+	    end.setTime(endTime);
+	    if (date.after(begin) && date.before(end)) {
+	        return true;
+	    }else if(nowTime.compareTo(beginTime)==0 || nowTime.compareTo(endTime) == 0 ){
+	    	return true;
+	    }else {
+	        return false;
+	    }
+	}
+
+	
 	@RequestMapping(value = "/data", method = RequestMethod.POST)
 	@ResponseBody
 	public Object data(@RequestBody Backup b,HttpServletRequest request) {
@@ -139,7 +281,9 @@ public class BackupController {
 		String pe=ConfigUtil.getInstance().getSys_ip();
 		createPath(path);
 		backData(ma,pe,b.getStarttime());
-		
+		String remark = JSONObject.toJSONString(b);
+        String operation2 = "进行手动备份，备份文件：" + b.getStarttime()+".sql.gz";
+		loginManage.addLog(request, remark, operation2, 118);
 		return result.setStatus(0, "ok");
 	}
 	
@@ -149,7 +293,9 @@ public class BackupController {
 		m.put("type", "1");
 		m.put("password", cfg.getDb_pass());
 		m.put("filename", starttime+".sql.gz");
+		m.put("filename2", "config.sql.gz");
 		m.put("table", gettable(starttime));
+		m.put("table2", gettable2());
 		m.put("ip", ip);
 		m.put("ip2", ip2);
 		BackupDbThread back=BackupDbThread.getInstance(m,service,ip);
@@ -168,10 +314,10 @@ public class BackupController {
 		if (!loginManage.isUserLogin(request)) {
 			return result.setStatus(-1, "no login");
 		}
-		
+		String fileName=null;
 		try {
 			createPath(importpath);
-			String fileName = getfileName(request, "file");
+			fileName = getfileName(request, "file");
 			if (fileName.contains(".sql.gz")) {
 				fileUpload(request, importpath, "file");
 			}else{
@@ -195,6 +341,9 @@ public class BackupController {
 			LogOut.log.info("导入数据异常：", e);
 			return result.setStatus(-2, "文件导入错误！");
 		}
+		String remark = JSONObject.toJSONString(fileName);
+        String operation2 = "进行备份导入，文件名：" + fileName;
+		loginManage.addLog(request, remark, operation2, 118);
 		return result.setStatus(0, "ok");
 	}
 	
@@ -256,14 +405,14 @@ public class BackupController {
 	@RequestMapping(value = "/startCron", method = RequestMethod.GET)
     @ResponseBody
     public Object startCron(){
-		if(future==null||future.isCancelled()){
+		if(future==null){
 			LogOut.log.debug(">>>>>>开始自动备份");
 			createPath(path);
 			Static<T> s=staticService.getPositionByid(9527);
 			Map<String,String> m=new HashMap<String,String>();
-			m.put("password", cfg.getDb_pass());
 			m.put("path", path);
 			m.put("type", "0");
+			m.put("password", cfg.getDb_pass());
 			ThreadPoolTaskScheduler tpts=new ThreadPoolTaskScheduler();
 			tpts.initialize();
 			String ip="";
@@ -272,13 +421,13 @@ public class BackupController {
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			}
-	        future =tpts.schedule(BackupDbThread.getInstance(m,service,ip), new CronTrigger("0 0 "+s.getV()+" * * ?"));
+	        future =tpts.schedule(BackupDbAutoThread.getInstance(m,service,ip), new CronTrigger("0 0 "+s.getV()+" * * ?"));
 	        return result.setStatus(0, "ok");
 		}else{
 			return result.setStatus(-2, "开始新备份任务前，请先关闭旧任务！");
 		}
     }
-     
+    
     @RequestMapping(value = "/stopCron", method = RequestMethod.GET)
     @ResponseBody
     public Object stopCron(HttpServletRequest request){
@@ -393,7 +542,9 @@ public class BackupController {
     	}else{
     		return result.setStatus(-2, "参数错误！");
     	}
-    	
+    	String remark = JSONObject.toJSONString(s);
+        String operation2 = "定时备份设置时间：" + s.getV()+"点";
+		loginManage.addLog(request, remark, operation2, 118);
         return result.setStatus(0, "ok");
     }
     
@@ -431,17 +582,21 @@ public class BackupController {
 	@RequestMapping(value = "/test", method = RequestMethod.GET)
 	@ResponseBody
 	public Object test(HttpServletRequest request) {
-		String[] cmd=new String[]{"/bin/sh","-c","/usr/bin/mysqldump -ucoalmine  -p'!@#qwe' coalmine >/opt/coalmine.sql"};
+		LogOut.log.debug(">>>>>>开始自动备份");
+		createPath(path);
+		Map<String,String> m=new HashMap<String,String>();
+		m.put("path", path);
+		m.put("type", "0");
+		m.put("password", cfg.getDb_pass());
+		String ip="";
 		try {
-			Process process=Runtime.getRuntime().exec(cmd);
-			int exitcode = process.waitFor();
-			process.destroy();
-			result.put("value", exitcode);
-		} catch (Exception e) {
-			result.put("exc", e.getMessage());
+			ip = InetAddress.getLocalHost().getHostAddress().toString();
+		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		
+		BackupDbAutoThread bd=BackupDbAutoThread.getInstance(m,service,ip);
+		Thread t=new Thread(bd);
+		t.start();
 		return result.setStatus(0, "ok");
 	}
 	
@@ -481,16 +636,10 @@ public class BackupController {
 		Map<String,String> workinarea=new HashMap<String,String>();
 		List<WorkerInAreaRec> wiars=new ArrayList<WorkerInAreaRec>();
 		for(Coalmine_route cr:list){
-//			if(cr.getCard()==7){
-//				LogOut.log.debug("补传debug list排序："+cr.getCard()+" = "+cr.getDev_id()+" ; "+cr.getResponsetime());
-//			}
 			compute2(cr,wiars,workinarea,area,smap);
 		}
 		//删除
 		recomservice.del(time2, c.getCard());
-//		if(c.getCard()==7){
-//			LogOut.log.debug("补传debug："+c.getCard()+" = "+wiars.size());
-//		}
 		//批量插入
 		int count=0;
 		List<WorkerInAreaRec> newlist=new ArrayList<WorkerInAreaRec>();

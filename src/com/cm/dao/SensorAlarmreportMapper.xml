@@ -4,34 +4,49 @@
 <mapper namespace="com.cm.dao.SensorAlarmreportDao">
 	
 	<insert id="addAlarmreport">
-		insert into t_sensor_alarmreport(ip,sensorId,sensor_type,position,maxvalues,maxtime,avgvalue,starttime,endtime,times,status,measures,measurestime,powercom,powerposition,feedstatus,filltime,debug,feeduid)
+		insert into t_sensor_alarmreport(ip,sensorId,sensor_type,position,maxvalues,maxtime,avgvalue,starttime,endtime,times,
+		status,measures,measurestime,powercom,powerposition,feedstatus,filltime,debug,feeduid,classname,classstart,classend)
 		values
 		<foreach collection="list" item="s" index="index" separator=",">
-		(#{s.ip},#{s.sensorId},#{s.sensor_type},#{s.position},#{s.maxvalues},#{s.maxtime},#{s.avgvalue},#{s.starttime},#{s.endtime},#{s.times},#{s.status},#{s.measures},#{s.measurestime},#{s.powercom},#{s.powerposition},#{s.feedstatus},#{s.filltime},#{s.debug},0)
+		(#{s.ip},#{s.sensorId},#{s.sensor_type},#{s.position},#{s.maxvalues},#{s.maxtime},#{s.avgvalue},#{s.starttime},
+		#{s.endtime},#{s.times},#{s.status},#{s.measures},#{s.measurestime},#{s.powercom},#{s.powerposition},#{s.feedstatus},
+		#{s.filltime},#{s.debug},0,#{s.classname},#{s.classstart},#{s.classend})
 		</foreach> 
-		on duplicate key update position=values(position),maxvalues=values(maxvalues),maxtime=values(maxtime),avgvalue=values(avgvalue),endtime=values(endtime),times=values(times),measures=values(measures),measurestime=values(measurestime),
-		powercom=values(powercom),powerposition=values(powerposition),feedstatus=values(feedstatus),filltime=values(filltime),debug=values(debug)
+		on duplicate key update position=values(position),maxvalues=values(maxvalues),maxtime=values(maxtime),avgvalue=values(avgvalue),
+		endtime=values(endtime),times=values(times),measures=values(measures),measurestime=values(measurestime),powercom=values(powercom),
+		powerposition=values(powerposition),feedstatus=values(feedstatus),filltime=values(filltime),debug=values(debug),classname=values(classname),
+		classstart=values(classstart),classend=values(classend)
 	</insert>
 	
 	
 	<insert id="addPowerReport">
-		insert into t_sensor_alarmreport(ip,sensorId,sensor_type,position,maxvalues,maxtime,avgvalue,starttime,endtime,times,status,measures,measurestime,powercom,powerposition,feedstatus,filltime,debug,feeduid)
+		insert into t_sensor_alarmreport(ip,sensorId,sensor_type,position,maxvalues,maxtime,avgvalue,starttime,endtime,times,
+		status,measures,measurestime,powercom,powerposition,feedstatus,filltime,debug,feeduid,classname,classstart,classend)
 		values
 		<foreach collection="list" item="s" index="index" separator=",">
-		(#{s.ip},#{s.sensorId},#{s.sensor_type},#{s.position},#{s.maxvalues},#{s.maxtime},#{s.avgvalue},#{s.starttime},#{s.endtime},#{s.times},#{s.status},#{s.measures},#{s.measurestime},#{s.powercom},#{s.powerposition},#{s.feedstatus},#{s.filltime},#{s.debug},0)
+		(#{s.ip},#{s.sensorId},#{s.sensor_type},#{s.position},#{s.maxvalues},#{s.maxtime},#{s.avgvalue},#{s.starttime},
+		#{s.endtime},#{s.times},#{s.status},#{s.measures},#{s.measurestime},#{s.powercom},#{s.powerposition},#{s.feedstatus},
+		#{s.filltime},#{s.debug},0,#{s.classname},#{s.classstart},#{s.classend})
 		</foreach>
-		on duplicate key update position=values(position),maxvalues=values(maxvalues),maxtime=values(maxtime),avgvalue=values(avgvalue),endtime=values(endtime),times=values(times),measures=values(measures),measurestime=values(measurestime),
-		powercom=values(powercom),powerposition=values(powerposition),feedstatus=values(feedstatus),filltime=values(filltime),debug=values(debug) 
+		on duplicate key update position=values(position),maxvalues=values(maxvalues),maxtime=values(maxtime),avgvalue=values(avgvalue),
+		endtime=values(endtime),times=values(times),measures=values(measures),measurestime=values(measurestime),powercom=values(powercom),
+		powerposition=values(powerposition),feedstatus=values(feedstatus),filltime=values(filltime),debug=values(debug),classname=values(classname),
+		classstart=values(classstart),classend=values(classend) 
 	</insert>
 	
 	<insert id="addRepowerReport">
-		insert into t_sensor_alarmreport(ip,sensorId,sensor_type,position,maxvalues,maxtime,avgvalue,starttime,endtime,times,status,measures,measurestime,powercom,powerposition,feedstatus,filltime,debug,feeduid)
+		insert into t_sensor_alarmreport(ip,sensorId,sensor_type,position,maxvalues,maxtime,avgvalue,starttime,endtime,times,
+		status,measures,measurestime,powercom,powerposition,feedstatus,filltime,debug,feeduid,classname,classstart,classend)
 		values
 		<foreach collection="list" item="s" index="index" separator=",">
-		(#{s.ip},#{s.sensorId},#{s.sensor_type},#{s.position},#{s.maxvalues},#{s.maxtime},#{s.avgvalue},#{s.starttime},#{s.endtime},#{s.times},#{s.status},#{s.measures},#{s.measurestime},#{s.powercom},#{s.powerposition},#{s.feedstatus},#{s.filltime},#{s.dubug},#{s.feeduid})
+		(#{s.ip},#{s.sensorId},#{s.sensor_type},#{s.position},#{s.maxvalues},#{s.maxtime},#{s.avgvalue},#{s.starttime},
+		#{s.endtime},#{s.times},#{s.status},#{s.measures},#{s.measurestime},#{s.powercom},#{s.powerposition},#{s.feedstatus},
+		#{s.filltime},#{s.dubug},#{s.feeduid},#{s.classname},#{s.classstart},#{s.classend})
 		</foreach>
-		on duplicate key update position=values(position),maxvalues=values(maxvalues),maxtime=values(maxtime),avgvalue=values(avgvalue),endtime=values(endtime),times=values(times),measures=values(measures),measurestime=values(measurestime),
-		powercom=values(powercom),powerposition=values(powerposition),feedstatus=values(feedstatus),filltime=values(filltime),debug=values(debug) 
+		on duplicate key update position=values(position),maxvalues=values(maxvalues),maxtime=values(maxtime),avgvalue=values(avgvalue),
+		endtime=values(endtime),times=values(times),measures=values(measures),measurestime=values(measurestime),powercom=values(powercom),
+		powerposition=values(powerposition),feedstatus=values(feedstatus),filltime=values(filltime),debug=values(debug),classname=values(classname),
+		classstart=values(classstart),classend=values(classend)  
 	</insert>
 	
 	<select id="isexisting" parameterType="com.cm.entity.SensorAlarmreport" resultType="int">

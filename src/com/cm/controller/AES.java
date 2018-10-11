@@ -14,7 +14,7 @@ public class AES {
 	
 	/**
 	  * 针对txt加密
-	  * @param openFile 要加密的文件
+	  * @param fileData 要加密的文件
 	  * @param saveFile  加密后的文件
 	  * @param state  明文
 	  * @param key 密钥
@@ -24,7 +24,7 @@ public class AES {
 	 * @throws IOException 
 	  */
 	 @SuppressWarnings("resource")
-	public static int  encrypt(StringBuffer openFile,String saveFile,String key,int Nb,int Nk) throws IOException {
+	public static int  encrypt(StringBuffer fileData,String saveFile,String key,int Nb,int Nk) throws IOException {
 		 
 		 int Nr = 10 ;      //轮密钥加的轮数
 	//	 	  File  saveF = new File(openFile);
@@ -33,7 +33,7 @@ public class AES {
 	//	 	 //以二进制读的方式打开要加密的文件；
 	//	     //以二进制写的方式打开保存密文的文件；   
 	//	     FileInputStream fp1 = new FileInputStream(openFile);
-		 InputStream fp1 = new ByteArrayInputStream(openFile.toString().getBytes("UTF-8"));
+		 InputStream fp1 = new ByteArrayInputStream(fileData.toString().getBytes("UTF-8"));
 	     FileOutputStream fp2 = new FileOutputStream(saveFile,true);
 	     
 	     int Length = fp1.available();       //得到要加密的文件的长度；
@@ -78,7 +78,7 @@ public class AES {
 	 * @throws IOException 
 	  */
 	 @SuppressWarnings("resource")
-	public static String  decrypt(InputStream fp1,String saveFile,String key,int Nb,int Nk) throws IOException{
+	public static String decrypt(InputStream fp1,String saveFile,String key,int Nb,int Nk) throws IOException{
 		 int Nr = 10 ;      //轮密钥加的轮数
 //		 File  openF = new File(openFile);
 //		 if((!openF.exists()) || openF.isDirectory())

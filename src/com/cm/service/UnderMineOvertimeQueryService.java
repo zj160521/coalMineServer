@@ -10,7 +10,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 import com.cm.dao.IWorkerWarningFactory;
 import com.cm.entity.vo.LocalizeVo;
@@ -53,7 +53,7 @@ public class UnderMineOvertimeQueryService implements IWorkerWarningFactory{
 				localize.setEndtime(offWork);
 				long overTime = longTimeCast - 28800000;
 				
-				String countTimeCast = StaticUtilMethod.countTimeCast(overTime);
+				String countTimeCast = UtilMethod.countTimeCast(overTime);
 				
 				localize.setWellduration(countTimeCast);
 				

@@ -1,6 +1,7 @@
 package com.cm.controller;
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.cm.dao.DevLinkDao;
 import com.cm.dao.ISwitchDao;
 import com.cm.entity.DevAction;
@@ -11,12 +12,14 @@ import com.cm.entity.vo.DevLogicVo;
 import com.cm.entity.vo.WindwattVo;
 import com.cm.security.LoginManage;
 import com.cm.service.WindwattService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -71,6 +74,11 @@ public class WindwattController {
 					deleteDev(windwatt.getId());
 					addDevdata(windwatt);
 				}
+				String remark = JSONObject.toJSONString(windwatt);
+                String operation2 = "修改风瓦点闭锁配置:" + windwatt.getName();
+                loginManage.addLog(request, remark, operation2, 1541);
+                result.clean();
+                result.put("success", 0);
 			}else if(windwatt.getId()==0){
 				Windwatt windwatt2 = service.addWindwatt(windwatt);
 				windwatt.setId(windwatt2.getId());
@@ -82,6 +90,11 @@ public class WindwattController {
 					deleteDev(windwatt.getId());
 					addDevdata(windwatt);
 				}
+				String remark = JSONObject.toJSONString(windwatt);
+                String operation2 = "添加风瓦点闭锁配置:" + windwatt.getName();
+                loginManage.addLog(request, remark, operation2, 1541);
+                result.clean();
+                result.put("success", 0);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -91,6 +104,7 @@ public class WindwattController {
 	}
 	
 	
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.GET)
 	@ResponseBody
 	public Object deleteWindwatt(@PathVariable int id, HttpServletRequest request) {
@@ -101,10 +115,16 @@ public class WindwattController {
 		if (null != per)
 			return per;
 		try {
+			List<Windwatt> list = service.getallWindwatt(id);
+			Windwatt windwatt = list.get(0);
 			service.deleteWindwattSensor(id);
 			service.deleteWindwatt(id);
 			deleteDev(id);
-			
+			String remark = JSONObject.toJSONString(windwatt);
+            String operation2 = "删除风瓦点闭锁配置:" + windwatt.getName();
+            loginManage.addLog(request, remark, operation2, 1541);
+            result.clean();
+            result.put("success", 0);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return result.setStatus(-4, "删除风瓦电闭锁配置出错！");
@@ -121,7 +141,7 @@ public class WindwattController {
 		}
 		
 		try {
-			List<Windwatt> list = service.getallWindwatt();
+			List<Windwatt> list = service.getallWindwatt(0);
 			result.put("data", list);
 			
 		} catch (Exception e) {

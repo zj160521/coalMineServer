@@ -37,7 +37,7 @@ public interface WindwattDao {
 	public void deleteWindwattSensor(@Param("windwattId")int windwattId);
 	
 	@SuppressWarnings("rawtypes")
-	public List<Windwatt> getallWindwatt();
+	public List<Windwatt> getallWindwatt(@Param("id")int id);
 	
 	public List<WindwattVo> getWindwattSensor(@Param("windwattId")int windwattId);
 	

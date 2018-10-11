@@ -39,11 +39,17 @@ public class PageeditorController {
                 String jsonString = JSON.toJSONString(list);
                 editor.setStr(jsonString);
                 pageeditorService.update(editor);
+                String remark = JSONObject.toJSONString(editor);
+                String operation2 = "修改列表显示";
+                loginManage.addLog(request, remark, operation2,167);
             }else {
                 List<Object> list = editor.getList();
                 String jsonString = JSON.toJSONString(list);
                 editor.setStr(jsonString);
                 pageeditorService.add(editor);
+                String remark = JSONObject.toJSONString(editor);
+                String operation2 = "增加列表显示";
+                loginManage.addLog(request, remark, operation2,167);
             }
         } catch (Exception e){
             e.printStackTrace();

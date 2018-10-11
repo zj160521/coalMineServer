@@ -30,7 +30,7 @@ import com.cm.security.LoginManage;
 import com.cm.service.ConfigService;
 
 import sun.misc.BASE64Decoder;
-import util.StaticUtilMethod;
+import util.UtilMethod;
 
 @Scope("prototype")
 @Controller
@@ -59,6 +59,7 @@ public class RSADecryptFileController {
 			
 			MultipartFile file = getFile(request, "file");
 			String filename = file.getOriginalFilename();
+			loginManage.addLog(request, "", "解密文件："+ filename, 1517);
 			// 去除文件名中的括号
 			String wipeOffParenthesisFileName = wipeOffParenthesis(filename);
 			// 文件解密
@@ -113,7 +114,7 @@ public class RSADecryptFileController {
 	// 获取明文文件内容
 	public String getUndecryptData(String fileName){
 		String unencryptFilePath = cfgService.get("unencrypt_file");
-		if(!StaticUtilMethod.notNullOrEmptyStr(unencryptFilePath)){
+		if(!UtilMethod.notEmptyStr(unencryptFilePath)){
 			unencryptFilePath = "/opt/unencrypt_file";
 		}
 		

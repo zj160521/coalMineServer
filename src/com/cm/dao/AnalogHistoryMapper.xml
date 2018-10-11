@@ -5,7 +5,7 @@
 <mapper namespace="com.cm.dao.AnalogHistoryDao">
 	
 	<select id="getRealTimeRec" parameterType="com.cm.entity.vo.AnalogParamVo" resultType="com.cm.entity.vo.AnaloghisVo">
-		SELECT ip,devid,`value` avalue,DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') starttime,debug,status dataStatus,`level`
+		SELECT ip,devid,`value` avalue,DATE_FORMAT(responsetime,'%Y-%m-%d %H:%i:%S') starttime,debug,status dataStatus,`level`,changing
 		FROM t_coalMine
 		<where>
 			<if test="devid >= 0">
@@ -152,7 +152,7 @@
 	</select>
 	
 	<select id="getSensor" parameterType="java.util.LinkedList" resultType="com.cm.entity.vo.SensorVo">
-		SELECT st.id positionId,st.v position,s.alais,s.limit_alarm upper_level1,s.limit_power,s.limit_repower,s.floor_alarm floor_level1,
+		SELECT st.id positionId,st.v position,s.alais,s.upper_level1 limit_alarm,s.limit_power,s.limit_repower,s.floor_level1 floor_alarm ,
 		s.floor_power,s.floor_repower,ar.areaname,s.devlinkId,s.floorDevlinkId,st2.k unit
 		FROM t_sensor s
 		LEFT JOIN t_substation sub ON s.station = sub.id
@@ -190,7 +190,7 @@
 			(ipaddr = #{it.ip} AND sensorId = #{it.devid})
 		</foreach>
 		union all
-		SELECT st.v position,s.alais,s.limit_alarm upper_level1,s.limit_power,s.limit_repower,s.floor_alarm floor_level1,s.floor_power,s.floor_repower,ar.areaname,s.sensor_type type 
+		SELECT st.v position,s.alais,s.upper_level1 limit_alarm,s.limit_power,s.limit_repower,s.floor_level1 floor_alarm,s.floor_power,s.floor_repower,ar.areaname,s.sensor_type type 
 		FROM t_sensor s
 		LEFT JOIN t_substation sub ON s.station = sub.id
 		LEFT JOIN t_static st ON st.id = s.sensor_position
@@ -206,7 +206,12 @@
 		SELECT sensor_id,startId,endId,type,`status`,ip,DATE_FORMAT(startTime,'%Y-%m-%d %H:%i:%S') startTime,
 		DATE_FORMAT(IFNULL(endTime,NOW()),'%Y-%m-%d %H:%i:%S') endTime,measure,DATE_FORMAT(measuretime,'%Y-%m-%d %H:%i:%S') measuretime
 		FROM t_analoginfo_query
-		WHERE sensor_id = #{0} AND ip = #{1} AND startTime &lt;= #{3} and IFNULL(endTime,NOW()) >= #{2}
+		WHERE startTime &lt;= #{3} AND IFNULL(endTime,NOW()) >= #{2} AND sensor_id = #{0} AND ip = #{1}
+	</select>
+	
+	<select id="getAlarmEndTime" resultType="java.lang.String">
+		SELECT DATE_FORMAT(MAX(endTime),'%Y-%m-%d %H:%i:%S') endTime FROM t_analoginfo_query 
+		WHERE endTime &lt; #{0} AND sensor_id = #{1} AND ip = #{2}
 	</select>
 	
 	<select id="getCutDevAlarmRecs" resultType="com.cm.entity.vo.AnalogQueryVo">

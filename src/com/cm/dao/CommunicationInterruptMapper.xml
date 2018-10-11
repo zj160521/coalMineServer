@@ -13,11 +13,11 @@
 		LEFT JOIN t_substation c ON a.station=c.id WHERE a.isDrainage=0)f ON a.ip=f.ipaddr AND a.sensor_id=f.sensorId AND a.type=f.sensor_type
 		<where>
 			(a.status=5 or a.debug=1 or a.debug=2)
-			<if test="starttime!=null and endtime!=null">
+			<if test="starttime!=null and endtime!=null and endtime!=''">
 			AND	a.startTime<![CDATA[>=]]> #{starttime}
 			AND a.startTime<![CDATA[<=]]> #{endtime}
 			</if>
-			<if test="starttime!=null and endtime==null">
+			<if test="endtime=='' or endtime==null">
 			AND TO_DAYS(a.startTime)=TO_DAYS(#{starttime})
 			</if>
 			<if test="id>0">
@@ -45,11 +45,11 @@
 		LEFT JOIN t_substation c ON a.station=c.id WHERE a.isDrainage=0)f ON a.ip=f.ipaddr AND a.sensor_id=f.sensorId AND a.type=f.sensor_type
 		<where>
 			(a.status=5 or a.debug=1 or a.debug=2)
-			<if test="starttime!=null and endtime!=null">
+			<if test="starttime!=null and endtime!=null and endtime!=''">
 			AND	a.startTime<![CDATA[>=]]> #{starttime}
 			AND a.startTime<![CDATA[<=]]> #{endtime}
 			</if>
-			<if test="starttime!=null and endtime==null">
+			<if test="endtime=='' or endtime==null">
 			AND TO_DAYS(a.startTime)=TO_DAYS(#{starttime})
 			</if>
 			<if test="id>0">

@@ -16,12 +16,14 @@ import com.cm.entity.vo.DevlinkSensor;
 import com.cm.security.LoginManage;
 import com.cm.service.*;
 import com.cm.service.kafka.ConfigSyncThread;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,6 +60,7 @@ public class SwitchSensorController {
 	
 	private static final String RADIO_ACTION = "broadcast";
 	private static final String CUTOUT_ACTION = "cutout";
+	private static final String CARDREADER_ACTION = "call";
 
 	/**
 	 * 查询所有开关量传感器
@@ -242,11 +245,11 @@ public class SwitchSensorController {
 			SwitchSensor sensor2 = sensorService.getById(id);
 			DevLink link = new DevLink();
 			link.setLogic_uid(sensor2.getUid());
-			devService.deleteBasisDevlink(link);
 			sensorService.delete(id);
 			String remark = JSONObject.toJSONString(sensor2);
 			String operation2 = "删除开关量设备" + sensor2.getAlais();
 			loginManage.addLog(request, remark, operation2, 15141);
+            devService.deleteBasisDevlink(link);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return result.setStatus(-4, "exception");
@@ -321,6 +324,10 @@ public class SwitchSensorController {
         		}
         		if(d.getSensor_type()==65){
         			link.setAction(RADIO_ACTION);
+        			link.setParam(""+d.getAction());
+        		}
+        		if(d.getSensor_type()==64){
+        			link.setAction(CARDREADER_ACTION);
         			link.setParam(""+d.getAction());
         		}
         		links.add(link);

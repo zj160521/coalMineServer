@@ -16,6 +16,24 @@ public class CurveColor {
     private String initialColor;
     private String unusualvalue;
     private String calibratevalue;
+    private String changing2value;
+    private String changing3value;
+
+    public String getChanging2value() {
+        return changing2value;
+    }
+
+    public void setChanging2value(String changing2value) {
+        this.changing2value = changing2value;
+    }
+
+    public String getChanging3value() {
+        return changing3value;
+    }
+
+    public void setChanging3value(String changing3value) {
+        this.changing3value = changing3value;
+    }
 
     public String getUnusualvalue() {
         return unusualvalue;

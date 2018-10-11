@@ -1,5 +1,6 @@
 package com.cm.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cm.entity.Equipments;
 import com.cm.entity.Static;
 import com.cm.entity.Substation;
@@ -44,6 +45,7 @@ public class EquipmentsController {
 		}
 		try {
 			if(equip.getId()>0){
+                String operation2 = "";
 				if(equip.getType()==104){
 					String regex = "^(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])$";
 					if (null==equip.getIp()||!equip.getIp().matches(regex)) {
@@ -56,6 +58,7 @@ public class EquipmentsController {
 							return result.setStatus(-2, "系统中IP地址不能相同");
 						}
 					}
+                    operation2 = "修改交换机";
 				}
 				if(equip.getType()==72){
 					Equipments equipments = equipService.getById(equip.getId());
@@ -70,6 +73,7 @@ public class EquipmentsController {
 							result.put("isuse", 0);
 						}
 					}
+                    operation2 = "修改电源设备" + equip.getAlais();
 				}
 				if (null == equip.getPosition()) {
 					result.clean();
@@ -83,9 +87,12 @@ public class EquipmentsController {
 					equip.setPositionId(sta.getId());
 				}
 				equipService.update(equip);
+                String remark = JSONObject.toJSONString(equip);
+                loginManage.addLog(request, remark, operation2, 141);
 			}else{
 				String uid = "";
                 String alais = "";
+                String operation2 = "";
 				if(equip.getType()==72){
 					// 判断设备id是否重复
                     String isuse = stationService.isuse(equip.getStationId(), equip.getDevid());
@@ -103,6 +110,7 @@ public class EquipmentsController {
 					String string = ipaddr.substring(i+1);
 					alais = "G"+string+"P"+equip.getDevid();
 					equip.setAlais(alais);
+                    operation2 = "增加电源设备" + alais;
 				}
 				if(equip.getType()==104){
 					String regex = "^(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9])\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[1-9]|0)\\.(25[0-5]|2[0-4][0-9]|[0-1]{1}[0-9]{2}|[1-9]{1}[0-9]{1}|[0-9])$";
@@ -115,6 +123,7 @@ public class EquipmentsController {
 							return result.setStatus(-2, "系统中IP地址不能相同");
 						}
 					}
+                    operation2 = "增加交换机";
 				}
 				if (null == equip.getPosition()) {
 					result.clean();
@@ -128,6 +137,8 @@ public class EquipmentsController {
 					equip.setPositionId(sta.getId());
 				}
 				equipService.add(equip);
+				String remark = JSONObject.toJSONString(equip);
+				loginManage.addLog(request, remark, operation2, 141);
 				if(equip.getType()==72){
                     uid = "OT"+equip.getId()+alais;
                     equipService.updateUid(equip.getId(), uid);
@@ -187,7 +198,18 @@ public class EquipmentsController {
 			return result.setStatus(-1, "no login");
 		}
 		try {
-			equipService.delete(id);
+            Equipments equipments = equipService.getById(id);
+            String remark = JSONObject.toJSONString(equipments);
+            String operation2 = "";
+            if (equipments.getType() == 104) {
+                operation2 = "删除交换机";
+            } else if (equipments.getType() == 72) {
+                operation2 = "删除电源箱";
+            } else {
+                operation2 = "删除系统设备";
+            }
+            loginManage.addLog(request, remark, operation2, 141);
+            equipService.delete(id);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return result.setStatus(-4, "exception");
